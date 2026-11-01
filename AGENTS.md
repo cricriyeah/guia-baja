@@ -10,7 +10,7 @@ Diseño completo: `docs/specs/2026-10-30-guia-baja-design.md`. Diseño visual de
 
 ## Versiones fijas
 
-- Node ≥ 24.22.1, npm. Payload 3.92.1, Next.js 16.4.3 (mínimos del spec: Payload ≥ 3.73, Next ≥ 16.2.6).
+- Node 24.x desde 24.22.1 (`engines`: `^24.22.1`, así Vercel no salta solo a otra versión mayor), npm. Payload 3.92.1, Next.js 16.4.3 (mínimos del spec: Payload ≥ 3.73, Next ≥ 16.2.6).
 - Versiones exactas en `package.json` (sin `^`). No usar Cache Components ni PPR.
 
 ## Comandos

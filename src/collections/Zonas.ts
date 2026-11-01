@@ -1,9 +1,16 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, FieldHook } from 'payload'
 
 import { soloPersonal, zonasPublicas } from '../acceso/reglas'
 import { campoSlug } from '../campos/slug'
 import { esSlugReservadoZona, esSlugValido } from '../dominio/slugs'
 import { hooksDeZona } from '../redirecciones/hooks'
+
+// El admin manda '' cuando se vacía el campo; con índice único, dos zonas con '' chocarían. Varios NULL sí caben.
+export const normalizarSedeSlug: FieldHook = ({ value }) => {
+  if (typeof value !== 'string') return value
+  const limpio = value.trim()
+  return limpio === '' ? null : limpio
+}
 
 export const Zonas: CollectionConfig = {
   slug: 'zonas',
@@ -27,6 +34,7 @@ export const Zonas: CollectionConfig = {
       name: 'sedeSlug',
       type: 'text',
       unique: true,
+      hooks: { beforeValidate: [normalizarSedeSlug] },
       admin: { description: 'Slug de la sede del sitio de reservas (la-paz, la-ventana, puerto-chale).' },
       validate: (v: unknown) =>
         v === null || v === undefined || v === '' || (typeof v === 'string' && esSlugValido(v))

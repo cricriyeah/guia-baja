@@ -1,5 +1,5 @@
 import type { Payload } from 'payload'
-import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { CONTRASENA_PRUEBA, crearUsuario, limpiar, obtenerPayload } from './utils'
 
@@ -65,6 +65,32 @@ describe('Users', () => {
       overrideAccess: true,
     })
     expect(restablecido.user).toBeTruthy()
+  })
+
+  describe('correo (sin proveedor hasta F3)', () => {
+    afterEach(() => {
+      vi.restoreAllMocks()
+    })
+
+    it('usa el adaptador silencioso, no el de consola', () => {
+      expect(payload.email.name).toBe('silencioso')
+    })
+
+    it('forgot-password no escribe la dirección en ningún log', async () => {
+      const editor = await crearUsuario(payload, 'editor')
+      const mensajes: string[] = []
+      for (const nivel of ['trace', 'debug', 'info', 'warn', 'error', 'fatal'] as const) {
+        vi.spyOn(payload.logger, nivel).mockImplementation(((...args: unknown[]) => {
+          mensajes.push(args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a))).join(' '))
+        }) as never)
+      }
+      const consola = vi.spyOn(console, 'log').mockImplementation(() => {})
+      await payload.forgotPassword({ collection: 'users', data: { email: editor.email } })
+      expect(mensajes.length).toBeGreaterThan(0) // el adaptador sí deja constancia del asunto
+      expect(mensajes.join(' | ')).not.toContain(editor.email)
+      expect(mensajes.join(' | ')).not.toContain('@')
+      expect(consola.mock.calls.flat().join(' | ')).not.toContain(editor.email)
+    })
   })
 
   it('un editor no puede subirse de rol', async () => {

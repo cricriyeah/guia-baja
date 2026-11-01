@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { opcionesAlmacenamiento, pluginsAlmacenamiento } from '../../src/almacenamiento'
+import { accesoSubidaDirecta, opcionesAlmacenamiento, pluginsAlmacenamiento } from '../../src/almacenamiento'
 
 const r2 = {
   R2_ACCOUNT_ID: 'cuenta',
@@ -20,7 +20,7 @@ describe('almacenamiento', () => {
     const o = opcionesAlmacenamiento({})
     expect(o.enabled).toBe(false)
     expect(o.alwaysInsertFields).toBe(true)
-    expect(o.clientUploads).toBe(true)
+    expect(o.clientUploads).toEqual({ access: accesoSubidaDirecta })
   })
 
   it('con R2 apunta al endpoint de la cuenta y sirve desde la URL pública', async () => {
@@ -44,5 +44,29 @@ describe('almacenamiento', () => {
 
   it('con bucket pero sin URL pública falla al arrancar', () => {
     expect(() => opcionesAlmacenamiento({ ...r2, R2_PUBLIC_URL: '' })).toThrow(/R2_PUBLIC_URL/)
+  })
+
+  describe('acceso a subidas directas', () => {
+    const con = (user: unknown) => accesoSubidaDirecta({ req: { user } as never })
+
+    it('deja pedir URL firmada solo al personal', () => {
+      expect(con({ rol: 'admin' })).toBe(true)
+      expect(con({ rol: 'editor' })).toBe(true)
+    })
+
+    it('niega a anónimos y a usuarios autenticados sin rol', () => {
+      expect(con(null)).toBe(false)
+      expect(con(undefined)).toBe(false)
+      expect(con({ rol: null })).toBe(false)
+      expect(con({})).toBe(false)
+      expect(con({ rol: 'otro' })).toBe(false)
+    })
+
+    it('es el que usa el adaptador, con y sin R2', () => {
+      for (const env of [{}, r2]) {
+        const c = opcionesAlmacenamiento(env).clientUploads
+        expect(typeof c === 'object' && c.access).toBe(accesoSubidaDirecta)
+      }
+    })
   })
 })

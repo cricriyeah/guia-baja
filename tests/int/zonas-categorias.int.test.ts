@@ -45,6 +45,22 @@ describe('Zonas y Categorías', () => {
     await expect(crearZona(payload, { slug: 'la-paz' })).rejects.toThrow()
   })
 
+  it('sedeSlug en blanco se guarda como null y no choca con otra zona en blanco', async () => {
+    const a = await crearZona(payload, { slug: 'zona-a', sedeSlug: '' })
+    const b = await crearZona(payload, { slug: 'zona-b', sedeSlug: '   ' })
+    const c = await crearZona(payload, { slug: 'zona-c' })
+    expect(a.sedeSlug ?? null).toBeNull()
+    expect(b.sedeSlug ?? null).toBeNull()
+    expect(c.sedeSlug ?? null).toBeNull()
+    const d = await crearZona(payload, { slug: 'zona-d', sedeSlug: ' la-paz ' })
+    expect(d.sedeSlug).toBe('la-paz')
+    const vaciada = await payload.update({ collection: 'zonas', id: d.id, data: { sedeSlug: '' }, overrideAccess: true })
+    expect(vaciada.sedeSlug ?? null).toBeNull()
+    // Una sede real sigue siendo única.
+    await crearZona(payload, { slug: 'zona-e', sedeSlug: 'la-ventana' })
+    await expect(crearZona(payload, { slug: 'zona-f', sedeSlug: 'la-ventana' })).rejects.toThrow()
+  })
+
   it('el slug de categoría es único por idioma, no entre idiomas', async () => {
     await crearCategoria(payload, { es: 'cafes', en: 'cafes' })
     await expect(crearCategoria(payload, { es: 'cafes', en: 'coffee' })).rejects.toThrow()

@@ -14,6 +14,7 @@ import { Media } from './collections/Media'
 import { Solicitudes } from './collections/Solicitudes'
 import { Users } from './collections/Users'
 import { Zonas } from './collections/Zonas'
+import { correoSilencioso } from './correo/silencioso'
 import { AjustesGuia } from './globals/AjustesGuia'
 import { pluginRedirecciones } from './redirecciones/plugin'
 
@@ -39,6 +40,7 @@ export default buildConfig({
     fallback: false,
   },
   editor: lexicalEditor(),
+  email: correoSilencioso,
   secret: process.env.PAYLOAD_SECRET || '',
   graphQL: { disable: true },
   upload: { limits: { fileSize: 20 * 1024 * 1024 } },

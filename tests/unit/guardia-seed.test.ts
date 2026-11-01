@@ -29,6 +29,15 @@ describe('guardia del seed', () => {
     expect(verificarSeed({ ...bueno, DATABASE_URL: 'postgres://u:p@prod.example.com/guia?host=localhost' }).permitido).toBe(false)
   })
 
+  it('se niega si la URL trae host u hostaddr en la query (pueden pisar el host real)', () => {
+    for (const q of ['host=prod.example.com', 'hostaddr=203.0.113.9', 'HOST=prod.example.com', 'sslmode=require&host=%2Fvar%2Frun']) {
+      expect(verificarSeed({ ...bueno, DATABASE_URL: `postgres://u:p@localhost:5433/guia?${q}` }).permitido).toBe(false)
+      expect(verificarSeed({ ...bueno, DATABASE_URL: `postgres://u:p@ep-x.neon.tech/preview?${q}` }).permitido).toBe(false)
+    }
+    // Otros parámetros siguen valiendo.
+    expect(verificarSeed({ ...bueno, DATABASE_URL: 'postgres://u:p@localhost:5433/guia?sslmode=disable' })).toEqual({ permitido: true })
+  })
+
   it('se niega con URL mal formada o ausente', () => {
     expect(verificarSeed({ ...bueno, DATABASE_URL: 'esto no es una url' }).permitido).toBe(false)
     expect(verificarSeed({ ...bueno, DATABASE_URL: '' }).permitido).toBe(false)

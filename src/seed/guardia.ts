@@ -19,6 +19,11 @@ function baseDeDatosPermitida(url: string | undefined): boolean {
   } catch {
     return false
   }
+  // pg-connection-string deja que ?host= / ?hostaddr= (y el host en forma de socket) pisen el host de la URL:
+  // el host que ve esta guardia no sería al que se conecta el seed.
+  for (const clave of analizada.searchParams.keys()) {
+    if (['host', 'hostaddr'].includes(clave.toLowerCase())) return false
+  }
   const host = analizada.hostname
   const base = decodeURIComponent(analizada.pathname.replace(/^\//, ''))
   return host === 'localhost' || host === '127.0.0.1' || base === 'preview'
