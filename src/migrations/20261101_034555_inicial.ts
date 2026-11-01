@@ -20,6 +20,10 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TYPE "public"."enum__eventos_v_version_fin_tz" AS ENUM('America/Mazatlan');
   CREATE TYPE "public"."enum__eventos_v_version_status" AS ENUM('draft', 'published');
   CREATE TYPE "public"."enum__eventos_v_published_locale" AS ENUM('es', 'en');
+  CREATE TYPE "public"."enum_articulos_status" AS ENUM('draft', 'published');
+  CREATE TYPE "public"."enum__articulos_v_version_status" AS ENUM('draft', 'published');
+  CREATE TYPE "public"."enum__articulos_v_published_locale" AS ENUM('es', 'en');
+  CREATE TYPE "public"."enum_solicitudes_estado" AS ENUM('nueva', 'en-contacto', 'aceptada', 'rechazada');
   CREATE TABLE "users_sessions" (
   	"_order" integer NOT NULL,
   	"_parent_id" integer NOT NULL,
@@ -333,6 +337,100 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"media_id" integer
   );
   
+  CREATE TABLE "articulos" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"portada_id" integer,
+  	"autor_id" integer,
+  	"autor_nombre" varchar,
+  	"publicado_el" timestamp(3) with time zone,
+  	"actualizado_el" timestamp(3) with time zone,
+  	"seo_no_indexar" boolean DEFAULT false,
+  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  	"_status" "enum_articulos_status" DEFAULT 'draft'
+  );
+  
+  CREATE TABLE "articulos_locales" (
+  	"titulo" varchar,
+  	"slug" varchar,
+  	"resumen" varchar,
+  	"cuerpo" jsonb,
+  	"seo_meta_titulo" varchar,
+  	"seo_meta_descripcion" varchar,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"_parent_id" integer NOT NULL
+  );
+  
+  CREATE TABLE "articulos_rels" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"order" integer,
+  	"parent_id" integer NOT NULL,
+  	"path" varchar NOT NULL,
+  	"zonas_id" integer
+  );
+  
+  CREATE TABLE "_articulos_v" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"parent_id" integer,
+  	"version_portada_id" integer,
+  	"version_autor_id" integer,
+  	"version_autor_nombre" varchar,
+  	"version_publicado_el" timestamp(3) with time zone,
+  	"version_actualizado_el" timestamp(3) with time zone,
+  	"version_seo_no_indexar" boolean DEFAULT false,
+  	"version_updated_at" timestamp(3) with time zone,
+  	"version_created_at" timestamp(3) with time zone,
+  	"version__status" "enum__articulos_v_version_status" DEFAULT 'draft',
+  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  	"snapshot" boolean,
+  	"published_locale" "enum__articulos_v_published_locale",
+  	"latest" boolean
+  );
+  
+  CREATE TABLE "_articulos_v_locales" (
+  	"version_titulo" varchar,
+  	"version_slug" varchar,
+  	"version_resumen" varchar,
+  	"version_cuerpo" jsonb,
+  	"version_seo_meta_titulo" varchar,
+  	"version_seo_meta_descripcion" varchar,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"_parent_id" integer NOT NULL
+  );
+  
+  CREATE TABLE "_articulos_v_rels" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"order" integer,
+  	"parent_id" integer NOT NULL,
+  	"path" varchar NOT NULL,
+  	"zonas_id" integer
+  );
+  
+  CREATE TABLE "solicitudes" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"negocio" varchar NOT NULL,
+  	"giro" varchar,
+  	"zona_texto" varchar,
+  	"zona_id" integer,
+  	"contacto_nombre" varchar,
+  	"correo" varchar,
+  	"telefono" varchar,
+  	"web_o_instagram" varchar,
+  	"mensaje" varchar,
+  	"acepto_privacidad" boolean DEFAULT false NOT NULL,
+  	"version_aviso" varchar,
+  	"ip_hash" varchar,
+  	"estado" "enum_solicitudes_estado" DEFAULT 'nueva',
+  	"notas_internas" varchar,
+  	"lugar_creado_id" integer,
+  	"anonimizada_el" timestamp(3) with time zone,
+  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+  );
+  
   CREATE TABLE "payload_kv" (
   	"id" serial PRIMARY KEY NOT NULL,
   	"key" varchar NOT NULL,
@@ -356,7 +454,9 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"zonas_id" integer,
   	"categorias_id" integer,
   	"lugares_id" integer,
-  	"eventos_id" integer
+  	"eventos_id" integer,
+  	"articulos_id" integer,
+  	"solicitudes_id" integer
   );
   
   CREATE TABLE "payload_preferences" (
@@ -381,6 +481,30 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"batch" numeric,
   	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
   	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+  );
+  
+  CREATE TABLE "ajustes_guia_correos_aviso" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" integer NOT NULL,
+  	"id" varchar PRIMARY KEY NOT NULL,
+  	"correo" varchar NOT NULL
+  );
+  
+  CREATE TABLE "ajustes_guia" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"correo_privacidad" varchar,
+  	"formulario_activo" boolean DEFAULT false,
+  	"version_aviso" varchar,
+  	"updated_at" timestamp(3) with time zone,
+  	"created_at" timestamp(3) with time zone
+  );
+  
+  CREATE TABLE "ajustes_guia_locales" (
+  	"portada_titulo" varchar,
+  	"portada_intro" varchar,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"_parent_id" integer NOT NULL
   );
   
   ALTER TABLE "users_sessions" ADD CONSTRAINT "users_sessions_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
@@ -414,6 +538,19 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "_eventos_v_rels" ADD CONSTRAINT "_eventos_v_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."_eventos_v"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "_eventos_v_rels" ADD CONSTRAINT "_eventos_v_rels_categorias_fk" FOREIGN KEY ("categorias_id") REFERENCES "public"."categorias"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "_eventos_v_rels" ADD CONSTRAINT "_eventos_v_rels_media_fk" FOREIGN KEY ("media_id") REFERENCES "public"."media"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "articulos" ADD CONSTRAINT "articulos_portada_id_media_id_fk" FOREIGN KEY ("portada_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "articulos" ADD CONSTRAINT "articulos_autor_id_users_id_fk" FOREIGN KEY ("autor_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "articulos_locales" ADD CONSTRAINT "articulos_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."articulos"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "articulos_rels" ADD CONSTRAINT "articulos_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."articulos"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "articulos_rels" ADD CONSTRAINT "articulos_rels_zonas_fk" FOREIGN KEY ("zonas_id") REFERENCES "public"."zonas"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_articulos_v" ADD CONSTRAINT "_articulos_v_parent_id_articulos_id_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."articulos"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "_articulos_v" ADD CONSTRAINT "_articulos_v_version_portada_id_media_id_fk" FOREIGN KEY ("version_portada_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "_articulos_v" ADD CONSTRAINT "_articulos_v_version_autor_id_users_id_fk" FOREIGN KEY ("version_autor_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "_articulos_v_locales" ADD CONSTRAINT "_articulos_v_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_articulos_v"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_articulos_v_rels" ADD CONSTRAINT "_articulos_v_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."_articulos_v"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_articulos_v_rels" ADD CONSTRAINT "_articulos_v_rels_zonas_fk" FOREIGN KEY ("zonas_id") REFERENCES "public"."zonas"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "solicitudes" ADD CONSTRAINT "solicitudes_zona_id_zonas_id_fk" FOREIGN KEY ("zona_id") REFERENCES "public"."zonas"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "solicitudes" ADD CONSTRAINT "solicitudes_lugar_creado_id_lugares_id_fk" FOREIGN KEY ("lugar_creado_id") REFERENCES "public"."lugares"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."payload_locked_documents"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_users_fk" FOREIGN KEY ("users_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_media_fk" FOREIGN KEY ("media_id") REFERENCES "public"."media"("id") ON DELETE cascade ON UPDATE no action;
@@ -421,8 +558,12 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_categorias_fk" FOREIGN KEY ("categorias_id") REFERENCES "public"."categorias"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_lugares_fk" FOREIGN KEY ("lugares_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_eventos_fk" FOREIGN KEY ("eventos_id") REFERENCES "public"."eventos"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_articulos_fk" FOREIGN KEY ("articulos_id") REFERENCES "public"."articulos"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_solicitudes_fk" FOREIGN KEY ("solicitudes_id") REFERENCES "public"."solicitudes"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_preferences_rels" ADD CONSTRAINT "payload_preferences_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."payload_preferences"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_preferences_rels" ADD CONSTRAINT "payload_preferences_rels_users_fk" FOREIGN KEY ("users_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "ajustes_guia_correos_aviso" ADD CONSTRAINT "ajustes_guia_correos_aviso_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."ajustes_guia"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "ajustes_guia_locales" ADD CONSTRAINT "ajustes_guia_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."ajustes_guia"("id") ON DELETE cascade ON UPDATE no action;
   CREATE INDEX "users_sessions_order_idx" ON "users_sessions" USING btree ("_order");
   CREATE INDEX "users_sessions_parent_id_idx" ON "users_sessions" USING btree ("_parent_id");
   CREATE INDEX "users_updated_at_idx" ON "users" USING btree ("updated_at");
@@ -517,6 +658,40 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "_eventos_v_rels_path_idx" ON "_eventos_v_rels" USING btree ("path");
   CREATE INDEX "_eventos_v_rels_categorias_id_idx" ON "_eventos_v_rels" USING btree ("categorias_id");
   CREATE INDEX "_eventos_v_rels_media_id_idx" ON "_eventos_v_rels" USING btree ("media_id");
+  CREATE INDEX "articulos_portada_idx" ON "articulos" USING btree ("portada_id");
+  CREATE INDEX "articulos_autor_idx" ON "articulos" USING btree ("autor_id");
+  CREATE INDEX "articulos_updated_at_idx" ON "articulos" USING btree ("updated_at");
+  CREATE INDEX "articulos_created_at_idx" ON "articulos" USING btree ("created_at");
+  CREATE INDEX "articulos__status_idx" ON "articulos" USING btree ("_status");
+  CREATE UNIQUE INDEX "articulos_slug_idx" ON "articulos_locales" USING btree ("slug","_locale");
+  CREATE UNIQUE INDEX "articulos_locales_locale_parent_id_unique" ON "articulos_locales" USING btree ("_locale","_parent_id");
+  CREATE INDEX "articulos_locales_parent_id_idx" ON "articulos_locales" USING btree ("_parent_id");
+  CREATE INDEX "articulos_rels_order_idx" ON "articulos_rels" USING btree ("order");
+  CREATE INDEX "articulos_rels_parent_idx" ON "articulos_rels" USING btree ("parent_id");
+  CREATE INDEX "articulos_rels_path_idx" ON "articulos_rels" USING btree ("path");
+  CREATE INDEX "articulos_rels_zonas_id_idx" ON "articulos_rels" USING btree ("zonas_id");
+  CREATE INDEX "_articulos_v_parent_idx" ON "_articulos_v" USING btree ("parent_id");
+  CREATE INDEX "_articulos_v_version_version_portada_idx" ON "_articulos_v" USING btree ("version_portada_id");
+  CREATE INDEX "_articulos_v_version_version_autor_idx" ON "_articulos_v" USING btree ("version_autor_id");
+  CREATE INDEX "_articulos_v_version_version_updated_at_idx" ON "_articulos_v" USING btree ("version_updated_at");
+  CREATE INDEX "_articulos_v_version_version_created_at_idx" ON "_articulos_v" USING btree ("version_created_at");
+  CREATE INDEX "_articulos_v_version_version__status_idx" ON "_articulos_v" USING btree ("version__status");
+  CREATE INDEX "_articulos_v_created_at_idx" ON "_articulos_v" USING btree ("created_at");
+  CREATE INDEX "_articulos_v_updated_at_idx" ON "_articulos_v" USING btree ("updated_at");
+  CREATE INDEX "_articulos_v_snapshot_idx" ON "_articulos_v" USING btree ("snapshot");
+  CREATE INDEX "_articulos_v_published_locale_idx" ON "_articulos_v" USING btree ("published_locale");
+  CREATE INDEX "_articulos_v_latest_idx" ON "_articulos_v" USING btree ("latest");
+  CREATE INDEX "_articulos_v_version_version_slug_idx" ON "_articulos_v_locales" USING btree ("version_slug","_locale");
+  CREATE UNIQUE INDEX "_articulos_v_locales_locale_parent_id_unique" ON "_articulos_v_locales" USING btree ("_locale","_parent_id");
+  CREATE INDEX "_articulos_v_locales_parent_id_idx" ON "_articulos_v_locales" USING btree ("_parent_id");
+  CREATE INDEX "_articulos_v_rels_order_idx" ON "_articulos_v_rels" USING btree ("order");
+  CREATE INDEX "_articulos_v_rels_parent_idx" ON "_articulos_v_rels" USING btree ("parent_id");
+  CREATE INDEX "_articulos_v_rels_path_idx" ON "_articulos_v_rels" USING btree ("path");
+  CREATE INDEX "_articulos_v_rels_zonas_id_idx" ON "_articulos_v_rels" USING btree ("zonas_id");
+  CREATE INDEX "solicitudes_zona_idx" ON "solicitudes" USING btree ("zona_id");
+  CREATE INDEX "solicitudes_lugar_creado_idx" ON "solicitudes" USING btree ("lugar_creado_id");
+  CREATE INDEX "solicitudes_updated_at_idx" ON "solicitudes" USING btree ("updated_at");
+  CREATE INDEX "solicitudes_created_at_idx" ON "solicitudes" USING btree ("created_at");
   CREATE UNIQUE INDEX "payload_kv_key_idx" ON "payload_kv" USING btree ("key");
   CREATE INDEX "payload_locked_documents_global_slug_idx" ON "payload_locked_documents" USING btree ("global_slug");
   CREATE INDEX "payload_locked_documents_updated_at_idx" ON "payload_locked_documents" USING btree ("updated_at");
@@ -530,6 +705,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "payload_locked_documents_rels_categorias_id_idx" ON "payload_locked_documents_rels" USING btree ("categorias_id");
   CREATE INDEX "payload_locked_documents_rels_lugares_id_idx" ON "payload_locked_documents_rels" USING btree ("lugares_id");
   CREATE INDEX "payload_locked_documents_rels_eventos_id_idx" ON "payload_locked_documents_rels" USING btree ("eventos_id");
+  CREATE INDEX "payload_locked_documents_rels_articulos_id_idx" ON "payload_locked_documents_rels" USING btree ("articulos_id");
+  CREATE INDEX "payload_locked_documents_rels_solicitudes_id_idx" ON "payload_locked_documents_rels" USING btree ("solicitudes_id");
   CREATE INDEX "payload_preferences_key_idx" ON "payload_preferences" USING btree ("key");
   CREATE INDEX "payload_preferences_updated_at_idx" ON "payload_preferences" USING btree ("updated_at");
   CREATE INDEX "payload_preferences_created_at_idx" ON "payload_preferences" USING btree ("created_at");
@@ -538,7 +715,11 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "payload_preferences_rels_path_idx" ON "payload_preferences_rels" USING btree ("path");
   CREATE INDEX "payload_preferences_rels_users_id_idx" ON "payload_preferences_rels" USING btree ("users_id");
   CREATE INDEX "payload_migrations_updated_at_idx" ON "payload_migrations" USING btree ("updated_at");
-  CREATE INDEX "payload_migrations_created_at_idx" ON "payload_migrations" USING btree ("created_at");`)
+  CREATE INDEX "payload_migrations_created_at_idx" ON "payload_migrations" USING btree ("created_at");
+  CREATE INDEX "ajustes_guia_correos_aviso_order_idx" ON "ajustes_guia_correos_aviso" USING btree ("_order");
+  CREATE INDEX "ajustes_guia_correos_aviso_parent_id_idx" ON "ajustes_guia_correos_aviso" USING btree ("_parent_id");
+  CREATE UNIQUE INDEX "ajustes_guia_locales_locale_parent_id_unique" ON "ajustes_guia_locales" USING btree ("_locale","_parent_id");
+  CREATE INDEX "ajustes_guia_locales_parent_id_idx" ON "ajustes_guia_locales" USING btree ("_parent_id");`)
 }
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
@@ -565,12 +746,22 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "_eventos_v" CASCADE;
   DROP TABLE "_eventos_v_locales" CASCADE;
   DROP TABLE "_eventos_v_rels" CASCADE;
+  DROP TABLE "articulos" CASCADE;
+  DROP TABLE "articulos_locales" CASCADE;
+  DROP TABLE "articulos_rels" CASCADE;
+  DROP TABLE "_articulos_v" CASCADE;
+  DROP TABLE "_articulos_v_locales" CASCADE;
+  DROP TABLE "_articulos_v_rels" CASCADE;
+  DROP TABLE "solicitudes" CASCADE;
   DROP TABLE "payload_kv" CASCADE;
   DROP TABLE "payload_locked_documents" CASCADE;
   DROP TABLE "payload_locked_documents_rels" CASCADE;
   DROP TABLE "payload_preferences" CASCADE;
   DROP TABLE "payload_preferences_rels" CASCADE;
   DROP TABLE "payload_migrations" CASCADE;
+  DROP TABLE "ajustes_guia_correos_aviso" CASCADE;
+  DROP TABLE "ajustes_guia" CASCADE;
+  DROP TABLE "ajustes_guia_locales" CASCADE;
   DROP TYPE "public"."_locales";
   DROP TYPE "public"."enum_users_rol";
   DROP TYPE "public"."enum_categorias_aplica_a";
@@ -588,5 +779,9 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TYPE "public"."enum__eventos_v_version_inicio_tz";
   DROP TYPE "public"."enum__eventos_v_version_fin_tz";
   DROP TYPE "public"."enum__eventos_v_version_status";
-  DROP TYPE "public"."enum__eventos_v_published_locale";`)
+  DROP TYPE "public"."enum__eventos_v_published_locale";
+  DROP TYPE "public"."enum_articulos_status";
+  DROP TYPE "public"."enum__articulos_v_version_status";
+  DROP TYPE "public"."enum__articulos_v_published_locale";
+  DROP TYPE "public"."enum_solicitudes_estado";`)
 }

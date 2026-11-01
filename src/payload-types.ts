@@ -26,6 +26,8 @@ export interface Config {
     categorias: Categoria;
     lugares: Lugare;
     eventos: Evento;
+    articulos: Articulo;
+    solicitudes: Solicitude;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -39,6 +41,8 @@ export interface Config {
     categorias: CategoriasSelect<false> | CategoriasSelect<true>;
     lugares: LugaresSelect<false> | LugaresSelect<true>;
     eventos: EventosSelect<false> | EventosSelect<true>;
+    articulos: ArticulosSelect<false> | ArticulosSelect<true>;
+    solicitudes: SolicitudesSelect<false> | SolicitudesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -48,8 +52,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('es' | 'en') | ('es' | 'en')[];
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'ajustes-guia': AjustesGuia;
+  };
+  globalsSelect: {
+    'ajustes-guia': AjustesGuiaSelect<false> | AjustesGuiaSelect<true>;
+  };
   locale: 'es' | 'en';
   widgets: {
     collections: CollectionsWidget;
@@ -344,6 +352,73 @@ export interface Evento {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "articulos".
+ */
+export interface Articulo {
+  id: number;
+  titulo: string;
+  /**
+   * Se genera del nombre; minúsculas sin acentos, con guiones.
+   */
+  slug?: string | null;
+  zonas?: (number | Zona)[] | null;
+  resumen?: string | null;
+  portada: number | Media;
+  autor: number | User;
+  autorNombre?: string | null;
+  publicadoEl?: string | null;
+  actualizadoEl?: string | null;
+  cuerpo?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  seo?: {
+    metaTitulo?: string | null;
+    metaDescripcion?: string | null;
+    noIndexar?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "solicitudes".
+ */
+export interface Solicitude {
+  id: number;
+  negocio: string;
+  giro?: string | null;
+  zonaTexto?: string | null;
+  zona?: (number | null) | Zona;
+  contactoNombre?: string | null;
+  correo?: string | null;
+  telefono?: string | null;
+  webOInstagram?: string | null;
+  mensaje?: string | null;
+  aceptoPrivacidad: boolean;
+  versionAviso?: string | null;
+  ipHash?: string | null;
+  estado?: ('nueva' | 'en-contacto' | 'aceptada' | 'rechazada') | null;
+  notasInternas?: string | null;
+  lugarCreado?: (number | null) | Lugare;
+  anonimizadaEl?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -389,6 +464,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'eventos';
         value: number | Evento;
+      } | null)
+    | ({
+        relationTo: 'articulos';
+        value: number | Articulo;
+      } | null)
+    | ({
+        relationTo: 'solicitudes';
+        value: number | Solicitude;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -641,6 +724,56 @@ export interface EventosSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "articulos_select".
+ */
+export interface ArticulosSelect<T extends boolean = true> {
+  titulo?: T;
+  slug?: T;
+  zonas?: T;
+  resumen?: T;
+  portada?: T;
+  autor?: T;
+  autorNombre?: T;
+  publicadoEl?: T;
+  actualizadoEl?: T;
+  cuerpo?: T;
+  seo?:
+    | T
+    | {
+        metaTitulo?: T;
+        metaDescripcion?: T;
+        noIndexar?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "solicitudes_select".
+ */
+export interface SolicitudesSelect<T extends boolean = true> {
+  negocio?: T;
+  giro?: T;
+  zonaTexto?: T;
+  zona?: T;
+  contactoNombre?: T;
+  correo?: T;
+  telefono?: T;
+  webOInstagram?: T;
+  mensaje?: T;
+  aceptoPrivacidad?: T;
+  versionAviso?: T;
+  ipHash?: T;
+  estado?: T;
+  notasInternas?: T;
+  lugarCreado?: T;
+  anonimizadaEl?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -678,6 +811,52 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ajustes-guia".
+ */
+export interface AjustesGuia {
+  id: number;
+  correosAviso?:
+    | {
+        correo: string;
+        id?: string | null;
+      }[]
+    | null;
+  correoPrivacidad?: string | null;
+  /**
+   * Encender solo cuando el aviso de privacidad esté publicado en los dos idiomas.
+   */
+  formularioActivo?: boolean | null;
+  /**
+   * Versión vigente del aviso (p. ej. 2026-11).
+   */
+  versionAviso?: string | null;
+  portadaTitulo?: string | null;
+  portadaIntro?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ajustes-guia_select".
+ */
+export interface AjustesGuiaSelect<T extends boolean = true> {
+  correosAviso?:
+    | T
+    | {
+        correo?: T;
+        id?: T;
+      };
+  correoPrivacidad?: T;
+  formularioActivo?: T;
+  versionAviso?: T;
+  portadaTitulo?: T;
+  portadaIntro?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

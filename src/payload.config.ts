@@ -6,12 +6,15 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { pluginsAlmacenamiento } from './almacenamiento'
+import { Articulos } from './collections/Articulos'
 import { Categorias } from './collections/Categorias'
 import { Eventos } from './collections/Eventos'
 import { Lugares } from './collections/Lugares'
 import { Media } from './collections/Media'
+import { Solicitudes } from './collections/Solicitudes'
 import { Users } from './collections/Users'
 import { Zonas } from './collections/Zonas'
+import { AjustesGuia } from './globals/AjustesGuia'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -24,7 +27,8 @@ export default buildConfig({
       defaultTimezone: 'America/Mazatlan',
     },
   },
-  collections: [Users, Media, Zonas, Categorias, Lugares, Eventos],
+  collections: [Users, Media, Zonas, Categorias, Lugares, Eventos, Articulos, Solicitudes],
+  globals: [AjustesGuia],
   localization: {
     locales: [
       { label: 'Español', code: 'es' },
