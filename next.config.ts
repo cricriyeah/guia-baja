@@ -6,6 +6,8 @@ import { fileURLToPath } from 'url'
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const nextConfig: NextConfig = {
+  // `next dev` agrega su propio bloque a AGENTS.md; las reglas del repo se mantienen a mano.
+  agentRules: false,
   // Los archivos /_next de la guía no deben chocar con los del sitio de reservas (spec §4).
   assetPrefix: '/guia-assets',
   // /_next/image no lleva assetPrefix; las imágenes se sirven directo desde R2 (spec §4.2).

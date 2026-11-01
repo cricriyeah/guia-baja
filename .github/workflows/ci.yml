@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  calidad:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        # Misma imagen que docker-compose.yml (Zonas usa un campo PostGIS).
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: guia
+        # Puerto 5433 del equipo, igual que en local: así `.env.test` sirve sin cambios.
+        ports: ['5433:5432']
+        # `-h 127.0.0.1` fuerza TCP: durante el arranque inicial la imagen solo escucha por socket
+        # y un pg_isready sin host daría «listo» demasiado pronto.
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -U postgres -d guia"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5433/guia_test
+      DATABASE_URL_UNPOOLED: postgres://postgres:postgres@localhost:5433/guia_test
+      PAYLOAD_SECRET: secreto-solo-para-ci
+      NODE_OPTIONS: --no-deprecation
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+
+      # Los contenedores de servicio no montan archivos del repo: `guia_test`
+      # (que en local crea ops/postgres-init) se crea aquí.
+      - name: Crear la base de pruebas
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -p 5433 -U postgres -d guia -v ON_ERROR_STOP=1 -c 'CREATE DATABASE guia_test;'
+
+      # Paso 1 del spec: tipos, lint y build (el build va al final porque necesita la base migrada).
+      - name: Tipos y importMap al día
+        run: |
+          npm run generate:types
+          npm run generate:importmap
+          git diff --exit-code -- src/payload-types.ts "src/app/(payload)/admin/importMap.js"
+      - run: npm run typecheck
+      - run: npm run lint
+
+      # Paso 2: unitarias.
+      - run: npm run test:unit
+
+      # El esquema y las migraciones coinciden. `--skip-empty` sale con código 0 sin preguntar
+      # cuando no hay cambios (nunca se queda esperando una respuesta); si hay cambios, crea
+      # archivos en src/migrations y el `test -z` falla.
+      - name: Sin cambios de esquema sin migración
+        run: |
+          npx payload migrate:create comprobacion --skip-empty
+          test -z "$(git status --porcelain -- src/migrations)"
+
+      # Paso 3: integración contra Postgres (migra desde cero con `payload migrate:fresh`).
+      - run: npm run test:int
+
+      - run: npm run build
