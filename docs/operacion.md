@@ -6,8 +6,11 @@ Diseño de referencia: `docs/specs/2026-10-30-guia-baja-design.md` (§4.2, §5.3
 ## Desarrollo local
 
 - `docker compose up -d`: Postgres con PostGIS (imagen `postgis/postgis:17-3.5`) en el puerto **5433** del equipo,
-  con las bases `guia` y `guia_test`. Zonas usa un campo `point`, así que la base siempre necesita PostGIS
-  (las migraciones de Payload crean la extensión).
+  con las bases `guia` y `guia_test`. Zonas usa un campo `point`, así que la base siempre necesita PostGIS.
+  La migración **no** trae `CREATE EXTENSION`: el adaptador de base de Payload ejecuta
+  `CREATE EXTENSION IF NOT EXISTS "postgis"` (`createExtensions()`) cada vez que se conecta y antes de `migrate`
+  y `migrate:fresh`. Si la base no permite crear la extensión, el error solo queda en el log
+  (`Failed to create extension postgis`) y se manifiesta después como un error con `geometry` al migrar.
 - Seed con datos inventados, solo en local o en la base `preview`:
   `SEED_PERMITIDO=true SEED_CONTRASENA_ADMIN='<12+ caracteres>' npm run seed`.
   Se niega a correr contra cualquier otra base.
@@ -19,14 +22,51 @@ Diseño de referencia: `docs/specs/2026-10-30-guia-baja-design.md` (§4.2, §5.3
 - Build: lo define `vercel.json` (`npm run build:vercel`: migra con `DATABASE_URL_UNPOOLED` y construye). Región `iad1`.
 - Producción solo desde `main`.
 - Integración de Neon: región `aws-us-east-1`; **sin** branches automáticos para previews; sus variables solo en Production.
-  PostGIS debe estar disponible en la base (Neon lo soporta; la primera migración ejecuta `CREATE EXTENSION`).
+  PostGIS debe estar disponible en la base (Neon lo soporta). No lo crea la migración sino el adaptador de Payload
+  al conectarse (`createExtensions()`, `CREATE EXTENSION IF NOT EXISTS "postgis"`); si el rol de la conexión no
+  puede crearla, el build falla con un error de `geometry`. En ese caso, crearla una vez a mano en el editor SQL de
+  Neon (`CREATE EXTENSION IF NOT EXISTS postgis;`) en la base de producción y en la de `preview`.
+- Node: `engines` fija `^24.22.1`; en Vercel (Settings > Build and Deployment > Node.js Version) dejar **24.x**.
+  Subir a otra versión mayor es una decisión explícita (PR que cambie `engines`, `.nvmrc` y AGENTS.md).
 - Variables de Preview a mano (spec §5.3 y §5.5): `DATABASE_URL` y `DATABASE_URL_UNPOOLED` de la base `preview`, bucket
   `guia-media-preview` y su llave, otro `PAYLOAD_SECRET`, llaves de prueba de Turnstile, `GUIA_INDEXABLE=false`.
 - Antes de autorizar el preview de un PR externo: leer el diff completo.
 - Base `preview` rota: borrarla, crearla vacía en Neon y correr
   `SEED_PERMITIDO=true SEED_CONTRASENA_ADMIN='<12+ caracteres>' npm run seed` con sus variables.
+- **Correo de restablecer contraseña:** no sale ningún correo hasta que llegue Resend (F3). El adaptador de correo
+  (`src/correo/silencioso.ts`) descarta los mensajes y solo registra el asunto, nunca direcciones. Mientras tanto,
+  quien olvide su contraseña se la pide a un admin, que la cambia desde `/admin` > Usuarios (o la desbloquea si
+  la cuenta se bloqueó).
 - Desde el primer deploy a producción: **prohibido** `npm run migracion:regenerar`; toda migración nueva con
   `npm run payload migrate:create <nombre>` (AGENTS.md).
+
+## Seguridad del primer deploy a producción
+
+Hacer estos dos pasos el mismo día del primer deploy, antes de compartir ninguna URL.
+
+1. **Ventana del primer usuario.** Mientras la tabla `users` esté vacía, `/admin/create-first-user` y
+   `POST /api/users/first-register` están abiertas a cualquiera, y quien las use queda como admin (el primer
+   usuario siempre es admin). Inmediatamente después del primer deploy con migraciones aplicadas:
+   - Entrar a `https://<dominio-del-deploy>/admin`, crear el admin del dueño (contraseña de 12+ caracteres, del
+     gestor de contraseñas) **antes** de dar la URL a nadie ni de configurar el dominio público.
+   - Verificar que la ruta ya se cierra: `/admin/create-first-user` redirige al login y
+     `curl -s -o /dev/null -w "%{http_code}
+" -X POST https://<dominio-del-deploy>/api/users/first-register -H 'content-type: application/json' -d '{"email":"x@prueba.test","password":"una-contrasena-larga-1","nombrePublico":"X"}'`
+     responde 403 (Forbidden). Hacerlo solo después de crear el admin: si respondiera 200 habría creado un usuario.
+   - Los previews usan otra base (`preview`), con su propio primer usuario (lo crea el seed).
+2. **Regla de firewall de Vercel para el login** (spec §11): limitar `POST /api/users/login` por IP. El bloqueo de
+   Payload (5 intentos fallidos, 10 minutos) es por cuenta; esta regla frena el abuso por IP y el relleno de
+   credenciales sobre muchas cuentas. En el proyecto: Firewall > Configure > Add New Rule.
+   - Nombre: `limite-login-admin`.
+   - Condición: *Request Path* **equals** `/api/users/login` (y, si se quiere, *Method* equals `POST`).
+   - Acción: **Rate Limit**, ventana fija de 60 s, **10 solicitudes** por **IP**; al superarla, responder 429
+     (opcionalmente con denegación posterior de 10 minutos).
+   - Guardar y **Publish** (los cambios del firewall no aplican hasta publicarlos).
+   - Comprobar con 11 intentos seguidos desde una misma IP (credenciales falsas): el 11.º responde 429.
+   - El spec (§11) no fija cifras; 10 por minuto por IP deja pasar a una persona que se equivoca y frena la
+     automatización. Si se ajustan, anotar aquí el valor final. Nota: la regla depende de que el slug de la
+     colección siga siendo `users`.
+   - Opcional, misma forma: `/api/users/forgot-password` y `/api/users/first-register`.
 
 ## GitHub
 
@@ -54,6 +94,14 @@ Diseño de referencia: `docs/specs/2026-10-30-guia-baja-design.md` (§4.2, §5.3
   ```json
   [{ "AllowedOrigins": ["https://sunbaja-guia.vercel.app"], "AllowedMethods": ["PUT", "GET"], "AllowedHeaders": ["*"], "MaxAgeSeconds": 3600 }]
   ```
+- CORS de `guia-media-preview` (los admins de preview corren en un origen distinto por cada deploy,
+  `https://sunbaja-guia-<hash>-<equipo>.vercel.app`, y suben directo al bucket): los orígenes cambian en cada deploy
+  y este bucket solo contiene datos inventados, así que se permite cualquier origen y solo `PUT`/`GET`:
+  ```json
+  [{ "AllowedOrigins": ["*"], "AllowedMethods": ["PUT", "GET"], "AllowedHeaders": ["*"], "MaxAgeSeconds": 3600 }]
+  ```
+  (Si se prefiere restringir, listar el dominio fijo de la rama/preview de Vercel como en `guia-media`.)
+  No usar `*` en `guia-media` ni en `guia-respaldos`.
 - `guia-respaldos`: regla de ciclo de vida que borra a los 30 días y bucket lock de 30 días.
 - `guia-media`, objetos huérfanos: con `clientUploads` el navegador sube el archivo a R2 con una URL firmada
   *antes* de que Payload cree el documento. Si el alta se rechaza (validación, límite de 20 MB, formato, sesión
