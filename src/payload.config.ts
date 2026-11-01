@@ -5,6 +5,7 @@ import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
+import { pluginsAlmacenamiento } from './almacenamiento'
 import { Categorias } from './collections/Categorias'
 import { Media } from './collections/Media'
 import { Users } from './collections/Users'
@@ -41,5 +42,5 @@ export default buildConfig({
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
   sharp,
-  plugins: [],
+  plugins: [...pluginsAlmacenamiento(process.env)],
 })

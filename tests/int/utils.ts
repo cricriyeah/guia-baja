@@ -4,6 +4,7 @@ import { getPayload, type Payload } from 'payload'
 
 import type { Rol } from '../../src/acceso/roles'
 import config from '../../src/payload.config'
+import { imagenDePrueba } from '../../src/seed/imagenes'
 import { vaciarColecciones } from '../../src/seed/vaciar'
 
 export const CONTRASENA_PRUEBA = 'contrasena-de-prueba-123'
@@ -64,6 +65,17 @@ export async function crearCategoria(payload: Payload, datos: { es?: string; en?
     id: doc.id,
     locale: 'en',
     data: { nombre: en, slug: en },
+    overrideAccess: true,
+  })
+}
+
+export async function crearImagen(payload: Payload) {
+  const data = await imagenDePrueba()
+  return payload.create({
+    collection: 'media',
+    locale: 'es',
+    data: { alt: 'Imagen de prueba' },
+    file: { data, mimetype: 'image/jpeg', name: `prueba-${randomUUID().slice(0, 8)}.jpg`, size: data.length },
     overrideAccess: true,
   })
 }
