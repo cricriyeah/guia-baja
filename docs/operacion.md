@@ -11,8 +11,8 @@ Diseño de referencia: `docs/specs/2026-10-30-guia-baja-design.md` (§4.2, §5.3
 - Seed con datos inventados, solo en local o en la base `preview`:
   `SEED_PERMITIDO=true SEED_CONTRASENA_ADMIN='<12+ caracteres>' npm run seed`.
   Se niega a correr contra cualquier otra base.
-- Nunca datos reales en local, CI ni previews. Única excepción: la prueba de restauración de abajo, en un
-  contenedor desechable que se borra al terminar.
+- Nunca datos reales en local, CI ni previews, sin excepciones. Los respaldos reales se prueban solo en una base
+  desechable de Neon (ver «Restaurar un respaldo»); en el equipo local solo se restauran datos inventados.
 
 ## Vercel (proyecto `sunbaja-guia`)
 
@@ -75,46 +75,80 @@ No se genera ningún par de llaves en este repo: lo hace el dueño.
    Nunca en GitHub, Vercel ni este repo. Sin ella los respaldos no se pueden abrir; con ella cualquiera los abre.
 3. Crear `ops/respaldo.age.pub` con **solo** la línea `age1...` (la llave pública) y commitearla por PR.
    No commitear nunca el archivo `.key` (`.gitignore` ya lo ignora).
+4. Comprobar que la pública corresponde a la privada guardada, antes del primer respaldo (si no coinciden, los
+   respaldos quedarían ilegibles):
+   ```bash
+   test "$(age-keygen -y guia-respaldos.key)" = "$(tr -d '\r\n' < ops/respaldo.age.pub)" && echo "coinciden" || echo "NO COINCIDEN"
+   ```
+5. **Hacer los pasos 1 a 4 antes de que el workflow llegue a `main`.** Sin `ops/respaldo.age.pub` el job `base`
+   falla a propósito todos los días.
 
 ## Restaurar un respaldo
 
 Los respaldos de la base son volcados de `pg_dump` (formato custom) cifrados con `age`. El volcado trae
 `CREATE EXTENSION postgis`, así que **el servidor de destino debe tener PostGIS** (en un Postgres sin PostGIS,
-`pg_restore` falla con `extension "postgis" is not available`). La misma versión mayor de Postgres que la de origen (17).
+`pg_restore` falla con `extension "postgis" is not available`). Misma versión mayor de Postgres que el origen (17).
 
-Prueba de restauración (nunca contra `preview` ni producción; el destino es un contenedor local desechable):
+El volcado de producción contiene datos reales (correos, teléfonos, hashes de IP). Reglas:
+
+- Un respaldo real se restaura **solo** en una base de Neon nueva y vacía, desechable, separada de producción
+  (un proyecto nuevo o una base nueva en un proyecto aparte). **Nunca un branch de producción** (es una copia de
+  los datos reales), nunca la base `preview`, nunca producción, nunca Docker local.
+- El volcado descifrado **nunca se guarda en un equipo personal**. Se descifra en el mismo comando que lo restaura
+  (por tubería, sin archivo intermedio). Solo el archivo `.dump.age` (cifrado) puede tocar el disco.
+- La base restaurada se verifica con consultas de solo lectura (conteos) y se borra al terminar.
+- No se apunta la app (`npm run dev`) a esa base ni se abre `/admin` contra ella.
+
+### Prueba real: respaldo de producción a una base desechable de Neon
 
 ```bash
-# 1. Bajar y descifrar (necesitas aws CLI y age; la llave privada sale del gestor de contraseñas)
+# 1. Base destino: en Neon, crear una base NUEVA y VACÍA (proyecto desechable aparte, no un branch de producción)
+#    y habilitar PostGIS (en su editor SQL: CREATE EXTENSION IF NOT EXISTS postgis;).
+#    Copiar su URL directa (sin pooler):
+export URL_DESTINO='<url directa de la base desechable>'
+
+# 2. Bajar el respaldo cifrado (el .age sí puede estar en disco)
 export AWS_ACCESS_KEY_ID=<llave R2 de respaldos> AWS_SECRET_ACCESS_KEY=<secreto>
 export AWS_DEFAULT_REGION=auto AWS_REQUEST_CHECKSUM_CALCULATION=when_required AWS_RESPONSE_CHECKSUM_VALIDATION=when_required
 ENDPOINT=https://<cuenta>.r2.cloudflarestorage.com
 aws s3 ls s3://guia-respaldos/base/ --endpoint-url "$ENDPOINT"
 aws s3 cp s3://guia-respaldos/base/<archivo>.dump.age . --endpoint-url "$ENDPOINT"
-age --decrypt --identity guia-respaldos.key --output respaldo.dump <archivo>.dump.age
 
-# 2. Servidor desechable con PostGIS, en un puerto que no choca con el de desarrollo (5433)
-docker run -d --name guia-restauracion -e POSTGRES_PASSWORD=desechable -p 127.0.0.1:55432:5432 postgis/postgis:17-3.5
-docker exec guia-restauracion createdb -h 127.0.0.1 -U postgres restaurada
+# 3. Descifrar y restaurar en el mismo paso, sin dejar el volcado en claro
+#    (llave privada: pegarla desde el gestor de contraseñas en guia-respaldos.key y borrarla al terminar)
+age --decrypt --identity guia-respaldos.key <archivo>.dump.age \
+  | pg_restore --no-owner --no-acl --dbname "$URL_DESTINO"
 
-# 3. Restaurar (sin dueños ni permisos) y comprobar
-docker exec -i guia-restauracion pg_restore --no-owner --no-acl -h 127.0.0.1 -U postgres -d restaurada < respaldo.dump
-docker exec guia-restauracion psql -h 127.0.0.1 -U postgres -d restaurada -c "select count(*) from users"
+# 4. Verificar con consultas de solo lectura
+psql "$URL_DESTINO" -c "select extname from pg_extension" \
+  -c "select count(*) from users" -c "select count(*) from lugares" -c "select count(*) from zonas"
 
-# 4. Abrir la app contra esa base y entrar a /admin (con un .env.local o variables de shell)
-DATABASE_URL=postgres://postgres:desechable@localhost:55432/restaurada \
-DATABASE_URL_UNPOOLED=postgres://postgres:desechable@localhost:55432/restaurada npm run dev
-
-# 5. Borrar todo, incluido el archivo descifrado
-docker rm -f -v guia-restauracion
-rm respaldo.dump respaldo.dump.age
+# 5. Limpiar: borrar el proyecto/base desechable en Neon, y localmente:
+rm -f <archivo>.dump.age guia-respaldos.key
+unset URL_DESTINO AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
 ```
 
-En lugar del contenedor local se puede usar una base desechable de Neon (una base o branch nuevo con la extensión
-`postgis` disponible), que se borra al terminar. Nunca la base `preview` ni la de producción.
+Idealmente los pasos 3 y 4 corren en un contenedor temporal sin carpetas montadas
+(`docker run --rm -it postgres:17`, con `age` instalado dentro) para no dejar nada en el equipo.
 Las imágenes no están en el volcado: viven en R2 y se restauran con `aws s3 sync` desde
-`s3://guia-respaldos/media/<fecha>/` hacia el bucket que corresponda.
-Anotar el resultado en el registro de abajo.
+`s3://guia-respaldos/media/<fecha>/` hacia el bucket que corresponda. Anotar el resultado en el registro de abajo.
+
+### Simulacro local con datos inventados
+
+Para ensayar el procedimiento sin datos reales (por ejemplo, tras `npm run seed` en la base local `guia`, con un
+volcado hecho por ti mismo y una llave `age` de prueba), el destino es un contenedor local con PostGIS:
+
+```bash
+docker run -d --name guia-restauracion -e POSTGRES_PASSWORD=desechable -p 127.0.0.1:55432:5432 postgis/postgis:17-3.5
+until docker exec guia-restauracion pg_isready -h 127.0.0.1 -U postgres; do sleep 2; done
+docker exec guia-restauracion createdb -h 127.0.0.1 -U postgres restaurada
+docker exec -i guia-restauracion pg_restore --no-owner --no-acl -h 127.0.0.1 -U postgres -d restaurada < simulacro.dump
+docker exec guia-restauracion psql -h 127.0.0.1 -U postgres -d restaurada -c "select count(*) from users"
+docker rm -f -v guia-restauracion
+rm simulacro.dump
+```
+
+(El puerto 55432 evita chocar con el de desarrollo, 5433.)
 
 ## Verificaciones de F2 (con cuentas de F0)
 
@@ -126,7 +160,7 @@ Anotar el resultado en el registro de abajo.
       quedó un objeto huérfano en R2; confirmar que la regla de ciclo de vida de arriba está puesta.
 - [ ] Correr «Respaldo» a mano (`workflow_dispatch`, rama `main`) y ver `base/<fecha>.dump.age` y `media/<fecha>/`
       en `guia-respaldos`. Antes debe existir `ops/respaldo.age.pub`.
-- [ ] Prueba de restauración (arriba) y anotarla en el registro.
+- [ ] Prueba real de restauración en una base desechable de Neon (arriba) y anotarla en el registro.
 
 ## Registro de pruebas de restauración
 
