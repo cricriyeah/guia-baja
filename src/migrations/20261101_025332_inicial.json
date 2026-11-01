@@ -100,6 +100,20 @@
           "primaryKey": true,
           "notNull": true
         },
+        "nombre_publico": {
+          "name": "nombre_publico",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rol": {
+          "name": "rol",
+          "type": "enum_users_rol",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'editor'"
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp(3) with time zone",
@@ -961,6 +975,14 @@
         "es",
         "en"
       ]
+    },
+    "public.enum_users_rol": {
+      "name": "enum_users_rol",
+      "schema": "public",
+      "values": [
+        "admin",
+        "editor"
+      ]
     }
   },
   "schemas": {},
@@ -973,6 +995,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "925c7412-d449-4bc6-9e45-c809a95ed93a",
+  "id": "06a1d0b7-e2b7-4074-9d79-c23e8102f7ec",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

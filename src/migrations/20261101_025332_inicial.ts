@@ -3,6 +3,7 @@ import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
    CREATE TYPE "public"."_locales" AS ENUM('es', 'en');
+  CREATE TYPE "public"."enum_users_rol" AS ENUM('admin', 'editor');
   CREATE TABLE "users_sessions" (
   	"_order" integer NOT NULL,
   	"_parent_id" integer NOT NULL,
@@ -13,6 +14,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   
   CREATE TABLE "users" (
   	"id" serial PRIMARY KEY NOT NULL,
+  	"nombre_publico" varchar NOT NULL,
+  	"rol" "enum_users_rol" DEFAULT 'editor',
   	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
   	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
   	"email" varchar NOT NULL,
@@ -132,5 +135,6 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "payload_preferences" CASCADE;
   DROP TABLE "payload_preferences_rels" CASCADE;
   DROP TABLE "payload_migrations" CASCADE;
-  DROP TYPE "public"."_locales";`)
+  DROP TYPE "public"."_locales";
+  DROP TYPE "public"."enum_users_rol";`)
 }
