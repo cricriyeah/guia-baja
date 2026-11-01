@@ -3,11 +3,13 @@ import type { CollectionConfig } from 'payload'
 import { soloPersonal, zonasPublicas } from '../acceso/reglas'
 import { campoSlug } from '../campos/slug'
 import { esSlugReservadoZona, esSlugValido } from '../dominio/slugs'
+import { hooksDeZona } from '../redirecciones/hooks'
 
 export const Zonas: CollectionConfig = {
   slug: 'zonas',
   admin: { useAsTitle: 'nombre', defaultColumns: ['nombre', 'slug', 'activa', 'orden'] },
   access: { read: zonasPublicas, create: soloPersonal, update: soloPersonal, delete: soloPersonal },
+  hooks: { afterChange: [hooksDeZona().afterChange] },
   defaultSort: 'orden',
   fields: [
     { name: 'nombre', type: 'text', localized: true, required: true },

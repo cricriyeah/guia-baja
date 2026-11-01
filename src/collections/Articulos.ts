@@ -5,9 +5,19 @@ import { lecturaPublicaPublicada, soloPersonal } from '../acceso/reglas'
 import { bloquesArticulo } from '../bloques/articulo'
 import { camposSeo } from '../campos/seo'
 import { campoSlug } from '../campos/slug'
+import { rutas } from '../dominio/rutas'
+import { destinoAlRetirarArticulo, hooksDeRedireccion } from '../redirecciones/hooks'
 
 export const CAMPOS_IDIOMA_ARTICULO = ['titulo', 'slug', 'resumen', 'cuerpo'] as const
 export const CAMPOS_LOCALIZADOS_ARTICULO = CAMPOS_IDIOMA_ARTICULO
+
+const redireccion = hooksDeRedireccion({
+  coleccion: 'articulos',
+  camposIdioma: CAMPOS_IDIOMA_ARTICULO,
+  camposLocalizados: CAMPOS_LOCALIZADOS_ARTICULO,
+  rutaDe: rutas.articulo,
+  destinoAlRetirar: destinoAlRetirarArticulo,
+})
 
 // El público no lee Users; el nombre del autor viaja copiado en el artículo.
 // Lee con el adaptador de base (no Local API) para no tocar req.locale (regla de hooks del plan).
@@ -34,7 +44,12 @@ export const Articulos: CollectionConfig = {
     update: soloPersonal,
     delete: soloPersonal,
   },
-  hooks: { beforeChange: [copiarNombreAutor] },
+  hooks: {
+    beforeChange: [copiarNombreAutor, redireccion.beforeChange],
+    afterChange: [redireccion.afterChange],
+    beforeDelete: [redireccion.beforeDelete],
+    afterDelete: [redireccion.afterDelete],
+  },
   defaultSort: '-publicadoEl',
   fields: [
     { name: 'titulo', type: 'text', localized: true, required: true },

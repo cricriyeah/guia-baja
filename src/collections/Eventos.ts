@@ -4,9 +4,19 @@ import { lecturaPublicaPublicada, soloPersonal } from '../acceso/reglas'
 import { grupoPatrocinio } from '../campos/patrocinio'
 import { camposSeo } from '../campos/seo'
 import { campoSlug } from '../campos/slug'
+import { rutas } from '../dominio/rutas'
+import { destinoAlRetirarEvento, hooksDeRedireccion } from '../redirecciones/hooks'
 
 export const CAMPOS_IDIOMA_EVENTO = ['nombre', 'slug', 'resumen', 'cuerpo'] as const
 export const CAMPOS_LOCALIZADOS_EVENTO = ['nombre', 'slug', 'resumen', 'cuerpo', 'precio'] as const
+
+const redireccion = hooksDeRedireccion({
+  coleccion: 'eventos',
+  camposIdioma: CAMPOS_IDIOMA_EVENTO,
+  camposLocalizados: CAMPOS_LOCALIZADOS_EVENTO,
+  rutaDe: rutas.evento,
+  destinoAlRetirar: destinoAlRetirarEvento,
+})
 
 const fechaHora: DateField['admin'] = { date: { pickerAppearance: 'dayAndTime' } }
 
@@ -20,6 +30,12 @@ export const Eventos: CollectionConfig = {
     create: soloPersonal,
     update: soloPersonal,
     delete: soloPersonal,
+  },
+  hooks: {
+    beforeChange: [redireccion.beforeChange],
+    afterChange: [redireccion.afterChange],
+    beforeDelete: [redireccion.beforeDelete],
+    afterDelete: [redireccion.afterDelete],
   },
   defaultSort: 'inicio',
   fields: [

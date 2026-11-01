@@ -4,9 +4,19 @@ import { lecturaPublicaPublicada, soloPersonal } from '../acceso/reglas'
 import { grupoPatrocinio } from '../campos/patrocinio'
 import { camposSeo } from '../campos/seo'
 import { campoSlug } from '../campos/slug'
+import { rutas } from '../dominio/rutas'
+import { destinoAlRetirarLugar, hooksDeRedireccion } from '../redirecciones/hooks'
 
 export const CAMPOS_IDIOMA_LUGAR = ['slug', 'resumen', 'cuerpo'] as const
 export const CAMPOS_LOCALIZADOS_LUGAR = ['slug', 'resumen', 'cuerpo', 'notaHorario'] as const
+
+const redireccion = hooksDeRedireccion({
+  coleccion: 'lugares',
+  camposIdioma: CAMPOS_IDIOMA_LUGAR,
+  camposLocalizados: CAMPOS_LOCALIZADOS_LUGAR,
+  rutaDe: rutas.lugar,
+  destinoAlRetirar: destinoAlRetirarLugar,
+})
 
 const DIAS = [
   { label: 'Lunes', value: 'lunes' },
@@ -37,6 +47,12 @@ export const Lugares: CollectionConfig = {
     create: soloPersonal,
     update: soloPersonal,
     delete: soloPersonal,
+  },
+  hooks: {
+    beforeChange: [redireccion.beforeChange],
+    afterChange: [redireccion.afterChange],
+    beforeDelete: [redireccion.beforeDelete],
+    afterDelete: [redireccion.afterDelete],
   },
   defaultSort: 'orden',
   fields: [

@@ -15,6 +15,7 @@ import { Solicitudes } from './collections/Solicitudes'
 import { Users } from './collections/Users'
 import { Zonas } from './collections/Zonas'
 import { AjustesGuia } from './globals/AjustesGuia'
+import { pluginRedirecciones } from './redirecciones/plugin'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -48,5 +49,5 @@ export default buildConfig({
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
   sharp,
-  plugins: [...pluginsAlmacenamiento(process.env)],
+  plugins: [pluginRedirecciones, ...pluginsAlmacenamiento(process.env)],
 })
