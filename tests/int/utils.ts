@@ -79,3 +79,58 @@ export async function crearImagen(payload: Payload) {
     overrideAccess: true,
   })
 }
+
+export function lexical(texto: string) {
+  return {
+    root: {
+      type: 'root',
+      format: '' as const,
+      indent: 0,
+      version: 1,
+      direction: 'ltr' as const,
+      children: [
+        {
+          type: 'paragraph',
+          format: '' as const,
+          indent: 0,
+          version: 1,
+          direction: 'ltr' as const,
+          textFormat: 0,
+          children: [{ type: 'text', text: texto, format: 0, style: '', mode: 'normal' as const, detail: 0, version: 1 }],
+        },
+      ],
+    },
+  }
+}
+
+export async function crearLugar(
+  payload: Payload,
+  op: { zona: number; categorias: number[]; foto: number; slugEs: string; slugEn?: string; publicado?: boolean },
+) {
+  const status = op.publicado === false ? 'draft' : 'published'
+  const doc = await payload.create({
+    collection: 'lugares',
+    locale: 'es',
+    data: {
+      nombre: op.slugEs,
+      slug: op.slugEs,
+      zona: op.zona,
+      categorias: op.categorias,
+      fotos: [op.foto],
+      resumen: `Resumen de ${op.slugEs}`,
+      cuerpo: lexical(`Cuerpo de ${op.slugEs}`),
+      _status: status,
+    },
+    overrideAccess: true,
+    context: { sinRedirecciones: true },
+  })
+  if (!op.slugEn) return doc
+  return payload.update({
+    collection: 'lugares',
+    id: doc.id,
+    locale: 'en',
+    data: { slug: op.slugEn, resumen: `Summary of ${op.slugEn}`, cuerpo: lexical(`Body of ${op.slugEn}`), _status: status },
+    overrideAccess: true,
+    context: { sinRedirecciones: true },
+  })
+}

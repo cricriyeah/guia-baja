@@ -24,6 +24,8 @@ export interface Config {
     media: Media;
     zonas: Zona;
     categorias: Categoria;
+    lugares: Lugare;
+    eventos: Evento;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -35,6 +37,8 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     zonas: ZonasSelect<false> | ZonasSelect<true>;
     categorias: CategoriasSelect<false> | CategoriasSelect<true>;
+    lugares: LugaresSelect<false> | LugaresSelect<true>;
+    eventos: EventosSelect<false> | EventosSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -211,6 +215,135 @@ export interface Categoria {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lugares".
+ */
+export interface Lugare {
+  id: number;
+  nombre: string;
+  /**
+   * Se genera del nombre; minúsculas sin acentos, con guiones.
+   */
+  slug?: string | null;
+  zona: number | Zona;
+  /**
+   * La primera es la principal: decide el tipo de schema.org.
+   */
+  categorias: (number | Categoria)[];
+  resumen?: string | null;
+  cuerpo?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  fotos: (number | Media)[];
+  direccion?: string | null;
+  /**
+   * @minItems 2
+   * @maxItems 2
+   */
+  coordenadas?: [number, number] | null;
+  telefono?: string | null;
+  whatsapp?: string | null;
+  web?: string | null;
+  instagram?: string | null;
+  rangoPrecio?: ('$' | '$$' | '$$$' | '$$$$') | null;
+  horario?:
+    | {
+        dia: 'lunes' | 'martes' | 'miercoles' | 'jueves' | 'viernes' | 'sabado' | 'domingo';
+        abre: string;
+        cierra: string;
+        id?: string | null;
+      }[]
+    | null;
+  notaHorario?: string | null;
+  orden?: number | null;
+  /**
+   * Vigente si está activo y desde ≤ hoy < hasta (días en hora de BCS).
+   */
+  patrocinio?: {
+    activo?: boolean | null;
+    desde?: string | null;
+    hasta?: string | null;
+    notaInterna?: string | null;
+  };
+  seo?: {
+    metaTitulo?: string | null;
+    metaDescripcion?: string | null;
+    noIndexar?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventos".
+ */
+export interface Evento {
+  id: number;
+  nombre: string;
+  /**
+   * Se genera del nombre; minúsculas sin acentos, con guiones.
+   */
+  slug?: string | null;
+  zona: number | Zona;
+  lugar?: (number | null) | Lugare;
+  direccionLibre?: string | null;
+  categorias?: (number | Categoria)[] | null;
+  inicio: string;
+  inicio_tz: SupportedTimezones;
+  fin?: string | null;
+  fin_tz?: SupportedTimezones;
+  precio?: string | null;
+  gratis?: boolean | null;
+  urlBoletos?: string | null;
+  fotos: (number | Media)[];
+  resumen?: string | null;
+  cuerpo?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Vigente si está activo y desde ≤ hoy < hasta (días en hora de BCS).
+   */
+  patrocinio?: {
+    activo?: boolean | null;
+    desde?: string | null;
+    hasta?: string | null;
+    notaInterna?: string | null;
+  };
+  seo?: {
+    metaTitulo?: string | null;
+    metaDescripcion?: string | null;
+    noIndexar?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -248,6 +381,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'categorias';
         value: number | Categoria;
+      } | null)
+    | ({
+        relationTo: 'lugares';
+        value: number | Lugare;
+      } | null)
+    | ({
+        relationTo: 'eventos';
+        value: number | Evento;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -409,6 +550,94 @@ export interface CategoriasSelect<T extends boolean = true> {
   orden?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lugares_select".
+ */
+export interface LugaresSelect<T extends boolean = true> {
+  nombre?: T;
+  slug?: T;
+  zona?: T;
+  categorias?: T;
+  resumen?: T;
+  cuerpo?: T;
+  fotos?: T;
+  direccion?: T;
+  coordenadas?: T;
+  telefono?: T;
+  whatsapp?: T;
+  web?: T;
+  instagram?: T;
+  rangoPrecio?: T;
+  horario?:
+    | T
+    | {
+        dia?: T;
+        abre?: T;
+        cierra?: T;
+        id?: T;
+      };
+  notaHorario?: T;
+  orden?: T;
+  patrocinio?:
+    | T
+    | {
+        activo?: T;
+        desde?: T;
+        hasta?: T;
+        notaInterna?: T;
+      };
+  seo?:
+    | T
+    | {
+        metaTitulo?: T;
+        metaDescripcion?: T;
+        noIndexar?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventos_select".
+ */
+export interface EventosSelect<T extends boolean = true> {
+  nombre?: T;
+  slug?: T;
+  zona?: T;
+  lugar?: T;
+  direccionLibre?: T;
+  categorias?: T;
+  inicio?: T;
+  inicio_tz?: T;
+  fin?: T;
+  fin_tz?: T;
+  precio?: T;
+  gratis?: T;
+  urlBoletos?: T;
+  fotos?: T;
+  resumen?: T;
+  cuerpo?: T;
+  patrocinio?:
+    | T
+    | {
+        activo?: T;
+        desde?: T;
+        hasta?: T;
+        notaInterna?: T;
+      };
+  seo?:
+    | T
+    | {
+        metaTitulo?: T;
+        metaDescripcion?: T;
+        noIndexar?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

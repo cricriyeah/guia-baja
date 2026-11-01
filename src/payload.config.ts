@@ -7,6 +7,8 @@ import { fileURLToPath } from 'url'
 
 import { pluginsAlmacenamiento } from './almacenamiento'
 import { Categorias } from './collections/Categorias'
+import { Eventos } from './collections/Eventos'
+import { Lugares } from './collections/Lugares'
 import { Media } from './collections/Media'
 import { Users } from './collections/Users'
 import { Zonas } from './collections/Zonas'
@@ -22,7 +24,7 @@ export default buildConfig({
       defaultTimezone: 'America/Mazatlan',
     },
   },
-  collections: [Users, Media, Zonas, Categorias],
+  collections: [Users, Media, Zonas, Categorias, Lugares, Eventos],
   localization: {
     locales: [
       { label: 'Español', code: 'es' },

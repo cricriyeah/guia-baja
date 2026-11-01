@@ -17,3 +17,11 @@ export function inicioDelDiaMazatlan(fecha: Date | string): Date {
   const d = typeof fecha === 'string' ? new Date(fecha) : fecha
   return new Date(`${diaEnMazatlan(d)}T00:00:00${DESFASE}`)
 }
+
+// Los campos «solo día» (dayOnly) de Payload 3.92.1 se guardan a mediodía UTC desde el panel y a 00:00Z desde la
+// Local API («2026-11-01»). En ambos casos el día elegido es el día calendario UTC del valor guardado: leerlo con
+// el huso de BCS (UTC−7) movería el 00:00Z al día anterior. Para instantes reales usar inicioDelDiaMazatlan.
+export function inicioDelDiaGuardado(valor: Date | string): Date {
+  const d = typeof valor === 'string' ? new Date(valor) : valor
+  return new Date(`${d.toISOString().slice(0, 10)}T00:00:00${DESFASE}`)
+}
