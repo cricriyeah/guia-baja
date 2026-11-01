@@ -124,6 +124,26 @@ describe('redirecciones automáticas', () => {
     ])
   })
 
+  // Spec §7: la combinación cuenta lugares con la regla de idioma (existeEnIdioma), sin el que se retira.
+  it('retirar un idioma vaciando el contenido del único lugar de la combinación manda a la zona', async () => {
+    const l = await crearLugar(payload, { ...base, slugEs: 'luna', slugEn: 'moon' })
+    await payload.update({ collection: 'lugares', id: l.id, locale: 'en', data: { cuerpo: lexical(''), _status: 'published' }, overrideAccess: true })
+    expect(await redirecciones()).toEqual([{ from: '/en/guide/places/moon', to: '/en/guide/la-paz', type: '308' }])
+  })
+
+  it('el cambio de slug de una categoría no crea redirecciones con zonas inactivas', async () => {
+    await crearZona(payload, { slug: 'zona-oculta', activa: false })
+    await payload.update({ collection: 'categorias', id: base.categorias[0], locale: 'en', data: { slug: 'cafe' }, overrideAccess: true })
+    const r = await redirecciones()
+    expect(r).toHaveLength(2)
+    expect(r.some((x) => x.from.includes('zona-oculta') || x.to?.includes('zona-oculta'))).toBe(false)
+  })
+
+  it('cambiar el slug de una zona en el mismo guardado que la desactiva no crea redirecciones', async () => {
+    await payload.update({ collection: 'zonas', id: base.zona, data: { slug: 'lapaz', activa: false }, overrideAccess: true })
+    expect(await redirecciones()).toEqual([])
+  })
+
   it('borrar un artículo publicado manda a su primera zona, solo en los idiomas donde existía', async () => {
     const editor = await crearUsuario(payload, 'editor')
     const a = await payload.create({

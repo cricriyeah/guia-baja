@@ -20,8 +20,10 @@ export type OpcionesRedireccion = {
   camposIdioma: readonly string[]
   camposLocalizados: readonly string[]
   rutaDe: (locale: Locale, slug: string) => string
-  destinoAlRetirar: (req: PayloadRequest, antes: Doc, locale: Locale) => Promise<string>
+  destinoAlRetirar: (req: PayloadRequest, antes: Doc, locale: Locale, campos: CamposIdioma) => Promise<string>
 }
+
+type CamposIdioma = Pick<OpcionesRedireccion, 'camposIdioma' | 'camposLocalizados'>
 
 const LLAVE = 'redirecciones:instantaneas'
 const omitir = (req: PayloadRequest) => Boolean(req.context?.sinRedirecciones)
@@ -74,7 +76,7 @@ function hooksDeActualizacion(
   return { beforeChange, afterChange }
 }
 
-export function instantaneaDe(doc: Doc | null, op: Pick<OpcionesRedireccion, 'camposIdioma' | 'camposLocalizados'>): Instantanea {
+export function instantaneaDe(doc: Doc | null, op: CamposIdioma): Instantanea {
   if (!doc) return NO_PUBLICADO
   const slugs: Instantanea['slugs'] = {}
   const existe = { es: false, en: false } as Instantanea['existe']
@@ -90,7 +92,7 @@ async function aplicar(req: PayloadRequest, op: OpcionesRedireccion, antes: Doc 
   if (!antes) return
   for (const c of calcularCambios(instantaneaDe(antes, op), instantaneaDe(despues, op))) {
     const desde = op.rutaDe(c.locale, c.tipo === 'cambioSlug' ? c.slugViejo : c.slug)
-    const hacia = c.tipo === 'cambioSlug' ? op.rutaDe(c.locale, c.slugNuevo) : await op.destinoAlRetirar(req, antes, c.locale)
+    const hacia = c.tipo === 'cambioSlug' ? op.rutaDe(c.locale, c.slugNuevo) : await op.destinoAlRetirar(req, antes, c.locale, op)
     await registrarRedireccion(req, { desde, hacia })
   }
 }
@@ -132,7 +134,12 @@ async function zonaActiva(req: PayloadRequest, zona: unknown): Promise<{ id: num
   return z?.activa && z.slug ? { id: z.id, slug: z.slug } : null
 }
 
-export async function destinoAlRetirarLugar(req: PayloadRequest, antes: Doc, locale: Locale): Promise<string> {
+export async function destinoAlRetirarLugar(
+  req: PayloadRequest,
+  antes: Doc,
+  locale: Locale,
+  campos: CamposIdioma,
+): Promise<string> {
   const zona = await zonaActiva(req, antes.zona)
   if (!zona) return rutas.portada(locale)
   const catId = idDe(Array.isArray(antes.categorias) ? antes.categorias[0] : undefined)
@@ -143,22 +150,28 @@ export async function destinoAlRetirarLugar(req: PayloadRequest, antes: Doc, loc
       | Doc
       | null
     const slugCat = cat ? aplanarIdioma(cat, locale, ['slug']).slug : undefined
-    const { totalDocs } = await req.payload.db.count({
-      collection: 'lugares',
-      locale,
-      req,
-      where: {
-        and: [
-          { zona: { equals: zona.id } },
-          { categorias: { in: [catId] } },
-          { _status: { equals: 'published' } },
-          { slug: { exists: true } },
-          { resumen: { exists: true } },
-          { cuerpo: { exists: true } },
-        ],
-      },
-    })
-    if (typeof slugCat === 'string' && slugCat && combinacionTienePagina(totalDocs))
+    // Spec §7: la combinación cuenta los lugares que existen en el idioma según la regla de idioma
+    // (no basta con `exists` en SQL: '' o un Lexical sin texto no cuentan), sin el que se retira.
+    const candidatos = (
+      await req.payload.db.find({
+        collection: 'lugares',
+        locale: 'all',
+        pagination: false,
+        req,
+        where: {
+          and: [
+            { id: { not_equals: antes.id } },
+            { zona: { equals: zona.id } },
+            { categorias: { in: [catId] } },
+            { _status: { equals: 'published' } },
+          ],
+        },
+      })
+    ).docs as Doc[]
+    const conteo = candidatos.filter((d) =>
+      existeEnIdioma(aplanarIdioma(d, locale, campos.camposLocalizados), campos.camposIdioma),
+    ).length
+    if (typeof slugCat === 'string' && slugCat && combinacionTienePagina(conteo))
       return rutas.categoriaEnZona(locale, zona.slug, slugCat)
   }
   return rutas.zona(locale, zona.slug)
@@ -180,7 +193,9 @@ export function hooksDeZona() {
     if (omitir(req) || operation !== 'update') return doc
     const viejo = previousDoc?.slug as string | undefined
     const nuevo = doc.slug as string | undefined
-    if (!previousDoc?.activa || !viejo || !nuevo || viejo === nuevo) return doc
+    // Solo una zona pública antes y después: si este mismo guardado la desactiva, no hay a dónde redirigir
+    // (y la redirección expondría el slug de una zona no publicada).
+    if (!previousDoc?.activa || !doc.activa || !viejo || !nuevo || viejo === nuevo) return doc
     const categorias = (await req.payload.db.find({ collection: 'categorias', locale: 'all', pagination: false, req }))
       .docs as Doc[]
     for (const l of LOCALES) {
@@ -204,7 +219,10 @@ export function hooksDeZona() {
 export function hooksDeCategoria() {
   return hooksDeActualizacion('categorias', async (req, antes, despues) => {
     if (!antes || !despues) return
-    const zonas = (await req.payload.db.find({ collection: 'zonas', pagination: false, req })).docs as Doc[]
+    // Solo zonas activas: una redirección con una zona inactiva expondría su slug en `redirects` (lectura pública).
+    const zonas = (
+      await req.payload.db.find({ collection: 'zonas', where: { activa: { equals: true } }, pagination: false, req })
+    ).docs as Doc[]
     for (const l of LOCALES) {
       const viejo = aplanarIdioma(antes, l, ['slug']).slug
       const nuevo = aplanarIdioma(despues, l, ['slug']).slug
