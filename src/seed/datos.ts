@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto'
+
 import type { Payload } from 'payload'
 
 import type { Lugare } from '../payload-types'
@@ -54,7 +56,7 @@ export async function sembrar(
     collection: 'users',
     data: {
       email: 'admin@guia.local',
-      password: opciones.contrasenaAdmin ?? 'cambia-esta-contrasena',
+      password: opciones.contrasenaAdmin ?? randomUUID(), // sin contraseña conocida por defecto
       nombrePublico: 'Equipo de la guía',
       rol: 'admin',
     },

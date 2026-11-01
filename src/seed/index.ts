@@ -2,9 +2,12 @@ import { getPayload } from 'payload'
 
 import config from '../payload.config'
 import { sembrar } from './datos'
+import { verificarSeed } from './guardia'
 
-if (process.env.SEED_PERMITIDO !== 'true') {
-  console.error('El seed borra todo. Solo corre con SEED_PERMITIDO=true (local o base de previews).')
+// La guardia corre antes de abrir Payload: nada se escribe si falla.
+const guardia = verificarSeed(process.env)
+if (!guardia.permitido) {
+  console.error(guardia.motivo)
   process.exit(1)
 }
 
