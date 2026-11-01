@@ -1,0 +1,1 @@
+CREATE DATABASE guia_test;
