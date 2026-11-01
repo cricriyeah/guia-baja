@@ -104,11 +104,11 @@ El volcado de producción contiene datos reales (correos, teléfonos, hashes de 
 ```bash
 # 1. Base destino: en Neon, crear una base NUEVA y VACÍA (proyecto desechable aparte, no un branch de producción)
 #    y habilitar PostGIS (en su editor SQL: CREATE EXTENSION IF NOT EXISTS postgis;).
-#    Copiar su URL directa (sin pooler):
-export URL_DESTINO='<url directa de la base desechable>'
+#    Pegar su URL directa (sin pooler) sin dejarla en el historial del shell (no se muestra al teclear):
+read -rs URL_DESTINO; export URL_DESTINO
 
 # 2. Bajar el respaldo cifrado (el .age sí puede estar en disco)
-export AWS_ACCESS_KEY_ID=<llave R2 de respaldos> AWS_SECRET_ACCESS_KEY=<secreto>
+read -rs AWS_ACCESS_KEY_ID; read -rs AWS_SECRET_ACCESS_KEY; export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
 export AWS_DEFAULT_REGION=auto AWS_REQUEST_CHECKSUM_CALCULATION=when_required AWS_RESPONSE_CHECKSUM_VALIDATION=when_required
 ENDPOINT=https://<cuenta>.r2.cloudflarestorage.com
 aws s3 ls s3://guia-respaldos/base/ --endpoint-url "$ENDPOINT"
@@ -116,6 +116,7 @@ aws s3 cp s3://guia-respaldos/base/<archivo>.dump.age . --endpoint-url "$ENDPOIN
 
 # 3. Descifrar y restaurar en el mismo paso, sin dejar el volcado en claro
 #    (llave privada: pegarla desde el gestor de contraseñas en guia-respaldos.key y borrarla al terminar)
+set -o pipefail   # si falla el descifrado, el comando completo falla (no sale con 0)
 age --decrypt --identity guia-respaldos.key <archivo>.dump.age \
   | pg_restore --no-owner --no-acl --dbname "$URL_DESTINO"
 
@@ -130,8 +131,18 @@ unset URL_DESTINO AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
 
 Idealmente los pasos 3 y 4 corren en un contenedor temporal sin carpetas montadas
 (`docker run --rm -it postgres:17`, con `age` instalado dentro) para no dejar nada en el equipo.
-Las imágenes no están en el volcado: viven en R2 y se restauran con `aws s3 sync` desde
-`s3://guia-respaldos/media/<fecha>/` hacia el bucket que corresponda. Anotar el resultado en el registro de abajo.
+Anotar el resultado en el registro de abajo.
+
+### Imágenes
+
+Las imágenes no están en el volcado: viven en R2 y se respaldan en `s3://guia-respaldos/media/<fecha>/`.
+
+- **Prueba de restauración:** sincronizar a un bucket **desechable** creado solo para la prueba
+  (por ejemplo `guia-restauracion-prueba`, con una llave propia limitada a él) y borrarlo, con su llave, al terminar:
+  `aws s3 sync s3://guia-respaldos/media/<fecha> s3://guia-restauracion-prueba --endpoint-url "$ENDPOINT"`.
+  **Prohibido** usar `guia-media` (producción) y `guia-media-preview` como destino de una prueba.
+- **Recuperación real ante desastre** (se perdió o corrompió `guia-media`): escribir de vuelta en `guia-media` es un
+  paso aparte, explícito y decidido por el dueño, nunca parte de una prueba, y **nunca con `--delete`**.
 
 ### Simulacro local con datos inventados
 
