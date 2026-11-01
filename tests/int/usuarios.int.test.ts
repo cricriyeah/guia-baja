@@ -101,6 +101,17 @@ describe('Users', () => {
     await expect(payload.find({ collection: 'users', overrideAccess: false })).rejects.toThrow()
   })
 
+  it('solo un admin puede desbloquear cuentas', async () => {
+    const admin = await crearUsuario(payload, 'admin')
+    const editor = await crearUsuario(payload, 'editor')
+    await expect(
+      payload.unlock({ collection: 'users', data: { email: admin.email, password: CONTRASENA_PRUEBA }, overrideAccess: false, req: { user: editor } }),
+    ).rejects.toThrow()
+    await expect(
+      payload.unlock({ collection: 'users', data: { email: editor.email, password: CONTRASENA_PRUEBA }, overrideAccess: false, req: { user: admin } }),
+    ).resolves.toBe(true)
+  })
+
   it('bloquea tras 5 intentos fallidos durante 10 minutos', () => {
     const auth = payload.collections.users.config.auth
     expect(auth.maxLoginAttempts).toBe(5)

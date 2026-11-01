@@ -48,6 +48,8 @@ export const Users: CollectionConfig = {
     create: soloAdmin,
     update: adminOEsUnoMismo,
     delete: soloAdmin,
+    // Por defecto Payload deja desbloquear a cualquier usuario autenticado, lo que anula el bloqueo.
+    unlock: soloAdmin,
   },
   hooks: {
     beforeOperation: [validarContrasenaAlRestablecer],
