@@ -122,7 +122,10 @@ export interface User {
  */
 export interface Media {
   id: number;
-  alt: string;
+  alt: {
+    es: string;
+    en: string;
+  };
   credito?: string | null;
   prefix?: string | null;
   _objectKey?: string | null;
@@ -579,7 +582,12 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
-  alt?: T;
+  alt?:
+    | T
+    | {
+        es?: T;
+        en?: T;
+      };
   credito?: T;
   prefix?: T;
   _objectKey?: T;

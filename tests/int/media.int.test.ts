@@ -25,16 +25,40 @@ describe('Media', () => {
     expect(m.sizes?.og?.height).toBe(630)
   })
 
-  it('exige alt', async () => {
+  async function crearConAlt(alt: unknown) {
     const data = await imagenDePrueba()
-    await expect(
-      payload.create({
-        collection: 'media',
-        data: {} as never,
-        file: { data, mimetype: 'image/jpeg', name: 'sin-alt.jpg', size: data.length },
-        overrideAccess: true,
-      }),
-    ).rejects.toThrow()
+    return payload.create({
+      collection: 'media',
+      data: { alt } as never,
+      file: { data, mimetype: 'image/jpeg', name: 'alt.jpg', size: data.length },
+      overrideAccess: true,
+    })
+  }
+
+  // Los errores de validación de Payload traen el detalle en err.data.errors, no en err.message.
+  async function erroresDeValidacion(alt: unknown) {
+    const err = (await crearConAlt(alt).then(
+      () => null,
+      (e: unknown) => e,
+    )) as { data?: { errors?: { path: string; message: string }[] } } | null
+    expect(err, 'la creación debía rechazarse').not.toBeNull()
+    return err?.data?.errors ?? []
+  }
+
+  it('exige alt en español y en inglés', async () => {
+    expect((await erroresDeValidacion(undefined)).map((e) => e.path).sort()).toEqual(['alt.en', 'alt.es'])
+    const sinEn = await erroresDeValidacion({ es: 'Solo español' })
+    expect(sinEn.map((e) => e.path)).toEqual(['alt.en'])
+    expect(sinEn[0].message).toMatch(/required|obligatorio|requerido/i)
+    expect((await erroresDeValidacion({ en: 'English only' })).map((e) => e.path)).toEqual(['alt.es'])
+    expect((await erroresDeValidacion({ es: 'Texto', en: '' })).map((e) => e.path)).toEqual(['alt.en'])
+  })
+
+  it('guarda alt en los dos idiomas aunque la petición sea de un solo idioma', async () => {
+    const m = await crearConAlt({ es: 'Playa', en: 'Beach' })
+    expect(m.alt).toEqual({ es: 'Playa', en: 'Beach' })
+    const leida = await payload.findByID({ collection: 'media', id: m.id, locale: 'en', fallbackLocale: false })
+    expect(leida.alt).toEqual({ es: 'Playa', en: 'Beach' })
   })
 
   it('rechaza archivos de más de 20 MB', async () => {
@@ -42,7 +66,7 @@ describe('Media', () => {
     await expect(
       payload.create({
         collection: 'media',
-        data: { alt: 'grande' },
+        data: { alt: { es: 'grande', en: 'big' } },
         file: { data, mimetype: 'image/jpeg', name: 'grande.jpg', size: 21 * 1024 * 1024 },
         overrideAccess: true,
       }),
@@ -57,7 +81,7 @@ describe('Media', () => {
     await expect(
       payload.create({
         collection: 'media',
-        data: { alt: 'x' },
+        data: { alt: { es: 'x', en: 'x' } },
         file: { data, mimetype: 'image/jpeg', name: 'x.jpg', size: data.length },
         overrideAccess: false,
       }),
@@ -69,7 +93,7 @@ describe('Media', () => {
     const data = await imagenDePrueba()
     const m = await payload.create({
       collection: 'media',
-      data: { alt: 'x' },
+      data: { alt: { es: 'x', en: 'x' } },
       file: { data, mimetype: 'image/jpeg', name: 'editor.jpg', size: data.length },
       overrideAccess: false,
       user: editor,

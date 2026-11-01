@@ -52,6 +52,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   
   CREATE TABLE "media" (
   	"id" serial PRIMARY KEY NOT NULL,
+  	"alt_es" varchar NOT NULL,
+  	"alt_en" varchar NOT NULL,
   	"credito" varchar,
   	"prefix" varchar DEFAULT '',
   	"_objectkey" varchar,
@@ -90,13 +92,6 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"sizes_og_mime_type" varchar,
   	"sizes_og_filesize" numeric,
   	"sizes_og_filename" varchar
-  );
-  
-  CREATE TABLE "media_locales" (
-  	"alt" varchar NOT NULL,
-  	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
-  	"_parent_id" integer NOT NULL
   );
   
   CREATE TABLE "zonas" (
@@ -531,7 +526,6 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   );
   
   ALTER TABLE "users_sessions" ADD CONSTRAINT "users_sessions_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
-  ALTER TABLE "media_locales" ADD CONSTRAINT "media_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."media"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "zonas" ADD CONSTRAINT "zonas_foto_id_media_id_fk" FOREIGN KEY ("foto_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "zonas_locales" ADD CONSTRAINT "zonas_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."zonas"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "categorias_locales" ADD CONSTRAINT "categorias_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."categorias"("id") ON DELETE cascade ON UPDATE no action;
@@ -604,8 +598,6 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "media_sizes_s960_sizes_s960_filename_idx" ON "media" USING btree ("sizes_s960_filename");
   CREATE INDEX "media_sizes_s1600_sizes_s1600_filename_idx" ON "media" USING btree ("sizes_s1600_filename");
   CREATE INDEX "media_sizes_og_sizes_og_filename_idx" ON "media" USING btree ("sizes_og_filename");
-  CREATE UNIQUE INDEX "media_locales_locale_parent_id_unique" ON "media_locales" USING btree ("_locale","_parent_id");
-  CREATE INDEX "media_locales_parent_id_idx" ON "media_locales" USING btree ("_parent_id");
   CREATE UNIQUE INDEX "zonas_slug_idx" ON "zonas" USING btree ("slug");
   CREATE INDEX "zonas_foto_idx" ON "zonas" USING btree ("foto_id");
   CREATE UNIQUE INDEX "zonas_sede_slug_idx" ON "zonas" USING btree ("sede_slug");
@@ -765,7 +757,6 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
    DROP TABLE "users_sessions" CASCADE;
   DROP TABLE "users" CASCADE;
   DROP TABLE "media" CASCADE;
-  DROP TABLE "media_locales" CASCADE;
   DROP TABLE "zonas" CASCADE;
   DROP TABLE "zonas_locales" CASCADE;
   DROP TABLE "categorias" CASCADE;

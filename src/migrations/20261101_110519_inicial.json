@@ -242,6 +242,18 @@
           "primaryKey": true,
           "notNull": true
         },
+        "alt_es": {
+          "name": "alt_es",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "alt_en": {
+          "name": "alt_en",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
         "credito": {
           "name": "credito",
           "type": "varchar",
@@ -582,95 +594,6 @@
         }
       },
       "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.media_locales": {
-      "name": "media_locales",
-      "schema": "",
-      "columns": {
-        "alt": {
-          "name": "alt",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "_locale": {
-          "name": "_locale",
-          "type": "_locales",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "_parent_id": {
-          "name": "_parent_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "media_locales_locale_parent_id_unique": {
-          "name": "media_locales_locale_parent_id_unique",
-          "columns": [
-            {
-              "expression": "_locale",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "_parent_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "media_locales_parent_id_idx": {
-          "name": "media_locales_parent_id_idx",
-          "columns": [
-            {
-              "expression": "_parent_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "media_locales_parent_id_fk": {
-          "name": "media_locales_parent_id_fk",
-          "tableFrom": "media_locales",
-          "tableTo": "media",
-          "columnsFrom": [
-            "_parent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -6615,6 +6538,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "62acd3e5-d19b-4ba8-875a-fedc637da560",
+  "id": "9c93a2a3-79c9-41ad-a111-21bb5e0e2981",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

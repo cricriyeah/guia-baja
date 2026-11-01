@@ -74,7 +74,7 @@ export async function crearImagen(payload: Payload) {
   return payload.create({
     collection: 'media',
     locale: 'es',
-    data: { alt: 'Imagen de prueba' },
+    data: { alt: { es: 'Imagen de prueba', en: 'Test image' } },
     file: { data, mimetype: 'image/jpeg', name: `prueba-${randomUUID().slice(0, 8)}.jpg`, size: data.length },
     overrideAccess: true,
   })

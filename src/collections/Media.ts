@@ -42,7 +42,17 @@ export const Media: CollectionConfig = {
     ],
   },
   fields: [
-    { name: 'alt', type: 'text', localized: true, required: true },
+    // Obligatorio en los dos idiomas (spec §6). Payload edita un idioma a la vez, así que un campo
+    // localizado y requerido solo se exigiría en el idioma activo: son dos campos no localizados.
+    {
+      name: 'alt',
+      type: 'group',
+      label: { es: 'Texto alternativo', en: 'Alt text' },
+      fields: [
+        { name: 'es', type: 'text', required: true, label: 'Español' },
+        { name: 'en', type: 'text', required: true, label: 'English' },
+      ],
+    },
     { name: 'credito', type: 'text' },
   ],
 }

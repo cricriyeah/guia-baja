@@ -71,15 +71,12 @@ export async function sembrar(
       await payload.create({
         collection: 'media',
         locale: 'es',
-        data: { alt: `Foto de prueba ${i + 1}`, credito: 'Generada' },
+        data: { alt: { es: `Foto de prueba ${i + 1}`, en: `Sample photo ${i + 1}` }, credito: 'Generada' },
         file: { data, mimetype: 'image/jpeg', name: `semilla-${i + 1}.jpg`, size: data.length },
         overrideAccess: true,
         context: ctx,
       }),
     )
-  }
-  for (const f of fotos) {
-    await payload.update({ collection: 'media', id: f.id, locale: 'en', data: { alt: `Sample photo ${f.id}` }, overrideAccess: true, context: ctx })
   }
 
   const zonas = []
