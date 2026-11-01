@@ -1,0 +1,87 @@
+name: Respaldo
+
+on:
+  schedule:
+    - cron: '0 9 * * *'   # base, diario 02:00 en BCS (UTC-7, sin horario de verano)
+    - cron: '0 10 * * 0'  # imágenes, domingos 03:00 en BCS
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Un respaldo a la vez (evita que un disparo manual pise al programado).
+concurrency:
+  group: respaldo
+  cancel-in-progress: false
+
+# Los secretos viven solo en el environment `respaldos` (restringido a `main`).
+# Ningún paso imprime variables ni activa `set -x`; los logs no llevan datos de la base.
+jobs:
+  base:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 9 * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: respaldos
+    # Misma versión mayor que la base de Neon; actualizar si Neon cambia de versión.
+    # El cliente no necesita PostGIS: el volcado lleva `CREATE EXTENSION` y se restaura en un
+    # servidor con PostGIS (docs/operacion.md).
+    container: postgres:17
+    env:
+      AWS_DEFAULT_REGION: auto
+      # R2 no acepta bien los checksums por defecto de AWS CLI >= 2.23.
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+      AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verificar la llave pública de cifrado
+        run: |
+          if [ ! -s ops/respaldo.age.pub ]; then
+            echo "::error::Falta ops/respaldo.age.pub (llave pública age del dueño). Ver docs/operacion.md, «Llave de cifrado de respaldos»."
+            exit 1
+          fi
+          if ! grep -Eq '^age1[a-z0-9]+$' ops/respaldo.age.pub; then
+            echo "::error::ops/respaldo.age.pub no contiene una llave pública age (una línea que empiece con age1)."
+            exit 1
+          fi
+      - name: Herramientas
+        run: apt-get update && apt-get install -y --no-install-recommends age awscli ca-certificates
+      - name: pg_dump
+        env:
+          URL: ${{ secrets.DATABASE_URL_UNPOOLED_PROD }}
+        run: |
+          pg_dump "$URL" --format=custom --no-owner --no-acl --file=respaldo.dump
+          # Comprueba que el archivo se puede leer antes de cifrarlo (sin imprimir su contenido).
+          pg_restore --list respaldo.dump > /dev/null
+      - name: Cifrar con la llave pública del dueño
+        run: age --recipients-file ops/respaldo.age.pub --output respaldo.dump.age respaldo.dump && rm respaldo.dump
+      - name: Subir a guia-respaldos
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_RESPALDOS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_RESPALDOS_SECRET }}
+          ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+        run: aws s3 cp respaldo.dump.age "s3://guia-respaldos/base/$(date -u +%Y-%m-%dT%H%MZ).dump.age" --endpoint-url "$ENDPOINT" --only-show-errors
+
+  media:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 10 * * 0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: respaldos
+    env:
+      AWS_DEFAULT_REGION: auto
+      # R2 no acepta bien los checksums por defecto de AWS CLI >= 2.23.
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+      AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+      ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+    steps:
+      - name: Bajar guia-media (llave de solo lectura)
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_LECTURA_MEDIA_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_LECTURA_MEDIA_SECRET }}
+        run: aws s3 sync s3://guia-media ./media --endpoint-url "$ENDPOINT" --only-show-errors
+      - name: Subir a guia-respaldos/media (llave del bucket de respaldos)
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_RESPALDOS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_RESPALDOS_SECRET }}
+        run: aws s3 sync ./media "s3://guia-respaldos/media/$(date -u +%Y-%m-%d)" --endpoint-url "$ENDPOINT" --only-show-errors

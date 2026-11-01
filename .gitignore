@@ -50,3 +50,8 @@ node_modules/
 /playwright/.cache/
 
 /tests/int/media
+
+# Respaldos: nunca llaves privadas ni volcados
+*.key
+*.dump
+*.dump.age
