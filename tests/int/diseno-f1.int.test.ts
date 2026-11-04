@@ -156,6 +156,37 @@ describe('Backoffice del diseño de F1', () => {
       expect(cambio.publicadoEl).toBe(pub.publicadoEl)
       expect(new Date(cambio.actualizadoEl as string).getTime()).toBeGreaterThan(new Date(pub.actualizadoEl as string).getTime())
     })
+
+    it('guardar un borrador sobre un artículo publicado no mueve las fechas publicadas', async () => {
+      const a = await borrador()
+      const pub = await payload.update({ collection: 'articulos', id: a.id, locale: 'es', data: { _status: 'published' }, overrideAccess: true })
+      await new Promise((r) => setTimeout(r, 20))
+      await payload.update({
+        collection: 'articulos', id: a.id, locale: 'es', draft: true,
+        data: { resumen: 'en borrador', _status: 'draft' },
+        overrideAccess: true,
+      })
+      const publicado = await payload.findByID({ collection: 'articulos', id: a.id, locale: 'es', draft: false, overrideAccess: true })
+      expect(publicado._status).toBe('published')
+      expect(publicado.publicadoEl).toBe(pub.publicadoEl)
+      expect(publicado.actualizadoEl).toBe(pub.actualizadoEl)
+    })
+
+    it('restaurar una versión de antes de publicar no borra la primera publicación', async () => {
+      const a = await borrador()
+      const pub = await payload.update({ collection: 'articulos', id: a.id, locale: 'es', data: { _status: 'published' }, overrideAccess: true })
+      const versiones = await payload.findVersions({
+        collection: 'articulos', where: { parent: { equals: a.id } }, sort: 'createdAt', overrideAccess: true,
+      })
+      const restaurado = await payload.restoreVersion({ collection: 'articulos', id: String(versiones.docs[0].id), overrideAccess: true })
+      expect(restaurado._status).toBe('draft')
+      expect(restaurado.publicadoEl).toBe(pub.publicadoEl)
+      expect(restaurado.actualizadoEl).toBe(pub.actualizadoEl)
+
+      await new Promise((r) => setTimeout(r, 20))
+      const otraVez = await payload.update({ collection: 'articulos', id: a.id, locale: 'es', data: { _status: 'published' }, overrideAccess: true })
+      expect(otraVez.publicadoEl).toBe(pub.publicadoEl)
+    })
   })
 
   describe('Artículos: lugares citados', () => {
@@ -220,6 +251,86 @@ describe('Backoffice del diseño de F1', () => {
         overrideAccess: true,
       })
       expect(guardado.lugaresCitados?.map((l) => (typeof l === 'number' ? l : l.id))).toEqual([a.id])
+    })
+
+    describe('con borradores y versiones', () => {
+      const idsDe = (doc: { lugaresCitados?: (number | { id: number })[] | null }) =>
+        new Set(doc.lugaresCitados?.map((l) => (typeof l === 'number' ? l : l.id)))
+
+      async function preparar() {
+        const zona = await crearZona(payload)
+        const cat = await crearCategoria(payload)
+        const foto = await crearImagen(payload)
+        const a = await crearLugar(payload, { zona: zona.id, categorias: [cat.id], foto: foto.id, slugEs: 'lugar-a' })
+        const b = await crearLugar(payload, { zona: zona.id, categorias: [cat.id], foto: foto.id, slugEs: 'lugar-b' })
+        const editor = await crearUsuario(payload, 'editor')
+        const art = await payload.create({
+          collection: 'articulos', locale: 'es',
+          data: { titulo: 'Versiones', portada: foto.id, autor: editor.id, resumen: 'r', cuerpo: conTarjeta(a.id) as never, _status: 'published' },
+          overrideAccess: true,
+        })
+        return { a, b, art }
+      }
+
+      it('al publicar desde es cuenta la tarjeta que se agregó en un borrador en', async () => {
+        const { a, b, art } = await preparar()
+        await payload.update({
+          collection: 'articulos', id: art.id, locale: 'en', draft: true,
+          data: { titulo: 'Versions', resumen: 'r', cuerpo: conTarjeta(b.id) as never },
+          overrideAccess: true,
+        })
+        const publicado = await payload.update({
+          collection: 'articulos', id: art.id, locale: 'es',
+          data: { resumen: 'publicado desde es', _status: 'published' },
+          overrideAccess: true,
+        })
+        // Payload publica el cuerpo en del borrador junto con el de es.
+        const en = await payload.findByID({ collection: 'articulos', id: art.id, locale: 'en', draft: false, depth: 0, overrideAccess: true })
+        expect(JSON.stringify(en.cuerpo)).toContain(`"lugar":${b.id}`)
+        expect(idsDe(publicado)).toEqual(new Set([a.id, b.id]))
+      })
+
+      it('al publicar desde es suelta la tarjeta que se quitó en un borrador en', async () => {
+        const { a, b, art } = await preparar()
+        await payload.update({
+          collection: 'articulos', id: art.id, locale: 'en',
+          data: { titulo: 'Versions', resumen: 'r', cuerpo: conTarjeta(b.id) as never, _status: 'published' },
+          overrideAccess: true,
+        })
+        await payload.update({
+          collection: 'articulos', id: art.id, locale: 'en', draft: true,
+          data: { cuerpo: lexical('ya sin tarjeta') },
+          overrideAccess: true,
+        })
+        const publicado = await payload.update({
+          collection: 'articulos', id: art.id, locale: 'es',
+          data: { resumen: 'publicado desde es', _status: 'published' },
+          overrideAccess: true,
+        })
+        expect(idsDe(publicado)).toEqual(new Set([a.id]))
+      })
+
+      it('restaurar una versión deja los lugares citados de esa versión', async () => {
+        const { a, b, art } = await preparar()
+        await payload.update({
+          collection: 'articulos', id: art.id, locale: 'en',
+          data: { titulo: 'Versions', resumen: 'r', cuerpo: conTarjeta(b.id) as never, _status: 'published' },
+          overrideAccess: true,
+        })
+        const versiones = await payload.findVersions({
+          collection: 'articulos', where: { parent: { equals: art.id } }, sort: '-createdAt', limit: 1, overrideAccess: true,
+        })
+        const conAyB = versiones.docs[0]
+        const sinB = await payload.update({
+          collection: 'articulos', id: art.id, locale: 'en',
+          data: { cuerpo: lexical('ya sin tarjeta'), _status: 'published' },
+          overrideAccess: true,
+        })
+        expect(idsDe(sinB)).toEqual(new Set([a.id]))
+
+        const restaurado = await payload.restoreVersion({ collection: 'articulos', id: String(conAyB.id), depth: 0, overrideAccess: true })
+        expect(idsDe(restaurado)).toEqual(new Set([a.id, b.id]))
+      })
     })
   })
 
