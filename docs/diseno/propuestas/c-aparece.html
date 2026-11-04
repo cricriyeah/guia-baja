@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aparece en la Guía · Propuesta C</title>
+<meta name="description" content="Propuesta C: formulario para negocios.">
+<link rel="stylesheet" href="c-base.css">
+<script src="c-base.js"></script>
+<style>
+.negocios { display: grid; gap: 32px; padding-top: 8px; }
+@media (min-width: 1024px) { .negocios { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 56px; align-items: start; } }
+.explica { display: grid; gap: 16px; }
+@media (min-width: 1024px) { .explica { position: sticky; top: calc(var(--cabecera) + 24px); } }
+.explica > p { font-size: 1.125rem; color: var(--tinta-suave); max-width: 52ch; }
+.pasos { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 10px; }
+.pasos li { display: grid; grid-template-columns: 40px 1fr; gap: 12px; align-items: start; padding: 14px; border-radius: var(--radio-control); background: var(--arena); }
+.pasos b { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--tinta); color: var(--blanco); font: 700 1rem var(--titulo); }
+.pasos strong { display: block; }
+.explica__foto { border-radius: var(--radio-card); overflow: hidden; aspect-ratio: 16 / 9; }
+.explica__foto img { width: 100%; height: 100%; object-fit: cover; }
+
+.forma { border-radius: var(--radio-card); box-shadow: 0 0 0 1px var(--borde); padding: clamp(18px, 3vw, 28px); display: grid; gap: 18px; background: var(--blanco); }
+.forma h2 { font: 700 1.375rem/1.15 var(--titulo); text-transform: uppercase; }
+.fila2 { display: grid; gap: 18px; }
+@media (min-width: 640px) { .fila2 { grid-template-columns: 1fr 1fr; } }
+.campo { display: grid; gap: 6px; }
+.campo label, .campo legend { font-weight: 600; font-size: .9375rem; }
+.campo .ayuda { color: var(--apagado); font-size: .8125rem; }
+.campo input, .campo select, .campo textarea { font: inherit; font-size: 1rem; min-height: 48px; padding: 10px 14px; border-radius: var(--radio-control); border: 1px solid var(--borde-control); background: var(--blanco); color: var(--tinta); transition: border-color 150ms, box-shadow 150ms; }
+.campo textarea { min-height: 120px; resize: vertical; }
+.campo input:focus, .campo select:focus, .campo textarea:focus { outline: none; border-color: var(--azul); box-shadow: 0 0 0 3px rgb(27 96 127 / .18); }
+.campo.error input, .campo.error select, .campo.error textarea { border-color: #A83226; }
+.campo .msg { display: none; align-items: center; gap: 6px; color: #A83226; font-size: .875rem; font-weight: 600; }
+.campo.error .msg { display: flex; }
+.campo.ok input { border-color: #2F5D0A; }
+.contador { justify-self: end; font-size: .8125rem; color: var(--apagado); font-variant-numeric: tabular-nums; }
+.contador.cerca { color: #6B3A00; font-weight: 700; }
+.casilla { display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: start; font-size: .9375rem; }
+.casilla input { width: 22px; height: 22px; margin: 2px 0 0; accent-color: var(--cafe); }
+.casilla a { color: var(--cafe); font-weight: 600; text-decoration: underline; }
+.turnstile { display: flex; align-items: center; gap: 12px; height: 65px; padding: 0 14px; border-radius: 6px; border: 1px solid var(--borde); background: #FAFAFA; font-size: .875rem; color: var(--tinta-suave); max-width: 300px; }
+.turnstile i { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--exito); display: grid; place-items: center; color: var(--exito); font-style: normal; font-weight: 700; }
+.enviar { position: relative; }
+.enviar[aria-busy="true"] { color: transparent; pointer-events: none; }
+.enviar[aria-busy="true"]::after { content: ""; position: absolute; width: 20px; height: 20px; border-radius: 50%; border: 2px solid rgb(255 255 255 / .4); border-top-color: var(--blanco); animation: girar 700ms linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }
+.estado-error { display: none; padding: 12px 14px; border-radius: var(--radio-control); background: #FCECEB; color: #A83226; font-weight: 600; }
+.estado-error.visible { display: block; }
+.listo { display: none; text-align: center; padding: 32px 12px; gap: 12px; justify-items: center; }
+.listo.visible { display: grid; animation: aparecer 500ms var(--curva); }
+@keyframes aparecer { from { opacity: 0; transform: translateY(12px) scale(.98); } }
+.listo svg { width: 72px; height: 72px; }
+.listo svg path { stroke-dasharray: 60; stroke-dashoffset: 60; animation: trazo 600ms 200ms var(--curva) forwards; }
+@keyframes trazo { to { stroke-dashoffset: 0; } }
+.listo h2 { font: 700 1.5rem/1.15 var(--titulo); text-transform: uppercase; }
+.listo p { color: var(--tinta-suave); max-width: 44ch; }
+.cerrado { border-radius: var(--radio-card); background: var(--arena); padding: 28px; display: grid; gap: 10px; }
+.cerrado h2 { font: 700 1.375rem/1.15 var(--titulo); text-transform: uppercase; }
+.demo { margin-top: 12px; font-size: .875rem; color: var(--apagado); }
+.demo a { color: var(--cafe); font-weight: 600; }
+@media (prefers-reduced-motion: reduce) { .listo.visible, .listo svg path { animation: none; stroke-dashoffset: 0; } }
+</style>
+</head>
+<body>
+<div data-cabecera="portada"></div>
+
+<main class="ancho">
+  <nav class="migas" aria-label="Migas de pan"><a href="c-portada.html">Guía</a><span aria-hidden="true">›</span><span aria-current="page">Aparece en la Guía</span></nav>
+
+  <div class="negocios">
+    <section class="explica" aria-labelledby="titulo">
+      <h1 id="titulo" class="t-pagina">Aparece en la Guía</h1>
+      <p>Si tienes un restaurante, una tienda, un tour o cualquier negocio en la Baja que valga la pena conocer, cuéntanos de él.</p>
+      <ol class="pasos">
+        <li><b>1</b><span><strong>Nos escribes aquí.</strong> Solo pedimos lo necesario para contactarte.</span></li>
+        <li><b>2</b><span><strong>Te contactamos.</strong> El equipo de la Guía revisa cada solicitud y, si encaja, visita tu negocio.</span></li>
+        <li><b>3</b><span><strong>Publicamos tu ficha.</strong> Con fotos, horario, mapa y tus datos de contacto, en español y en inglés.</span></li>
+      </ol>
+      <p class="meta">¿Quieres que tu negocio salga entre los primeros de su categoría? Pregúntanos por el patrocinio en el mensaje.</p>
+      <div class="explica__foto"><img src="img/pangas-playa.webp" alt="Pangas en una playa de la bahía" loading="lazy"></div>
+    </section>
+
+    <section aria-label="Formulario">
+      <!-- Si formularioActivo está apagado en «Ajustes de la guía», la página explica que pronto se abre (spec §7) -->
+      <div class="cerrado" id="cerrado" hidden>
+        <h2>Muy pronto</h2>
+        <p>Estamos preparando el formulario. Mientras tanto, escríbenos por WhatsApp desde el pie de esta página.</p>
+      </div>
+
+      <form class="forma" id="forma" novalidate>
+        <h2>Cuéntanos de tu negocio</h2>
+        <div class="campo" data-req><label for="negocio">Nombre del negocio</label><input id="negocio" name="negocio" autocomplete="organization" required><span class="msg" role="alert">⚠ Escribe el nombre del negocio.</span></div>
+        <div class="fila2">
+          <div class="campo"><label for="giro">Giro <span class="ayuda">(opcional)</span></label><input id="giro" name="giro" placeholder="Restaurante, tienda, tour…"></div>
+          <div class="campo"><label for="zona">Zona</label><select id="zona" name="zona"><option value="">Elige una zona</option><option>La Paz</option><option>La Ventana</option><option>Puerto Chale</option><option value="otra">Otra</option></select></div>
+        </div>
+        <div class="campo" id="campo-zona-texto" hidden><label for="zonaTexto">¿Dónde está?</label><input id="zonaTexto" name="zonaTexto" placeholder="Ciudad o localidad"></div>
+        <div class="campo"><label for="contactoNombre">Tu nombre <span class="ayuda">(opcional)</span></label><input id="contactoNombre" name="contactoNombre" autocomplete="name"></div>
+        <div class="fila2">
+          <div class="campo" data-contacto><label for="correo">Correo</label><input id="correo" name="correo" type="email" autocomplete="email" inputmode="email"><span class="msg" role="alert">⚠ Revisa el correo.</span></div>
+          <div class="campo" data-contacto><label for="telefono">Teléfono o WhatsApp</label><input id="telefono" name="telefono" type="tel" autocomplete="tel" inputmode="tel"><span class="msg" role="alert">⚠ Revisa el teléfono.</span></div>
+        </div>
+        <p class="ayuda" id="ayuda-contacto" style="margin-top:-8px;font-size:.8125rem;color:var(--apagado)">Con uno de los dos basta.</p>
+        <div class="campo"><label for="webOInstagram">Sitio web o Instagram <span class="ayuda">(opcional)</span></label><input id="webOInstagram" name="webOInstagram" placeholder="@tunegocio"></div>
+        <div class="campo"><label for="mensaje">Mensaje <span class="ayuda">(opcional)</span></label><textarea id="mensaje" name="mensaje" maxlength="2000" placeholder="Qué ofreces, horario, lo que te hace distinto…"></textarea><span class="contador" id="contador">0 / 2000</span></div>
+        <div class="campo" data-acepto><label class="casilla"><input type="checkbox" id="acepto" name="aceptoPrivacidad"><span>Leí y acepto el <a href="c-privacidad.html">aviso de privacidad de la Guía</a> (versión 2026-11).</span></label><span class="msg" role="alert">⚠ Hay que aceptar el aviso de privacidad.</span></div>
+        <div class="turnstile" aria-label="Verificación de Cloudflare Turnstile"><i>✓</i><span>Verificación lista<br><small>Cloudflare Turnstile</small></span></div>
+        <p class="estado-error" id="estado-error" role="alert">No pudimos enviar tu solicitud. Inténtalo de nuevo en unos minutos.</p>
+        <button class="boton presionable enviar" type="submit" id="enviar">Enviar solicitud</button>
+      </form>
+
+      <div class="listo forma" id="listo" role="status" tabindex="-1">
+        <svg viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="34" fill="#E7F5D3"/><path d="M22 37l9 9 19-20" fill="none" stroke="#2F5D0A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h2>¡Recibimos tu solicitud!</h2>
+        <p>El equipo de la Guía la revisa y te contacta por el medio que nos dejaste. Gracias por querer aparecer.</p>
+        <a class="boton boton--secundario presionable" href="c-portada.html">Volver a la Guía</a>
+      </div>
+      <p class="demo">Prototipo: <a href="?cerrado=1">formulario apagado</a> · <a href="?falla=1">envío con error</a> · <a href="c-aparece.html">normal</a></p>
+    </section>
+  </div>
+</main>
+<div data-pie></div>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  const q = new URLSearchParams(location.search);
+  if (q.has('cerrado')) { $('#cerrado').hidden = false; $('#forma').hidden = true; }
+
+  const forma = $('#forma');
+  const correoOk = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+  const telOk = (v) => v.replace(/\D/g, '').length >= 10;
+
+  // Zona «Otra» → texto libre (Solicitudes.zonaTexto); si no, relación a Zonas
+  $('#zona').addEventListener('change', (e) => { $('#campo-zona-texto').hidden = e.target.value !== 'otra'; });
+
+  // Contador del mensaje (máximo 2000 en el backoffice)
+  const msj = $('#mensaje'), cont = $('#contador');
+  msj.addEventListener('input', () => { cont.textContent = `${msj.value.length} / 2000`; cont.classList.toggle('cerca', msj.value.length > 1800); });
+
+  // Validación en línea: al salir del campo y al corregirlo, no solo al enviar
+  function validar(campo) {
+    const c = campo.closest('.campo');
+    let ok = true;
+    if (campo.id === 'negocio') ok = campo.value.trim() !== '';
+    if (campo.id === 'correo' && campo.value) ok = correoOk(campo.value);
+    if (campo.id === 'telefono' && campo.value) ok = telOk(campo.value);
+    if (campo.id === 'acepto') ok = campo.checked;
+    c.classList.toggle('error', !ok);
+    c.classList.toggle('ok', ok && !!campo.value && campo.type !== 'checkbox');
+    return ok;
+  }
+  $$('#negocio, #correo, #telefono').forEach((i) => {
+    i.addEventListener('blur', () => validar(i));
+    i.addEventListener('input', () => { if (i.closest('.campo').classList.contains('error')) validar(i); });
+  });
+  $('#acepto').addEventListener('change', (e) => validar(e.target));
+
+  forma.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const correo = $('#correo'), tel = $('#telefono');
+    let ok = validar($('#negocio')) & validar($('#acepto'));
+    const hayContacto = correo.value || tel.value;
+    $('#correo').closest('.campo').querySelector('.msg').textContent = hayContacto ? '⚠ Revisa el correo.' : '⚠ Escribe un correo o un teléfono.';
+    $('#telefono').closest('.campo').querySelector('.msg').textContent = hayContacto ? '⚠ Revisa el teléfono.' : '⚠ Escribe un correo o un teléfono.';
+    $('#ayuda-contacto').hidden = !hayContacto;
+    if (!hayContacto) { $$('[data-contacto]').forEach((c) => c.classList.add('error')); ok = 0; }
+    else { $$('[data-contacto]').forEach((c) => c.classList.remove('error')); ok &= (correo.value ? validar(correo) : 1) & (tel.value ? validar(tel) : 1); }
+    if (!ok) { forma.querySelector('.error input, .error select, .error textarea')?.focus(); return; }
+    // Envío: Server Action en F3 (crea la Solicitud con overrideAccess, guarda versionAviso e ipHash)
+    const boton = $('#enviar'); boton.setAttribute('aria-busy', 'true'); $('#estado-error').classList.remove('visible');
+    setTimeout(() => {
+      boton.removeAttribute('aria-busy');
+      if (q.has('falla')) { $('#estado-error').classList.add('visible'); return; }
+      forma.hidden = true; const listo = $('#listo'); listo.classList.add('visible'); listo.focus();
+    }, 1100);
+  });
+})();
+</script>
+</body>
+</html>

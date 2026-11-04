@@ -28,6 +28,8 @@ en dos contratos de lectura (sección 8).
   en Payload.
 - Sitio público en español e inglés con las páginas de la sección 7.
 - Formulario «Aparece en la guía» que crea Solicitudes y avisa por correo.
+- Búsqueda de texto libre por idioma, con página de resultados (sección 7, «Búsqueda»). Entró a v1 el
+  2026-11-03, al aprobar el diseño de F1.
 - Patrocinio manual con fechas de vigencia y etiqueta visible.
 - SEO técnico completo (metadatos, `hreflang`, JSON-LD, sitemap propio, redirecciones automáticas).
 - «Tours en esta zona» leyendo la API pública del catálogo.
@@ -43,7 +45,6 @@ en dos contratos de lectura (sección 8).
 - Cobro en línea de patrocinios.
 - Eventos recurrentes automáticos (cada edición es su propio evento).
 - Comentarios, reseñas o calificaciones.
-- Búsqueda de texto libre.
 - Monitoreo externo (Sentry o similar). Se usan los logs de Vercel.
 - Doble factor en el admin (Payload no lo trae; se compensa con la sección 11, «Seguridad de Payload»).
 
@@ -270,13 +271,17 @@ borradores, versiones y publicación programada.
 - `sedeSlug` (opcional): slug de la sede del sitio de reservas (`la-paz`, `la-ventana`, `puerto-chale`). Si
   existe, la zona muestra «Tours en esta zona» y es la llave del contrato de la sección 8.2.
 - El `slug` no puede ser una palabra reservada: `lugares`, `places`, `eventos`, `events`, `articulos`,
-  `articles`, `categoria`, `category`, `aparece-en-la-guia`, `get-listed`, `privacidad`, `privacy`.
+  `articles`, `categoria`, `category`, `aparece-en-la-guia`, `get-listed`, `privacidad`, `privacy`, `buscar`,
+  `search`.
 - Una zona con `activa = false` no tiene página ni aparece en listados.
 
 ### Categorías
 - `nombre` (es/en), `slug` (es/en: `restaurantes` / `restaurants`), `aplicaA` (lugar, evento o ambos),
   `tipoSchema` (tipo de schema.org para los lugares de la categoría: `Restaurant`, `CafeOrCoffeeShop`,
   `BarOrPub`, `Store`, `TouristAttraction`, `Beach`, `LocalBusiness`…), `orden`.
+- `grupo` (obligatorio, lista cerrada): `mar`, `aire-libre`, `comer-y-salir` o `lo-local`. Decide el color de la
+  categoría en el sitio (`docs/diseno/lineamientos.md`, «Color por grupo de categorías»). Nadie escribe códigos
+  de color.
 - Carga inicial: restaurantes, cafés y bares, actividades, playas, tiendas locales, mercados, cultura.
 
 ### Lugares
@@ -284,7 +289,11 @@ borradores, versiones y publicación programada.
   principal y decide el `tipoSchema`), `resumen` (es/en, máx. 160 caracteres), `cuerpo` (es/en), `fotos`
   (1 o más).
 - `direccion`, `coordenadas`, `telefono`, `whatsapp`, `web`, `instagram`, `rangoPrecio` ($ a $$$$).
-- `horario`: lista de `{ dia, abre, cierra }` + `notaHorario` (es/en).
+- `horario`: lista de `{ dia, abre, cierra }` + `notaHorario` (es/en). Un día puede tener varios tramos; un
+  tramo con `cierra ≤ abre` pasa de medianoche. Sin filas, el horario no se conoce y el sitio no muestra
+  «Abierto» ni «Cerrado».
+- `caracteristicas` (opcional, varias, lista cerrada definida en código): `para-ninos`, `con-comida`,
+  `solo-con-tour`. Alimentan el filtro `?caracteristica=` (sección 7).
 - `orden` (número, por defecto 100) para el orden editorial.
 - Grupo `patrocinio`: `activo`, `desde`, `hasta` (fechas; cuentan desde las 00:00 de `America/Mazatlan`),
   `notaInterna`.
@@ -295,20 +304,35 @@ borradores, versiones y publicación programada.
 
 ### Eventos
 - `nombre` (es/en), `slug` (es/en), `zona`, `lugar` (relación opcional a Lugares) **o** `direccionLibre`,
-  `categorias`, `inicio`, `fin` (opcional), `precio` (texto es/en) o `gratis`, `urlBoletos`, `fotos`,
+  `categorias` (1 o más; la primera da la etiqueta y el color), `inicio`, `fin` (opcional), `precio` (texto es/en) o `gratis`, `urlBoletos`, `fotos`,
   `resumen` (es/en), `cuerpo` (es/en), grupo `patrocinio` (igual que Lugares).
 - Las fechas se capturan y muestran en `America/Mazatlan` (hora de BCS).
 - **Próximo** si `(fin ?? inicio) ≥ ahora`. **Pasado** en otro caso: sale de los listados, su página sigue
   publicada con la marca «Ya pasó» y sigue en el sitemap.
 
 ### Artículos
-- `titulo` (es/en), `slug` (es/en), `zonas` (opcional, varias), `resumen` (es/en), `portada`, `autor`
-  (usuario; se muestra su nombre público), `publicadoEl`, `actualizadoEl` (visible en la página).
+- `titulo` (es/en), `slug` (es/en), `zonas` (opcional, varias), `categorias` (opcional, varias; la primera da
+  la etiqueta y el color), `resumen` (es/en), `portada`, `autor` (usuario; se muestra su nombre público),
+  `publicadoEl` (se fija la primera vez que se publica), `actualizadoEl` (visible en la página; se actualiza
+  cada vez que se publica un cambio).
+- `lugaresCitados` (oculto en el admin): los lugares de sus bloques «Tarjeta de lugar», en los dos idiomas.
+  Lo llena un hook al guardar; alimenta «Aparece en» de la ficha del lugar.
 - `cuerpo` (es/en) con bloques insertables:
   - **Tarjeta de lugar** (relación a Lugares).
   - **Tarjeta de evento** (relación a Eventos).
   - **Tours en esta zona** (relación a Zona; usa el contrato 8.1).
   - **Preguntas frecuentes** (lista de pregunta/respuesta es/en; genera `FAQPage`).
+
+### Textos de zona × categoría
+- `zona`, `categoria` (de las que aplican a lugares) e `introduccion` (es/en). Un registro por par.
+- Es la introducción de la página «Categoría en zona». Si el par no tiene registro, la página arma un texto
+  automático (por ejemplo «8 playas en La Paz, visitadas por el equipo de la Guía»).
+
+### Fotos de tours
+- `sedeSlug`, `tipo` (`servicio` o `paquete`) y `slug`: identifican un tour del catálogo (8.1). Únicos juntos.
+- `foto` (Media) y `temporada` (texto es/en, opcional, p. ej. «enero a marzo»).
+- El catálogo no manda fotos ni temporada; estas tarjetas las toman de aquí. Un tour sin registro se muestra
+  como tarjeta de texto (nombre, precio, duración).
 
 ### Solicitudes
 - `negocio`, `giro`, `zona` (texto libre o relación), `contactoNombre`, `correo`, `telefono`,
@@ -341,10 +365,17 @@ borradores, versiones y publicación programada.
 - `nombrePublico`, `correo`, `rol` (`admin` o `editor`).
 
 ### Global «Ajustes de la guía»
-- `correosAviso` (lista de correos que reciben las Solicitudes), `correoPrivacidad` (para solicitudes ARCO),
-  `formularioActivo` (apagado hasta que el aviso de privacidad esté publicado), textos de portada (es/en).
+- `correosAviso` (lista de correos que reciben las Solicitudes; solo personal), `correoPrivacidad` (para
+  solicitudes ARCO; de lectura pública, porque el aviso lo muestra), `formularioActivo` (apagado hasta que el
+  aviso de privacidad esté publicado), textos de portada (es/en).
+- Aviso de privacidad de la Guía: `avisoPrivacidad` (texto enriquecido es/en), `versionAviso` (p. ej.
+  `2026-11`) y `avisoVigenteDesde` (fecha). Cada cambio de texto lleva versión nueva; la Solicitud guarda la
+  versión aceptada (sección 12).
 
 ### Reglas comunes
+- **Destacar en portada:** Lugares, Eventos y Artículos tienen `destacadoEnPortada` (casilla) y
+  `ordenDestacado` (número). La portada muestra los destacados por ese orden; un evento destacado que ya pasó
+  deja de mostrarse. Un lugar o evento destacado con patrocinio declarado lleva su etiqueta también ahí.
 - **SEO por documento:** `metaTitulo` y `metaDescripcion` (es/en) opcionales (si faltan se usan nombre/título
   y resumen) y `noIndexar`.
 - **Slugs:** se generan del nombre o título, en minúsculas ASCII con guiones, editables, únicos por colección
@@ -368,18 +399,23 @@ borradores, versiones y publicación programada.
 | Eventos | `/es/guia/eventos` | `/en/guide/events` |
 | Evento | `/es/guia/eventos/{slug}` | `/en/guide/events/{slug}` |
 | Artículo | `/es/guia/articulos/{slug}` | `/en/guide/articles/{slug}` |
+| Búsqueda | `/es/guia/buscar?q=` | `/en/guide/search?q=` |
 | Negocios | `/es/guia/aparece-en-la-guia` | `/en/guide/get-listed` |
 | Aviso de privacidad | `/es/guia/privacidad` | `/en/guide/privacy` |
 | Sitemap | `/guia-sitemap.xml` (ambos idiomas) | |
 
 Qué muestra cada una:
 
-- **Portada:** próximos eventos, artículos recientes, zonas activas y categorías.
+- **Portada:** destacados (los marcados «destacar en portada»), zonas activas, próximos eventos, artículos
+  recientes y categorías.
 - **Zona:** introducción, artículos de la zona, lugares por categoría, próximos eventos y, si la zona tiene
   `sedeSlug`, «Tours en esta zona».
-- **Categoría en zona:** listado de lugares. Es la página que compite por «{categoría} en {zona}».
+- **Categoría en zona:** introducción (Textos de zona × categoría), listado de lugares y, si la zona tiene
+  `sedeSlug`, «Tours en esta zona». Es la página que compite por «{categoría} en {zona}».
 - **Categoría en todas las zonas:** lugares de esa categoría agrupados por zona.
-- **Lugar:** ficha completa con mapa, horario, contacto y, si aplica, «Tours en esta zona».
+- **Lugar:** ficha completa con galería, mapa, horario, contacto, distancia en línea recta a las coordenadas
+  de su zona, eventos en ese lugar, artículos donde aparece (`lugaresCitados`) y, si aplica, «Tours en esta
+  zona».
 - **Eventos:** próximos eventos por fecha, con filtro por zona.
 - **Evento:** detalle; si ya pasó, la marca «Ya pasó» arriba.
 - **Artículo:** cuerpo con sus bloques.
@@ -397,7 +433,8 @@ Qué muestra cada una:
 - Una píldora aparece solo si su combinación tiene **al menos 1** lugar publicado en ese idioma.
 - Una combinación con **menos de 3** lugares en un idioma tiene página en ese idioma, pero lleva `noindex` y
   no entra al sitemap. El mismo umbral aplica a «Categoría en todas las zonas».
-- Filtros secundarios (`?precio=`, `?abierto=`, `?zona=` y fechas en eventos) son parámetros de consulta.
+- Filtros secundarios (`?precio=`, `?abierto=`, `?caracteristica=`, `?zona=` y fechas en eventos) son
+  parámetros de consulta.
   Esas variantes llevan canónica a la página sin parámetros y `noindex`.
 - Paginación con URL real (`?pagina=2`), sin scroll infinito. La paginación no es un filtro: cada página
   lleva canónica a sí misma y es indexable si la página 1 lo es; `?pagina=1` redirige a la URL sin
@@ -417,12 +454,29 @@ aplica el código, no el editor.
 En artículos el patrocinio no cambia el texto; solo se muestra la etiqueta junto a la tarjeta del lugar.
 
 ### Navegación
-
-- Cabecera y pie replican los del sitio de reservas (logo, menú, idioma), según `docs/diseno/`. Sus links al
-  sitio son `<a>` (sección 4).
+- **Cabecera propia de la Guía** (decisión del 2026-11-03; ya no replica la del sitio de reservas). Sello de
+  marca (isotipo de Sun Baja y «Guía de la Baja», link a la portada de la guía), zonas activas, búsqueda,
+  idioma y un solo link al sitio de reservas que nombra su destino y conoce la zona: «Tours en {zona} →» a la
+  página de la sede si la zona tiene `sedeSlug`, o «Tours en la Baja →» a la portada del sitio. En celular va
+  en una fila y las zonas, debajo, se esconden al bajar. Diseño en `docs/diseno/propuestas/`.
+- **El pie sí replica el del sitio de reservas** (sus textos, links, formas de pago y logo), con los datos
+  copiados en el código de la Guía, más el link al aviso de privacidad de la Guía. Si el sitio cambia su pie,
+  se actualiza aquí a mano.
+- Todos los links al sitio de reservas son `<a>` (sección 4).
 - Migas de pan visibles (Guía › La Paz › Restaurantes) con `BreadcrumbList`.
 - El cambio de idioma lleva al mismo documento en el otro idioma; si no existe, a la portada de la guía en
   ese idioma.
+
+### Búsqueda
+- Busca en lugares, eventos próximos, artículos, zonas activas y categorías, por idioma y con la regla de
+  idioma (sección 6). Los eventos que ya pasaron no aparecen; sus páginas siguen publicadas.
+- Resultados agrupados por tipo. En cada grupo suben hasta 2 elementos con patrocinio vigente (misma regla que
+  los listados) y llevan su etiqueta; el resto va por relevancia.
+- Filtros `?tipo=` (lugares, eventos, artículos) y `?zona=`, con links. Paginación como en los listados.
+- La página de resultados lleva `noindex` y no entra al sitemap.
+- La cabecera sugiere zonas, categorías y documentos mientras se escribe, con una ruta interna de la Guía que
+  no forma parte del contrato `v1`.
+- El término de búsqueda llega de la URL: se muestra siempre como texto, nunca se interpola en HTML.
 
 ## 8. Contratos con el sitio de reservas
 
@@ -431,6 +485,9 @@ Los dos contratos son de **solo lectura**. La Guía nunca escribe en el sistema 
 ### 8.1 Guía → catálogo
 
 - `GET {CATALOGO_API_URL}/api/sedes/{sedeSlug}/servicios/` y `GET .../paquetes/` (ya existen, públicos).
+- Cada tarjeta muestra nombre, precio «desde» (calculado con `precio_base` o `precio_ancla` y
+  `estrategia_precio`, en pesos o en dólares según el idioma) y duración; la foto y la temporada salen de la
+  colección Fotos de tours, y sin ese registro la tarjeta es de texto.
 - Las tarjetas enlazan a `{SITIO_URL}/{lang}/servicio/{empresa}/{servicio}` y
   `{SITIO_URL}/{lang}/sede/{sedeSlug}/paquete/{paquete}`, con los parámetros de atribución de la sección 13.
 - Caché de 1 hora por etiqueta. Límite de espera de 3 s.
@@ -508,6 +565,8 @@ Toda lectura de Payload para el sitio público pasa por `unstable_cache` con eti
 | `redirecciones` | La consulta de redirecciones. |
 | `ajustes` | Lo que lee el Global. |
 | `catalogo:{sedeSlug}` | Las llamadas al catálogo (8.1). |
+| `textos:{zona}:{categoria}` | La página de esa categoría en zona (su introducción). |
+| `tours-fotos` | Toda página con tarjetas de tours (las fotos y temporadas de la colección Fotos de tours). |
 
 - **Al editar:** hooks `afterChange` y `afterDelete` de cada colección (incluye publicar, despublicar,
   programar y cambiar slug) revalidan la etiqueta del documento, `listados` y las de su zona y categorías.
@@ -606,7 +665,8 @@ El formulario recaba datos personales de contacto en México, así que aplica la
 redacta o aprueba el dueño (entregable de F0); el código solo garantiza lo siguiente.
 
 - **Aviso de privacidad propio de la Guía** en `/es/guia/privacidad` y `/en/guide/privacy`, distinto del
-  aviso del sitio de reservas porque la finalidad es otra. Debe decir: responsable y contacto; finalidad
+  aviso del sitio de reservas porque la finalidad es otra. Su texto vive en el Global (`avisoPrivacidad`, con
+  `versionAviso` y `avisoVigenteDesde`) y la página muestra `correoPrivacidad`. Debe decir: responsable y contacto; finalidad
   (contactar al negocio para evaluar su inclusión en la guía y ofrecerle patrocinio); datos que se piden;
   encargados que los procesan (Vercel, Neon, Resend, Cloudflare) y que están en EE. UU.; plazo de
   conservación; cómo ejercer los derechos ARCO; uso de Turnstile y de la analítica.
@@ -631,7 +691,7 @@ redacta o aprueba el dueño (entregable de F0); el código solo garantiza lo sig
   reservas, porque esa ruta no se reescribe a la Guía; la comprobación se hace en F5. Si la herramienta usa
   cookies, el aviso de privacidad lo declara y la Guía usa el mismo consentimiento que el sitio.
 - **Eventos** que manda la Guía:
-  - `tour_clic` (`zona`, `origen`: zona, lugar o artículo).
+  - `tour_clic` (`zona`, `origen`: zona, lugar, artículo, categoría o cabecera).
   - `contacto_lugar` (`lugar`, `canal`: whatsapp, teléfono, web, instagram o mapa). Sirve para mostrarle
     valor a un negocio patrocinado.
   - `boletos_clic` (`evento`).
@@ -640,7 +700,7 @@ redacta o aprueba el dueño (entregable de F0); el código solo garantiza lo sig
   Cada evento lleva como máximo 2 propiedades, que es lo que admite Vercel Web Analytics en el plan Pro. El
   detalle (servicio o paquete, pieza exacta) viaja en los parámetros de atribución.
 - **Atribución de reservas:** los links a tours llevan `?desde=guia&pieza={tipo}-{slug}` (por ejemplo
-  `pieza=articulo-que-hacer-en-la-paz`). El sitio de reservas guarda `desde`/`pieza` del primer toque y los
+  `pieza=articulo-que-hacer-en-la-paz`; desde la cabecera, `pieza=cabecera`). El sitio de reservas guarda `desde`/`pieza` del primer toque y los
   registra con la reserva (cambio en su repo, sección 16). No se usan UTM en links internos.
 - **Tráfico orgánico:** Google Search Console y Bing Webmaster Tools.
 - **Revisión mensual** con: visitas orgánicas a la guía y consultas principales (Search Console), páginas
@@ -654,7 +714,7 @@ redacta o aprueba el dueño (entregable de F0); el código solo garantiza lo sig
 | Fase | Quién | Qué | Depende de |
 |---|---|---|---|
 | F0 Preparación | Dueño | Repo privado en GitHub con plan Pro o Team, Vercel Pro, proyecto Vercel, integración Neon (`aws-us-east-1`, sin branches automáticos), base `preview`, buckets R2 y sus llaves, dominio de imágenes resuelto (5.2), Turnstile con el dominio, Resend con dominio verificado, `GUIA_PROXY_SECRET`, environment `respaldos` en GitHub. Además: texto del aviso de privacidad (sección 12) y confirmación de la herramienta de analítica (sección 13). | — |
-| F1 Diseño | Dueño (con su equipo de diseño) | Pantallas clave en móvil y escritorio: portada, zona/categoría, ficha, evento, artículo, formulario. Paleta, tipografías y formas de la marca. Se entregan en `docs/diseno/`. | — |
+| F1 Diseño | Dueño (con su equipo de diseño) | Pantallas clave en móvil y escritorio: portada, zona/categoría, ficha, evento, artículo, formulario. Paleta, tipografías y formas de la marca. Se entregan en `docs/diseno/`. Entregado el 2026-11-03: lineamientos, propuesta C (10 pantallas) y las decisiones de `docs/diseno/decisiones-frontend-backoffice.md`, que cambian el modelo de datos de la sección 6. | — |
 | F2 Base | Programadores | App Next + Payload, colecciones (con Redirecciones), permisos, migraciones, Global, seed, subidas a R2 (verificación de 4.2), workflow de respaldos, CI pasos 1–3. Se despliega a producción con `GUIA_INDEXABLE=false`. | F0 |
 | F3 Sitio público | Programadores | Páginas, SEO, JSON-LD, sitemap, redirecciones, formulario, aviso de privacidad, eventos de analítica, caché y crones (sección 10 y 12), CI pasos 4–5. | F1 aprobada, F2 |
 | F4 Contratos | Programadores | `/api/publico/v1` y «Tours en esta zona». | F2 |

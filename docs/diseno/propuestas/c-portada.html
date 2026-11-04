@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Guía de la Baja · Propuesta C</title>
+<meta name="description" content="Propuesta C: portada general de la Guía, con todas las zonas.">
+<link rel="stylesheet" href="c-base.css">
+<script src="c-base.js"></script>
+<style>
+/* Encabezado: título e introducción del Global «Ajustes de la guía» */
+.encabezado { padding: 20px 0 4px; display: grid; gap: 8px; }
+.encabezado p { color: var(--tinta-suave); font-size: 1.125rem; max-width: 62ch; }
+
+/* Destacados (casilla «destacar en portada» en Artículos, Lugares y Eventos) */
+.destacados { display: grid; gap: var(--hueco); padding-top: var(--hueco); }
+@media (min-width: 900px) { .destacados { grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; } .destacados > :first-child { grid-row: span 2; } }
+.destacado { position: relative; border-radius: var(--radio-card); overflow: hidden; min-height: 240px; display: block; }
+.destacados > :first-child { min-height: 420px; }
+.destacado .media { position: absolute; inset: 0; }
+.destacado .titular { font-size: 1.125rem; margin-top: 8px; }
+.destacados > :first-child .titular { font: 700 clamp(1.5rem, 3vw, 2.5rem)/1.08 var(--titulo); text-transform: uppercase; letter-spacing: -0.02em; max-width: 20ch; }
+.destacado .meta { color: rgb(255 255 255 / .85); }
+
+/* Zonas activas */
+.zonas-rejilla { display: grid; gap: var(--hueco); grid-template-columns: 1fr; }
+@media (min-width: 720px) { .zonas-rejilla { grid-template-columns: repeat(3, 1fr); } }
+.zona-tarjeta { position: relative; border-radius: var(--radio-card); overflow: hidden; aspect-ratio: 4 / 5; display: block; color: var(--blanco); }
+@media (max-width: 719px) { .zona-tarjeta { aspect-ratio: 16 / 10; } }
+.zona-tarjeta .media { position: absolute; inset: 0; }
+.zona-tarjeta h3 { font: 700 clamp(1.75rem, 3.2vw, 2.75rem)/1 var(--titulo); text-transform: uppercase; letter-spacing: -0.02em; }
+.zona-tarjeta p { margin-top: 6px; max-width: 34ch; font-size: .9375rem; opacity: .92; }
+.zona-tarjeta .cifras { display: flex; gap: 14px; margin-top: 10px; font-size: .875rem; font-weight: 700; }
+.zona-tarjeta .flecha { position: absolute; top: 14px; right: 14px; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: rgb(255 255 255 / .9); color: var(--tinta); font-size: 1.1rem; transition: transform 300ms var(--curva); }
+.zona-tarjeta:hover .flecha { transform: translateX(4px); }
+
+/* Agenda de próximos eventos */
+.agenda { display: grid; gap: 8px; }
+@media (min-width: 900px) { .agenda { grid-template-columns: 1fr 1fr; column-gap: var(--hueco); } }
+.agenda__fila { display: grid; grid-template-columns: 64px 1fr auto; gap: 14px; align-items: center; padding: 10px 12px; border-radius: var(--radio-control); box-shadow: 0 0 0 1px var(--borde); background: var(--blanco); transition: box-shadow 200ms var(--curva); }
+.agenda__fila:hover { box-shadow: 0 0 0 1px var(--borde-control); }
+.agenda__fila[hidden] { display: none; }
+.fecha { display: grid; place-items: center; height: 64px; border-radius: var(--radio-sm); background: var(--g-claro, var(--arena)); color: var(--g-profundo, var(--tinta)); line-height: 1.05; text-align: center; }
+.fecha b { font: 700 1.5rem/1 var(--titulo); }
+.fecha small { font-size: .75rem; font-weight: 700; text-transform: uppercase; }
+.agenda__fila .titular { font-size: 1rem; margin: 3px 0 2px; }
+.agenda__fila .media { width: 72px; height: 56px; border-radius: var(--radio-sm); }
+.cuenta { font-size: .8125rem; font-weight: 700; color: var(--info); }
+@media (max-width: 479px) { .agenda__fila { grid-template-columns: 56px 1fr; } .agenda__fila .media { display: none; } }
+
+/* Artículos recientes */
+.articulos { display: grid; gap: var(--hueco); grid-template-columns: 1fr; }
+@media (min-width: 720px) { .articulos { grid-template-columns: repeat(3, 1fr); } }
+.articulos .nota .media { aspect-ratio: 16 / 10; }
+
+/* Categorías en todas las zonas */
+.categorias { display: grid; gap: 10px; grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 720px) { .categorias { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1200px) { .categorias { grid-template-columns: repeat(5, 1fr); } }
+.cat { display: flex; flex-direction: column; justify-content: space-between; min-height: 112px; padding: 14px; border-radius: var(--radio-card); background: var(--g); color: var(--g-tinta); transition: transform 160ms var(--curva); }
+.cat strong { font: 700 1.375rem/1.05 var(--titulo); text-transform: uppercase; letter-spacing: -0.01em; }
+.cat span { align-self: start; padding: 2px 10px; border-radius: 999px; background: var(--g-claro); color: var(--g-profundo); font-size: .8125rem; font-weight: 600; }
+</style>
+</head>
+<body>
+<div data-cabecera="portada"></div>
+
+<main class="ancho">
+  <section class="encabezado" aria-labelledby="titulo">
+    <h1 id="titulo" class="t-pagina">Qué hacer en Baja California Sur</h1>
+    <p>Playas, mesas, mercados y lo que pasa esta semana en La Paz, La Ventana y Puerto Chale. Cada lugar, visitado por el equipo de la Guía.</p>
+  </section>
+
+  <section class="destacados" aria-label="Destacados">
+    <a class="destacado tarjeta presionable g-mar" href="#"><div class="media"><img src="img/orilla.webp" alt="" width="1600" height="1067"></div>
+      <div class="velo-texto"><span class="etiqueta">Paseos en lancha</span><p class="titular">Ya llegan las ballenas a Bahía Magdalena</p><p class="meta">Artículo · Puerto Chale · 5 min de lectura</p></div></a>
+    <a class="destacado tarjeta presionable g-mar" href="c-ficha.html"><div class="media"><img src="img/pangas-playa.webp" alt="" width="1600" height="1067"></div>
+      <div class="velo-texto"><span class="etiqueta">Playas</span><p class="titular">Playa Balandra</p><p class="meta">Lugar · La Paz</p></div></a>
+    <a class="destacado tarjeta presionable g-comer" href="#" rel="sponsored"><div class="media"><img src="img/playa-calma.webp" alt="" width="1600" height="1067"></div>
+      <div class="velo-texto"><span class="patrocinado">Patrocinado</span> <span class="etiqueta">Música y fiestas</span><p class="titular">Festival del atardecer en La Ventana</p><p class="meta">Evento · La Ventana · 5:30 p. m.</p></div></a>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-zonas">
+    <div class="seccion__cabeza"><h2 id="t-zonas" class="t-seccion">Zonas</h2></div>
+    <div class="zonas-rejilla">
+      <a class="zona-tarjeta tarjeta presionable entra" href="c-portal.html"><div class="media"><img src="img/pangas-playa.webp" alt="" loading="lazy"></div><span class="flecha" aria-hidden="true">→</span>
+        <div class="velo-texto"><h3>La Paz</h3><p>La capital: malecón, playas turquesa y la Isla Espíritu Santo enfrente.</p><div class="cifras"><span><span data-contar>48</span> lugares</span><span><span data-contar>9</span> eventos próximos</span></div></div></a>
+      <a class="zona-tarjeta tarjeta presionable entra" href="#" style="--retraso:80ms"><div class="media"><img src="img/mar-abierto.webp" alt="" loading="lazy"></div><span class="flecha" aria-hidden="true">→</span>
+        <div class="velo-texto"><h3>La Ventana</h3><p>Viento constante, kite en invierno y buceo con mantarrayas.</p><div class="cifras"><span><span data-contar>21</span> lugares</span><span><span data-contar>3</span> eventos próximos</span></div></div></a>
+      <a class="zona-tarjeta tarjeta presionable entra" href="#" style="--retraso:160ms"><div class="media"><img src="video/ballenas.jpg" alt="" loading="lazy"></div><span class="flecha" aria-hidden="true">→</span>
+        <div class="velo-texto"><h3>Puerto Chale</h3><p>Puerta a Bahía Magdalena: ballenas grises de enero a marzo.</p><div class="cifras"><span><span data-contar>9</span> lugares</span><span><span data-contar>1</span> evento próximo</span></div></div></a>
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-eventos">
+    <div class="seccion__cabeza"><h2 id="t-eventos" class="t-seccion">Próximos eventos</h2><a href="#">Todos los eventos</a></div>
+    <div class="agenda" id="agenda"></div>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-articulos">
+    <div class="seccion__cabeza"><h2 id="t-articulos" class="t-seccion">Artículos recientes</h2><a href="#">Todos los artículos</a></div>
+    <div class="articulos">
+      <a class="nota tarjeta presionable g-comer entra" href="#"><div class="media"><img src="img/pangas-playa.webp" alt="" loading="lazy"></div><div class="nota__cuerpo"><span><span class="etiqueta">Restaurantes</span></span><p class="titular">Siete mesas para comer pescado del día en La Paz</p><p class="bajada">De la tostada de pie a la cena con vista.</p><div class="nota__pie"><span class="meta">Por Ana · 2 nov</span><span class="meta">8 min</span></div></div></a>
+      <a class="nota tarjeta presionable g-mar entra" href="#" style="--retraso:80ms"><div class="media"><img src="img/orilla.webp" alt="" loading="lazy"></div><div class="nota__cuerpo"><span><span class="etiqueta">Playas</span></span><p class="titular">Balandra sin prisas: cómo llegar y qué llevar</p><p class="bajada">El cupo diario, el camión desde el centro y por qué ir entre semana.</p><div class="nota__pie"><span class="meta">Por Luis · 28 oct</span><span class="meta">6 min</span></div></div></a>
+      <a class="nota tarjeta presionable g-aire entra" href="#" style="--retraso:160ms"><div class="media"><img src="img/sendero.webp" alt="" loading="lazy"></div><div class="nota__cuerpo"><span><span class="etiqueta">Actividades</span></span><p class="titular">Cinco caminatas cortas con vista a la bahía</p><p class="bajada">De 30 minutos a medio día, todas cerca del centro.</p><div class="nota__pie"><span class="meta">Por Ana · 20 oct</span><span class="meta">5 min</span></div></div></a>
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-cat">
+    <div class="seccion__cabeza"><h2 id="t-cat" class="t-seccion">Categorías</h2></div>
+    <div class="categorias">
+      <a class="cat g-mar presionable" href="c-categoria.html"><strong>Playas</strong><span><span data-contar>24</span> lugares</span></a>
+      <a class="cat g-mar presionable" href="#"><strong>Paseos en lancha</strong><span><span data-contar>11</span> lugares</span></a>
+      <a class="cat g-aire presionable" href="#"><strong>Actividades</strong><span><span data-contar>30</span> lugares</span></a>
+      <a class="cat g-comer presionable" href="#"><strong>Restaurantes</strong><span><span data-contar>52</span> lugares</span></a>
+      <a class="cat g-comer presionable" href="#"><strong>Cafés y bares</strong><span><span data-contar>27</span> lugares</span></a>
+      <a class="cat g-local presionable" href="#"><strong>Mercados</strong><span><span data-contar>7</span> lugares</span></a>
+      <a class="cat g-local presionable" href="#"><strong>Tiendas locales</strong><span><span data-contar>18</span> lugares</span></a>
+      <a class="cat g-local presionable" href="#"><strong>Cultura</strong><span><span data-contar>12</span> lugares</span></a>
+      <a class="cat g-comer presionable" href="#"><strong>Música y fiestas</strong><span>6 eventos</span></a>
+      <a class="cat g-mar presionable" href="#"><strong>Torneos</strong><span>3 eventos</span></a>
+    </div>
+  </section>
+
+  <section class="aparece" aria-labelledby="t-aparece">
+    <div><h2 id="t-aparece">¿Tienes un negocio en la Baja?</h2><p>Cuéntanos de él. El equipo de la Guía lo visita antes de publicarlo.</p></div>
+    <a class="boton boton--secundario presionable" href="c-aparece.html">Aparece en la Guía</a>
+  </section>
+</main>
+<div data-pie></div>
+
+<script>
+(() => {
+  const { ahora, duracion, hhmm } = Guia;
+  const DIAS_CORTOS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+  // Próximos eventos de todas las zonas. Hoy se calcula en relación con la hora de La Paz para que siempre haya
+  // algo próximo; los demás días son de ejemplo. `fin` es opcional, como en el backoffice.
+  const m = ahora().min;
+  const EVENTOS = [
+    { dias: 0, g: 'mar', cat: 'Torneos y deportes', nombre: 'Registro del torneo de dorado', zona: 'La Paz', foto: 'img/mar-abierto.webp', inicio: m + 48, fin: m + 160 },
+    { dias: 0, g: 'local', cat: 'Cultura', nombre: 'Noche de museo: La Paz antes de La Paz', zona: 'La Paz', foto: 'img/cardones.webp', inicio: m + 125, fin: null },
+    { dias: 1, g: 'aire', cat: 'Actividades', nombre: 'Limpieza de playa con voluntarios', zona: 'La Paz', foto: 'img/orilla.webp', inicio: 540 },
+    { dias: 2, g: 'comer', cat: 'Música y fiestas', nombre: 'Festival del atardecer', zona: 'La Ventana', foto: 'img/playa-calma.webp', inicio: 1050, patrocinado: true },
+    { dias: 3, g: 'local', cat: 'Ferias y festivales', nombre: 'Feria de artesanos sudcalifornianos', zona: 'La Paz', foto: 'img/cardon-costa.webp', inicio: 600 },
+    { dias: 5, g: 'mar', cat: 'Torneos y deportes', nombre: 'Copa de kite de La Ventana', zona: 'La Ventana', foto: 'img/pangas-playa.webp', inicio: 660 },
+  ];
+  const hoy = new Date();
+  const fecha = (d) => { const f = new Date(hoy); f.setDate(f.getDate() + d); return { dia: f.getDate(), sem: DIAS_CORTOS[(ahora().dia + d) % 7] }; };
+  // Orden del spec §7: hasta 2 patrocinados vigentes arriba; el resto por inicio.
+  const ordenados = [...EVENTOS.entries()].sort(([, a], [, b]) => (!!b.patrocinado - !!a.patrocinado) || (a.dias - b.dias) || (a.inicio - b.inicio));
+  document.getElementById('agenda').innerHTML = ordenados.map(([i, e]) => {
+    const f = fecha(e.dias);
+    return `<a class="agenda__fila presionable g-${e.g} entra" href="#" ${e.patrocinado ? 'rel="sponsored"' : ''} data-i="${i}" style="--retraso:${(i % 2) * 60}ms">
+      <span class="fecha"><small>${e.dias === 0 ? 'Hoy' : f.sem}</small><b>${f.dia}</b></span>
+      <span>${e.patrocinado ? '<span class="patrocinado">Patrocinado</span> ' : ''}<span class="etiqueta">${e.cat}</span><p class="titular">${e.nombre}</p><p class="meta">${e.zona} · ${hhmm(e.inicio)}</p>${e.dias === 0 ? `<span class="cuenta" data-cuenta="${i}"></span>` : ''}</span>
+      <span class="media"><img src="${e.foto}" alt="" loading="lazy"></span>
+    </a>`;
+  }).join('');
+  // Cuenta regresiva de los de hoy; al empezar (o al terminar, si tienen fin) salen de «próximos».
+  const cuentas = () => {
+    const ya = ahora().min;
+    EVENTOS.forEach((e, i) => {
+      if (e.dias !== 0) return;
+      const fila = document.querySelector(`.agenda__fila[data-i="${i}"]`), c = fila.querySelector('.cuenta');
+      fila.hidden = ya >= (e.fin ?? e.inicio);
+      c.textContent = ya < e.inicio ? `Empieza en ${duracion(e.inicio - ya)}` : `En curso · termina en ${duracion(e.fin - ya)}`;
+    });
+  };
+  cuentas(); setInterval(cuentas, 30000);
+})();
+</script>
+</body>
+</html>

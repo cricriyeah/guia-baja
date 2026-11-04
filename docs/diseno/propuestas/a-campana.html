@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lugares y eventos en La Paz · Propuesta A</title>
+<meta name="description" content="Propuesta A de la portada de la Guía: estilo campaña, póster fijo.">
+<style>
+@font-face {
+  font-family: "Consola Mono";
+  src: url("../recursos/fuentes/ConsolaMono-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+:root {
+  --tinta: #1F1A14; --blanco: #FFFFFF; --arena: #FCF6ED;
+  --cafe: #7C3B02; --cafe-claro: #FEE0AC;
+  --azul: #1B607F; --azul-hondo: #14485F; --azul-profundo: #0E3040; --azul-claro: #DDE6EB;
+  --verde: #343F04; --verde-hondo: #272F03; --verde-profundo: #1A2002; --verde-claro: #DFFFA8;
+  --coral: #E04332; --coral-hondo: #A83226; --coral-profundo: #702219; --coral-claro: #F6C7C2;
+  --cafe-medio: #B08967; --cafe-profundo: #3E1E01; --cafe-hondo: #5D2C02;
+  --titulo: "Consola Mono", Consolas, "SF Mono", Menlo, ui-monospace, monospace;
+  --texto: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --margen: 16px;
+  --curva: cubic-bezier(0.2, 0, 0, 1);
+  --t-toque: 150ms;
+  --t-pequeno: 15px; --t-cuerpo: 17px; --t-lead: clamp(19px, 1.6vw, 24px); --t-sub: clamp(24px, 2.2vw, 32px);
+  --t-titulo: clamp(36px, 4.4vw, 64px); --t-display: clamp(44px, 7vw, 112px);
+}
+@media (min-width: 640px) { :root { --margen: 24px; } }
+@media (min-width: 1024px) { :root { --margen: 32px; } }
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--arena); color: var(--tinta); font: var(--t-cuerpo)/1.55 var(--texto); }
+img { display: block; max-width: 100%; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; }
+.solo-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+h1, h2, h3 { font-family: var(--titulo); font-weight: 700; text-transform: uppercase; text-wrap: balance; margin: 0; letter-spacing: -0.02em; }
+p { margin: 0; }
+
+/* Botones: una forma (píldora), un alto */
+.boton { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 28px; border-radius: 999px; border: 0;
+  font: 600 var(--t-cuerpo)/1 var(--texto); text-decoration: none; cursor: pointer; background: var(--tinta); color: var(--arena);
+  transition: background var(--t-toque) var(--curva), transform var(--t-toque) var(--curva); }
+.boton:hover { background: var(--cafe); }
+.boton:active { transform: scale(0.97); }
+.boton--claro { background: var(--arena); color: var(--tinta); }
+.boton--claro:hover { background: var(--cafe-claro); }
+
+/* Etiqueta de categoría: claro + profundo */
+.etiqueta { display: inline-block; padding: 3px 12px; border-radius: 999px; font: 600 var(--t-pequeno)/1.4 var(--texto); white-space: nowrap; }
+.g-mar { --g: var(--azul); --g-claro: var(--azul-claro); --g-profundo: var(--azul-profundo); --g-tinta: var(--blanco); }
+.g-aire { --g: var(--verde); --g-claro: var(--verde-claro); --g-profundo: var(--verde-profundo); --g-tinta: var(--blanco); }
+.g-comer { --g: var(--coral); --g-claro: var(--coral-claro); --g-profundo: var(--coral-profundo); --g-tinta: var(--tinta); }
+.g-local { --g: var(--cafe-medio); --g-claro: var(--cafe-claro); --g-profundo: var(--cafe-profundo); --g-tinta: var(--tinta); }
+.etiqueta { background: var(--g-claro); color: var(--g-profundo); }
+
+/* ---------- Portada: tarjeta sobre una foto en penumbra ---------- */
+.portada { position: relative; min-height: 100svh; display: grid; place-items: center; padding: 48px var(--margen); overflow: hidden; background: var(--tinta); }
+.portada__foto { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.62); animation: deriva 24s var(--curva) infinite alternate; }
+@keyframes deriva { from { transform: scale(1.02); } to { transform: scale(1.1) translate(-1.5%, -1%); } }
+.tarjeta { position: relative; width: min(100%, 960px); min-height: 62svh; background: var(--arena); padding: 32px; display: grid; grid-template-rows: auto 1fr auto; gap: 32px; }
+.tarjeta__titulo { display: flex; justify-content: space-between; gap: 16px; font-size: var(--t-titulo); line-height: 1; }
+.tarjeta__cuerpo { display: grid; gap: 24px; align-content: start; font-size: var(--t-lead); line-height: 1.35; }
+.tarjeta__datos { display: grid; gap: 4px; }
+.tarjeta__datos strong { font-weight: 600; }
+.tarjeta__frase { max-width: 34ch; }
+.tarjeta__pie { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; font-size: var(--t-pequeno); }
+.tarjeta__marca { display: flex; align-items: center; gap: 10px; }
+.tarjeta__marca img { width: 40px; height: 40px; }
+.tarjeta__idioma { justify-self: end; text-decoration: none; font-weight: 600; }
+.tarjeta__idioma:hover { color: var(--cafe); }
+@media (max-width: 639px) {
+  .tarjeta { min-height: 76svh; padding: 20px; gap: 24px; }
+  .tarjeta__titulo { flex-wrap: wrap; justify-content: flex-start; column-gap: 0.5em; row-gap: 0; font-size: 8.6vw; line-height: 1.05; }
+  .tarjeta__pie { grid-template-columns: 1fr auto; }
+  .tarjeta__pie .boton { grid-column: 1 / -1; grid-row: 1; width: 100%; }
+}
+
+/* ---------- Esta semana: un programa a un solo tamaño ---------- */
+.semana { padding: 160px var(--margen) 120px; max-width: 1440px; margin: 0 auto; }
+.semana__cabeza { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 24px 48px; margin-bottom: 48px; }
+.semana__cabeza h2 { font-size: var(--t-display); line-height: 0.95; }
+.semana__cabeza p { max-width: 40ch; margin-top: 16px; }
+.filtros { display: flex; flex-wrap: wrap; gap: 8px; }
+.filtro { min-height: 44px; padding: 0 18px; border-radius: 999px; border: 2px solid var(--tinta); background: transparent; color: var(--tinta);
+  font: 600 var(--t-pequeno)/1 var(--texto); cursor: pointer; transition: background var(--t-toque) var(--curva), color var(--t-toque) var(--curva), transform var(--t-toque) var(--curva); }
+.filtro:hover { background: var(--cafe-claro); }
+.filtro:active { transform: scale(0.97); }
+.filtro[aria-pressed="true"] { background: var(--tinta); color: var(--arena); }
+.programa { font-size: var(--t-lead); line-height: 1.3; }
+.programa__dia { position: sticky; top: 0; z-index: 2; background: var(--arena); color: var(--cafe); padding: 56px 0 16px; font: 700 1em/1.2 var(--texto); }
+.programa__dia:first-child { padding-top: 0; }
+.fila { display: grid; grid-template-columns: 40% 20% 1fr auto; gap: 24px; align-items: baseline; padding: 10px 0; text-decoration: none; transition: opacity var(--t-toque) var(--curva); }
+.fila:hover .fila__nombre { color: var(--cafe); }
+.fila__hora { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.fila[hidden] { display: none; }
+.programa__vacio { padding: 24px 0; }
+@media (max-width: 767px) {
+  .fila { grid-template-columns: 1fr auto; gap: 4px 16px; padding: 12px 0; }
+  .fila__nombre { grid-column: 1 / -1; font-weight: 600; }
+  .fila__lugar { grid-column: 1 / -1; font-size: var(--t-pequeno); }
+  .fila__hora { font-size: var(--t-pequeno); grid-row: 2; grid-column: 2; }
+  .fila .etiqueta { grid-row: 2; grid-column: 1; justify-self: start; }
+}
+
+/* ---------- Lugares: tarjetas que cruzan una foto fija ---------- */
+.lugares { position: relative; height: 260svh; background: var(--tinta); }
+.lugares__escena { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+.lugares__fondo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.55); }
+.lugares__titulo { flex: 0 0 auto; align-self: center; width: min(560px, 36vw); color: var(--arena); font-size: var(--t-titulo); line-height: 0.98; }
+.pista { position: absolute; left: 0; top: 50%; display: flex; gap: 40px; padding-left: var(--margen); transform: translate3d(0, -50%, 0); will-change: transform; z-index: 2; }
+.lugar { flex: 0 0 auto; width: min(640px, 70vw); text-decoration: none; color: var(--arena); }
+.lugar__marco { height: min(56svh, 520px); display: grid; grid-template-rows: 68% 32%; }
+.lugar__foto { width: 100%; height: 100%; object-fit: cover; }
+.lugar__campo { background: var(--g-claro); color: var(--g-profundo); display: grid; place-items: center; font: 700 var(--t-display)/1 var(--titulo); text-transform: uppercase; letter-spacing: -0.02em; }
+.lugar__panel { background: var(--g); color: var(--g-tinta); padding: 20px 28px; display: flex; flex-direction: column; justify-content: end; gap: 6px; transition: background var(--t-toque) var(--curva); }
+.lugar__panel h3 { font-size: var(--t-sub); line-height: 1.05; }
+.lugar__nota { margin-top: 14px; max-width: 46ch; }
+.lugar__nota strong { font-weight: 600; }
+.lugar:hover .lugar__panel { filter: brightness(0.9); }
+@media (max-width: 767px) {
+  .lugares { height: auto; padding: 120px 0 96px; }
+  .lugares__escena { position: static; height: auto; overflow: visible; }
+  .lugares__fondo { display: none; }
+  .lugares__titulo { width: auto; align-self: start; }
+  .pista { position: static; transform: none !important; flex-direction: column; gap: 32px; padding: 32px var(--margen) 0; }
+  .lugar { width: 100%; }
+  .lugar__marco { height: auto; grid-template-rows: auto 120px; }
+  .lugar__foto, .lugar__campo { aspect-ratio: 4 / 3; height: auto; }
+}
+
+/* ---------- Categorías: nombres que pasan sobre un cuadro fijo ---------- */
+.categorias { background: var(--tinta); color: var(--arena); padding: 160px var(--margen) 200px; position: relative; }
+.categorias__marco { position: relative; }
+.cuadro__riel { position: absolute; inset: 0; pointer-events: none; }
+.cuadro { position: sticky; top: calc(50svh - min(15.5vw, 225px)); width: min(31vw, 450px); aspect-ratio: 1; margin: 0 auto; }
+.cuadro__capa { position: absolute; inset: 0; opacity: 0; transition: opacity 200ms var(--curva); background: var(--g); }
+.cuadro__capa.activa { opacity: 1; }
+.cuadro__capa img { width: 100%; height: 100%; object-fit: cover; }
+.cuadro__capa::after { content: ""; position: absolute; inset: 0; background: rgb(31 26 20 / 0.38); }
+.categorias__lista { list-style: none; margin: 0; padding: 0; position: relative; z-index: 1; text-align: center; }
+.categorias__lista h2 { font-size: var(--t-display); line-height: 1.05; color: var(--cafe-claro); padding-bottom: 8px; }
+.categorias__lista a { display: block; font: 700 var(--t-display)/1.05 var(--titulo); text-transform: uppercase; letter-spacing: -0.03em; text-decoration: none; padding: 0.12em 0;
+  transition: color var(--t-toque) var(--curva); }
+.categorias__lista a:hover { color: var(--cafe-claro); }
+@media (max-width: 767px) {
+  .categorias { padding: 120px var(--margen) 140px; }
+  .cuadro { width: 60vw; top: calc(50svh - 30vw); }
+  .categorias__lista a, .categorias__lista h2 { font-size: 9vw; }
+}
+
+/* ---------- Artículos ---------- */
+.lecturas { padding: 200px var(--margen); max-width: 1440px; margin: 0 auto; display: grid; grid-template-columns: 7fr 5fr; gap: 64px; align-items: start; }
+.lecturas__foto { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; position: sticky; top: 32px; }
+.lecturas h2 { font-size: var(--t-titulo); line-height: 0.98; margin-bottom: 48px; }
+.lectura { display: block; text-decoration: none; padding: 28px 0; }
+.lectura + .lectura { margin-top: 32px; }
+.lectura h3 { font-size: var(--t-sub); line-height: 1.12; margin-bottom: 12px; transition: color var(--t-toque) var(--curva); }
+.lectura:hover h3 { color: var(--cafe); }
+.lectura small { display: block; margin-bottom: 10px; font-size: var(--t-pequeno); }
+@media (max-width: 900px) { .lecturas { grid-template-columns: 1fr; padding: 120px var(--margen); gap: 40px; } .lecturas__foto { position: static; aspect-ratio: 4 / 3; } }
+
+/* ---------- Tours: la última foto ---------- */
+.tours { position: relative; height: 90svh; min-height: 560px; overflow: hidden; background: var(--tinta); }
+.tours img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 30% 70%; filter: brightness(0.72); }
+.tours__texto { position: absolute; right: var(--margen); bottom: 12svh; width: min(42%, 520px); color: var(--blanco); display: grid; gap: 20px; justify-items: start; }
+.tours h2 { font-size: var(--t-titulo); line-height: 1; }
+@media (max-width: 767px) {
+  .tours { height: auto; min-height: 0; overflow: visible; }
+  .tours img { position: static; height: 70svh; }
+  .tours__texto { position: static; width: auto; padding: 40px var(--margen) 56px; background: var(--tinta); }
+}
+
+/* ---------- Aparece en la Guía ---------- */
+.aparece { min-height: 84svh; background: var(--tinta); color: var(--arena); padding: 48px var(--margen) 32px; display: grid; grid-template-rows: auto 1fr auto; }
+.aparece__frase { font-size: var(--t-sub); line-height: 1.25; max-width: 26ch; }
+.aparece__enlace { align-self: end; margin-bottom: 8svh; text-decoration: none; font: 700 var(--t-display)/1 var(--titulo); text-transform: uppercase; letter-spacing: -0.03em;
+  transition: color var(--t-toque) var(--curva); }
+.aparece__enlace:hover { color: var(--cafe-claro); }
+.aparece__pie { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: var(--t-pequeno); }
+.aparece__pie a { text-decoration: none; margin-left: 24px; }
+.aparece__pie a:hover { color: var(--cafe-claro); }
+@media (max-width: 639px) { .aparece { min-height: 72svh; } .aparece__pie { flex-direction: column; } .aparece__pie a { margin: 0 16px 0 0; } }
+
+/* ---------- Pie: una sola línea ---------- */
+.pie { padding: 160px var(--margen) 30px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: baseline; font-size: var(--t-pequeno); }
+.pie nav { display: flex; gap: 24px; }
+.pie a { text-decoration: none; }
+.pie a:hover { color: var(--cafe); }
+.pie__der { justify-self: end; text-align: right; }
+@media (max-width: 767px) { .pie { padding-top: 96px; grid-template-columns: 1fr; gap: 8px; } .pie nav { flex-wrap: wrap; gap: 8px 20px; } .pie__der { justify-self: start; text-align: left; } }
+
+/* ---------- Entradas ---------- */
+.js .entra { opacity: 0; transform: translateY(24px); transition: opacity 700ms var(--curva), transform 700ms var(--curva); transition-delay: var(--retraso, 0ms); }
+.js .entra.visible { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .portada__foto { animation: none; }
+  .js .entra { transform: none; transition: opacity 400ms linear; }
+  .pista { transform: translate3d(0, -50%, 0) !important; }
+}
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add('js');</script>
+
+<header class="portada">
+  <img class="portada__foto" src="img/pangas-playa.webp" width="1600" height="1067" alt="Pangas varadas en una playa de la bahía al atardecer">
+  <div class="tarjeta">
+    <h1 class="tarjeta__titulo" aria-label="Lugares y eventos en La Paz"><span>Lugares</span> <span>Eventos</span> <span>La Paz</span></h1>
+    <div class="tarjeta__cuerpo">
+      <div class="tarjeta__datos">
+        <span>Baja California Sur</span>
+        <span>Playas, mesas, mercados y lo que pasa esta semana</span>
+        <span>En La Paz son las <strong id="hora">—</strong></span>
+      </div>
+      <p class="tarjeta__frase">Lo que te recomendaría alguien que vive aquí: cada lugar visitado y revisado a mano, en español y en inglés.</p>
+    </div>
+    <div class="tarjeta__pie">
+      <span class="tarjeta__marca"><img src="../recursos/logos/logosm.svg" width="40" height="40" alt="Sun Baja">Una guía de Sun Baja</span>
+      <a class="boton" href="#lugares">Ver lugares</a>
+      <a class="tarjeta__idioma" href="#" hreflang="en" lang="en">English</a>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="semana" id="eventos" aria-labelledby="t-semana">
+  <div class="semana__cabeza">
+    <div>
+      <h2 id="t-semana" class="entra">Esta semana</h2>
+      <p class="entra" style="--retraso:80ms">Del viernes 6 al domingo 8 de noviembre. Hora de La Paz.</p>
+    </div>
+    <div class="filtros entra" style="--retraso:160ms" role="group" aria-label="Filtrar por grupo">
+      <button class="filtro" type="button" aria-pressed="true" data-grupo="todo">Todo</button>
+      <button class="filtro" type="button" aria-pressed="false" data-grupo="mar">Mar</button>
+      <button class="filtro" type="button" aria-pressed="false" data-grupo="aire">Aire libre</button>
+      <button class="filtro" type="button" aria-pressed="false" data-grupo="comer">Comer y salir</button>
+      <button class="filtro" type="button" aria-pressed="false" data-grupo="local">Lo local</button>
+    </div>
+  </div>
+
+  <div class="programa" id="programa">
+    <h3 class="programa__dia">Viernes 6</h3>
+    <a class="fila entra" href="#" data-grupo="comer"><span class="fila__nombre">Trova al atardecer en el malecón</span><span><span class="etiqueta g-comer">Música y fiestas</span></span><span class="fila__lugar">Malecón, frente al muelle fiscal</span><span class="fila__hora">18:00–20:00</span></a>
+    <a class="fila entra" href="#" data-grupo="mar"><span class="fila__nombre">Registro del torneo de dorado</span><span><span class="etiqueta g-mar">Torneos y deportes</span></span><span class="fila__lugar">Marina de La Paz</span><span class="fila__hora">17:00–19:00</span></a>
+    <a class="fila entra" href="#" data-grupo="local"><span class="fila__nombre">Noche de museo: La Paz antes de La Paz</span><span><span class="etiqueta g-local">Cultura</span></span><span class="fila__lugar">Museo Regional de Antropología e Historia</span><span class="fila__hora">19:00–21:00</span></a>
+    <a class="fila entra" href="#" data-grupo="comer"><span class="fila__nombre">Cena de pesca del día</span><span><span class="etiqueta g-comer">Restaurantes</span></span><span class="fila__lugar">Mariscos La Bahía</span><span class="fila__hora">19:30–22:30</span></a>
+
+    <h3 class="programa__dia">Sábado 7</h3>
+    <a class="fila entra" href="#" data-grupo="aire"><span class="fila__nombre">Subida al Cerro de la Calavera</span><span><span class="etiqueta g-aire">Actividades</span></span><span class="fila__lugar">Salida en la entrada del sendero</span><span class="fila__hora">06:30–09:00</span></a>
+    <a class="fila entra" href="#" data-grupo="local"><span class="fila__nombre">Mercado de productores</span><span><span class="etiqueta g-local">Ferias y festivales</span></span><span class="fila__lugar">Jardín Velasco</span><span class="fila__hora">08:00–13:00</span></a>
+    <a class="fila entra" href="#" data-grupo="aire"><span class="fila__nombre">Limpieza de playa</span><span><span class="etiqueta g-aire">Actividades</span></span><span class="fila__lugar">Playa El Tecolote</span><span class="fila__hora">09:00–11:00</span></a>
+    <a class="fila entra" href="#" data-grupo="comer"><span class="fila__nombre">Banda en la plaza</span><span><span class="etiqueta g-comer">Música y fiestas</span></span><span class="fila__lugar">Plaza Constitución</span><span class="fila__hora">20:00–23:00</span></a>
+
+    <h3 class="programa__dia">Domingo 8</h3>
+    <a class="fila entra" href="#" data-grupo="mar"><span class="fila__nombre">Regata de remo de la bahía</span><span><span class="etiqueta g-mar">Torneos y deportes</span></span><span class="fila__lugar">Playa Coromuel</span><span class="fila__hora">08:00–12:00</span></a>
+    <a class="fila entra" href="#" data-grupo="aire"><span class="fila__nombre">Kayak al manglar</span><span><span class="etiqueta g-aire">Actividades</span></span><span class="fila__lugar">El Mogote</span><span class="fila__hora">07:00–10:00</span></a>
+    <a class="fila entra" href="#" data-grupo="local"><span class="fila__nombre">Feria de artesanos sudcalifornianos</span><span><span class="etiqueta g-local">Ferias y festivales</span></span><span class="fila__lugar">Plaza Constitución</span><span class="fila__hora">10:00–18:00</span></a>
+    <a class="fila entra" href="#" data-grupo="local"><span class="fila__nombre">Cuentos de la misión, para niños</span><span><span class="etiqueta g-local">Cultura</span></span><span class="fila__lugar">Biblioteca Justo Sierra</span><span class="fila__hora">12:00–13:00</span></a>
+    <p class="programa__vacio" id="vacio" hidden>No hay eventos de este grupo esta semana.</p>
+  </div>
+</section>
+
+<section class="lugares" id="lugares" aria-labelledby="t-lugares">
+  <div class="lugares__escena">
+    <img class="lugares__fondo" src="img/cardon-costa.webp" width="1600" height="1067" alt="Cardón frente a la costa del desierto" loading="lazy">
+    <div class="pista" id="pista">
+      <h2 class="lugares__titulo" id="t-lugares">Qué ver y dónde comer</h2>
+      <a class="lugar entra g-mar" href="#">
+        <div class="lugar__marco"><img class="lugar__foto" src="img/orilla.webp" width="1600" height="1067" alt="Agua baja y arena clara en la orilla" loading="lazy">
+          <div class="lugar__panel"><h3>Playa Balandra</h3></div></div>
+        <p class="lugar__nota"><strong>Playas · a 25 min del centro.</strong> Agua baja y turquesa. Llega antes de las 9: la entrada tiene cupo por día.</p>
+      </a>
+      <a class="lugar entra g-comer" href="#">
+        <div class="lugar__marco"><div class="lugar__campo" aria-hidden="true">Mariscos</div>
+          <div class="lugar__panel"><h3>Mariscos La Bahía</h3></div></div>
+        <p class="lugar__nota"><strong>Restaurantes · $$.</strong> Pesca del día a la talla, en mesas de plástico a media cuadra del malecón.</p>
+      </a>
+      <a class="lugar entra g-aire" href="#">
+        <div class="lugar__marco"><img class="lugar__foto" src="img/sendero.webp" width="1600" height="1067" alt="Grupo caminando por un sendero de montaña" loading="lazy">
+          <div class="lugar__panel"><h3>Cerro de la Calavera</h3></div></div>
+        <p class="lugar__nota"><strong>Actividades · 40 min de subida.</strong> Subida corta al amanecer, con toda la bahía a tus pies. Lleva agua.</p>
+      </a>
+      <a class="lugar entra g-local" href="#">
+        <div class="lugar__marco"><div class="lugar__campo" aria-hidden="true">Mercado</div>
+          <div class="lugar__panel"><h3>Mercado Madero</h3></div></div>
+        <p class="lugar__nota"><strong>Mercados · centro.</strong> Fondas de desayuno, queso de rancho y machaca de pescado desde las 7.</p>
+      </a>
+      <a class="lugar entra g-mar" href="#">
+        <div class="lugar__marco"><img class="lugar__foto" src="img/pangas-playa.webp" width="1600" height="1067" alt="Pangas en la arena de una playa de la bahía" loading="lazy">
+          <div class="lugar__panel"><h3>Playa El Tecolote</h3></div></div>
+        <p class="lugar__nota"><strong>Playas · palapas y comida.</strong> La playa de los domingos en familia, con vista a la Isla Espíritu Santo.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="categorias" aria-labelledby="t-categorias">
+ <div class="categorias__marco">
+ <div class="cuadro__riel" aria-hidden="true">
+  <div class="cuadro">
+    <div class="cuadro__capa g-mar activa" data-i="0"><img src="img/orilla.webp" alt="" loading="lazy"></div>
+    <div class="cuadro__capa g-aire" data-i="1"><img src="img/sendero.webp" alt="" loading="lazy"></div>
+    <div class="cuadro__capa g-comer" data-i="2"></div>
+    <div class="cuadro__capa g-comer" data-i="3"></div>
+    <div class="cuadro__capa g-local" data-i="4"></div>
+    <div class="cuadro__capa g-local" data-i="5"></div>
+    <div class="cuadro__capa g-local" data-i="6"><img src="img/cardones.webp" alt="" loading="lazy"></div>
+    <div class="cuadro__capa g-comer" data-i="7"></div>
+    <div class="cuadro__capa g-mar" data-i="8"><img src="img/mar-abierto.webp" alt="" loading="lazy"></div>
+    <div class="cuadro__capa g-local" data-i="9"></div>
+  </div>
+ </div>
+  <ul class="categorias__lista">
+    <li><h2 id="t-categorias">Categorías</h2></li>
+    <li><a class="entra" href="#" data-i="0" data-grupo="Mar" data-n="18 lugares">Playas</a></li>
+    <li><a class="entra" href="#" data-i="1" data-grupo="Aire libre" data-n="24 lugares">Actividades</a></li>
+    <li><a class="entra" href="#" data-i="2" data-grupo="Comer y salir" data-n="41 lugares">Restaurantes</a></li>
+    <li><a class="entra" href="#" data-i="3" data-grupo="Comer y salir" data-n="22 lugares">Cafés y bares</a></li>
+    <li><a class="entra" href="#" data-i="4" data-grupo="Lo local" data-n="6 lugares">Mercados</a></li>
+    <li><a class="entra" href="#" data-i="5" data-grupo="Lo local" data-n="15 lugares">Tiendas locales</a></li>
+    <li><a class="entra" href="#" data-i="6" data-grupo="Lo local" data-n="9 lugares">Cultura</a></li>
+    <li><a class="entra" href="#" data-i="7" data-grupo="Comer y salir" data-n="5 eventos">Música y fiestas</a></li>
+    <li><a class="entra" href="#" data-i="8" data-grupo="Mar" data-n="3 eventos">Torneos</a></li>
+    <li><a class="entra" href="#" data-i="9" data-grupo="Lo local" data-n="4 eventos">Ferias</a></li>
+  </ul>
+ </div>
+</section>
+
+<section class="lecturas" aria-labelledby="t-lecturas">
+  <img class="lecturas__foto entra" src="img/playa-calma.webp" width="1600" height="1067" alt="Una persona entra al mar en una playa tranquila" loading="lazy">
+  <div>
+    <h2 id="t-lecturas" class="entra">Para leer antes de ir</h2>
+    <a class="lectura entra" href="#"><h3>Balandra sin prisas: cómo llegar y qué llevar</h3><small>6 min · actualizado el 2 de noviembre</small>
+      <p>El cupo diario, el camión desde el centro y por qué conviene ir entre semana.</p></a>
+    <a class="lectura entra" href="#" style="--retraso:80ms"><h3>Dónde comer pescado del día en La Paz</h3><small>8 min · actualizado el 28 de octubre</small>
+      <p>Siete mesas del centro y la playa, de la tostada de pie a la cena con vista.</p></a>
+    <a class="lectura entra" href="#" style="--retraso:160ms"><h3>Ballenas en Magdalena: temporada 2027</h3><small>5 min · actualizado el 20 de octubre</small>
+      <p>Cuándo llegan, cuánto se maneja desde La Paz y qué esperar en la panga.</p></a>
+  </div>
+</section>
+
+<section class="tours" aria-labelledby="t-tours">
+  <img src="img/mar-abierto.webp" width="1600" height="1067" alt="Una persona con los brazos abiertos frente al mar" loading="lazy">
+  <div class="tours__texto entra">
+    <h2 id="t-tours">Sal al mar con Sun Baja</h2>
+    <p>Pesca, ballenas y la Isla Espíritu Santo, con salida desde La Paz. Reservas en línea, en pesos o en dólares.</p>
+    <a class="boton boton--claro" href="#">Ver tours en La Paz</a>
+  </div>
+</section>
+
+<section class="aparece" aria-labelledby="t-aparece">
+  <p class="aparece__frase" id="t-aparece">¿Tienes un negocio en la Baja? Cuéntanos de él y el equipo de la Guía lo visita.</p>
+  <a class="aparece__enlace entra" href="#">Aparece en la Guía →</a>
+  <div class="aparece__pie"><span>La Paz, Baja California Sur</span><span><a href="#">Instagram</a><a href="#">Facebook</a></span></div>
+</section>
+</main>
+
+<footer class="pie">
+  <span>Guía de la Baja, de Sun Baja. Contenido de ejemplo; fotos de Pexels.</span>
+  <nav aria-label="Secciones"><a href="#lugares">Lugares</a><a href="#eventos">Eventos</a><a href="#">Artículos</a><a href="#" lang="en">English</a></nav>
+  <span class="pie__der">© 2026 · <a href="#">Privacidad</a></span>
+</footer>
+
+<script>
+(() => {
+  const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Hora en La Paz (America/Mazatlan): lo único vivo de la portada.
+  const hora = document.getElementById('hora');
+  const fmt = new Intl.DateTimeFormat('es-MX', { timeZone: 'America/Mazatlan', hour: 'numeric', minute: '2-digit' });
+  const tic = () => { hora.textContent = fmt.format(new Date()); };
+  tic(); setInterval(tic, 30000);
+
+  // Filtro del programa por grupo.
+  const botones = document.querySelectorAll('.filtro');
+  const filas = document.querySelectorAll('.fila');
+  const dias = document.querySelectorAll('.programa__dia');
+  botones.forEach((b) => b.addEventListener('click', () => {
+    botones.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    const g = b.dataset.grupo;
+    let visibles = 0;
+    filas.forEach((f) => { const ver = g === 'todo' || f.dataset.grupo === g; f.hidden = !ver; if (ver) visibles++; });
+    dias.forEach((d) => { let n = d.nextElementSibling, hay = false; while (n && n.classList.contains('fila')) { if (!n.hidden) hay = true; n = n.nextElementSibling; } d.hidden = !hay; });
+    document.getElementById('vacio').hidden = visibles > 0;
+  }));
+
+  // Pista de lugares: avanza de derecha a izquierda con el scroll.
+  const seccion = document.getElementById('lugares');
+  const pista = document.getElementById('pista');
+  const escritorio = matchMedia('(min-width: 768px)');
+  const mover = () => {
+    if (!escritorio.matches || reducido) { pista.style.transform = ''; return; }
+    const r = seccion.getBoundingClientRect();
+    const recorrido = seccion.offsetHeight - innerHeight;
+    const p = Math.min(1, Math.max(0, -r.top / recorrido));
+    const max = pista.scrollWidth - innerWidth + 64;
+    pista.style.transform = `translate3d(${-p * max}px, -50%, 0)`;
+  };
+  addEventListener('scroll', () => requestAnimationFrame(mover), { passive: true });
+  addEventListener('resize', mover); mover();
+
+  // Cuadro de categorías: muestra la del nombre que cruza el centro.
+  const capas = document.querySelectorAll('.cuadro__capa');
+  const io = new IntersectionObserver((es) => es.forEach((e) => {
+    if (!e.isIntersecting) return;
+    const a = e.target;
+    capas.forEach((c) => c.classList.toggle('activa', c.dataset.i === a.dataset.i));
+  }), { rootMargin: '-49% 0px -49% 0px' });
+  document.querySelectorAll('.categorias__lista a').forEach((a) => io.observe(a));
+
+  // Entradas escalonadas, una vez.
+  const entradas = new IntersectionObserver((es) => es.forEach((e) => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); entradas.unobserve(e.target); }
+  }), { threshold: 0.15 });
+  document.querySelectorAll('.entra').forEach((el) => entradas.observe(el));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Guía de La Paz · Propuesta B</title>
+<meta name="description" content="Propuesta B de la portada de la Guía: estilo fluido, con hojas, resortes y materiales translúcidos.">
+<style>
+@font-face {
+  font-family: "Consola Mono";
+  src: url("../recursos/fuentes/ConsolaMono-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+:root {
+  --tinta: #1F1A14; --tinta-suave: #4A3F33; --apagado: #6B5D4D; --blanco: #FFFFFF; --arena: #FCF6ED; --borde: #E6E4DF;
+  --cafe: #7C3B02; --cafe-claro: #FEE0AC; --cafe-medio: #B08967; --cafe-profundo: #3E1E01;
+  --azul: #1B607F; --azul-claro: #DDE6EB; --azul-profundo: #0E3040;
+  --verde: #343F04; --verde-claro: #DFFFA8; --verde-profundo: #1A2002;
+  --coral: #E04332; --coral-claro: #F6C7C2; --coral-profundo: #702219;
+  --titulo: "Consola Mono", Consolas, "SF Mono", Menlo, ui-monospace, monospace;
+  --texto: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --radio-control: 12px; --radio-card: 16px; --radio-sheet: 24px;
+  --margen: 16px;
+  --sombra-flota: 0 8px 24px rgb(31 26 20 / .14);
+}
+@media (min-width: 640px) { :root { --margen: 24px; } }
+@media (min-width: 1024px) { :root { --margen: 32px; } }
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 72px; }
+body { margin: 0; background: var(--arena); color: var(--tinta); font: 100%/1.5 var(--texto); -webkit-font-smoothing: antialiased; }
+img { display: block; max-width: 100%; }
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; border-radius: 4px; }
+p { margin: 0; }
+h1, h2, h3 { margin: 0; font-family: var(--titulo); font-weight: 700; text-transform: uppercase; text-wrap: balance; }
+/* Tracking según tamaño: negativo en lo grande, casi cero en lo chico */
+.t-grande { font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1.02; letter-spacing: -0.03em; }
+.t-seccion { font-size: clamp(1.75rem, 3vw, 2.25rem); line-height: 1.1; letter-spacing: -0.015em; }
+.t-tarjeta { font-size: 1.25rem; line-height: 1.15; letter-spacing: -0.005em; }
+.contenedor { max-width: 1120px; margin: 0 auto; padding: 0 var(--margen); }
+
+/* Respuesta inmediata al presionar: se hunde en pointerdown, no en click */
+.presionable { transition: transform 160ms cubic-bezier(.2,0,0,1); -webkit-tap-highlight-color: transparent; }
+.presionable.presionado { transform: scale(0.97); transition-duration: 90ms; }
+
+.g-mar { --g: var(--azul); --g-claro: var(--azul-claro); --g-profundo: var(--azul-profundo); --g-tinta: var(--blanco); }
+.g-aire { --g: var(--verde); --g-claro: var(--verde-claro); --g-profundo: var(--verde-profundo); --g-tinta: var(--blanco); }
+.g-comer { --g: var(--coral); --g-claro: var(--coral-claro); --g-profundo: var(--coral-profundo); --g-tinta: var(--tinta); }
+.g-local { --g: var(--cafe-medio); --g-claro: var(--cafe-claro); --g-profundo: var(--cafe-profundo); --g-tinta: var(--tinta); }
+.etiqueta { display: inline-block; padding: 2px 10px; border-radius: 999px; background: var(--g-claro); color: var(--g-profundo); font-size: .8125rem; font-weight: 600; letter-spacing: .01em; white-space: nowrap; }
+
+/* ---------- Barra translúcida: el contenido pasa por debajo ---------- */
+.barra { position: sticky; top: 0; z-index: 20; height: 60px; display: flex; align-items: center; gap: 12px; padding: 0 var(--margen);
+  background: rgb(252 246 237 / .72); -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%); }
+/* Borde de scroll suave en lugar de una línea dura, solo cuando hay contenido debajo */
+.barra::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 12px; pointer-events: none; opacity: 0;
+  background: linear-gradient(rgb(31 26 20 / .08), transparent); transition: opacity 200ms; }
+.barra.con-borde::after { opacity: 1; }
+.barra__marca { display: flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 600; }
+.barra__marca img { width: 28px; height: 28px; }
+.barra__titulo { position: absolute; left: 50%; transform: translate(-50%, 6px); opacity: 0; font: 700 1.0625rem/1 var(--titulo); text-transform: uppercase; letter-spacing: 0;
+  transition: opacity 220ms cubic-bezier(.2,0,0,1), transform 220ms cubic-bezier(.2,0,0,1); pointer-events: none; }
+.barra.compacta .barra__titulo { opacity: 1; transform: translate(-50%, 0); }
+.barra__acciones { margin-left: auto; display: flex; gap: 8px; }
+.pildora { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px; border-radius: 999px; border: 0; cursor: pointer; text-decoration: none;
+  background: rgb(31 26 20 / .06); font-size: .9375rem; font-weight: 600; }
+.pildora:hover { background: rgb(31 26 20 / .1); }
+@media (max-width: 639px) { .barra__titulo { display: none; } }
+@media (prefers-reduced-transparency: reduce) { .barra { background: var(--arena); -webkit-backdrop-filter: none; backdrop-filter: none; } }
+@media (prefers-contrast: more) { .barra { background: var(--arena); border-bottom: 1px solid var(--tinta); } }
+
+/* ---------- Encabezado con título grande que se encoge a la barra ---------- */
+.encabezado { padding: 20px 0 8px; }
+.encabezado__miga { color: var(--apagado); font-size: .9375rem; margin-bottom: 8px; }
+.encabezado__miga a { text-decoration: none; }
+.encabezado__sub { margin-top: 12px; max-width: 46ch; color: var(--tinta-suave); font-size: 1.0625rem; }
+.encabezado__sub strong { color: var(--tinta); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.portada { margin-top: 24px; position: relative; border-radius: var(--radio-card); overflow: hidden; aspect-ratio: 21 / 9; background: var(--tinta); }
+.portada img { width: 100%; height: 100%; object-fit: cover; }
+.portada__pie { position: absolute; left: 16px; right: 16px; bottom: 16px; display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; }
+/* Material más pesado sobre foto: legible, con texto más grueso */
+.vidrio { background: rgb(31 26 20 / .48); -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%); color: var(--blanco); border-radius: var(--radio-control);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .18); }
+.portada__nota { padding: 10px 14px; font-size: .9375rem; font-weight: 500; letter-spacing: .01em; }
+@media (prefers-reduced-transparency: reduce) { .vidrio { background: var(--tinta); -webkit-backdrop-filter: none; backdrop-filter: none; } }
+@media (max-width: 639px) { .portada { aspect-ratio: 4 / 5; } }
+
+.boton { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px; border-radius: var(--radio-control); border: 0; cursor: pointer;
+  background: var(--cafe); color: var(--blanco); font-size: 1rem; font-weight: 600; text-decoration: none; }
+.boton:hover { background: #5D2C02; }
+.boton--secundario { background: var(--blanco); color: var(--cafe); box-shadow: inset 0 0 0 1px #8B8B86; }
+.boton--secundario:hover { background: var(--arena); }
+
+/* ---------- Control segmentado con indicador de resorte ---------- */
+.filtro-zona { position: sticky; top: 60px; z-index: 15; padding: 12px 0; }
+.segmentos { position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; padding: 3px; border-radius: 11px; background: rgb(31 26 20 / .07);
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); max-width: 640px; overflow-x: auto; scrollbar-width: none; }
+.segmentos::-webkit-scrollbar { display: none; }
+.segmentos__indicador { position: absolute; top: 3px; bottom: 3px; left: 0; border-radius: 8px; background: var(--blanco); box-shadow: 0 3px 8px rgb(31 26 20 / .12), 0 1px 1px rgb(31 26 20 / .06); will-change: transform, width; }
+.segmento { position: relative; z-index: 1; min-height: 36px; padding: 0 12px; border: 0; background: transparent; cursor: pointer; font-size: .875rem; font-weight: 600; white-space: nowrap; color: var(--tinta-suave); }
+.segmento[aria-checked="true"] { color: var(--tinta); }
+
+/* ---------- Secciones ---------- */
+.seccion { padding: 48px 0 8px; }
+.seccion__cabeza { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.seccion__cabeza a { font-weight: 600; text-decoration: none; color: var(--cafe); white-space: nowrap; }
+
+/* Carrusel con snap: se arroja y cae en la tarjeta más cercana */
+.carrusel { display: grid; grid-auto-flow: column; grid-auto-columns: min(78%, 320px); gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--margen);
+  padding: 4px var(--margen) 16px; margin: 0 calc(-1 * var(--margen)); overscroll-behavior-x: contain; scrollbar-width: none; }
+.carrusel::-webkit-scrollbar { display: none; }
+.lugar { scroll-snap-align: start; text-align: left; border: 0; padding: 0; background: var(--blanco); border-radius: var(--radio-card); overflow: hidden; cursor: pointer; box-shadow: 0 0 0 1px var(--borde); }
+.lugar[hidden] { display: none; }
+.lugar__media { aspect-ratio: 4 / 3; background: var(--g-claro); display: grid; place-items: center; }
+.lugar__media img { width: 100%; height: 100%; object-fit: cover; }
+.lugar__media span { font: 700 2rem/1 var(--titulo); text-transform: uppercase; letter-spacing: -0.02em; color: var(--g-profundo); }
+.lugar__texto { padding: 14px 16px 16px; display: grid; gap: 6px; }
+.lugar__texto p { color: var(--tinta-suave); font-size: .9375rem; }
+
+/* Lista agrupada, como un ajuste de iOS */
+.grupo-lista { background: var(--blanco); border-radius: var(--radio-card); overflow: hidden; box-shadow: 0 0 0 1px var(--borde); }
+.dia { margin: 20px 4px 8px; font-size: .8125rem; font-weight: 600; color: var(--apagado); letter-spacing: .02em; }
+.dia:first-child { margin-top: 0; }
+.evento { display: grid; grid-template-columns: 76px 1fr auto; gap: 12px; align-items: center; padding: 14px 16px; text-decoration: none; position: relative; }
+.evento + .evento::before { content: ""; position: absolute; top: 0; left: 104px; right: 0; height: 1px; background: var(--borde); }
+.evento:hover { background: rgb(31 26 20 / .03); }
+.evento__hora { font-variant-numeric: tabular-nums; font-weight: 600; font-size: .9375rem; }
+.evento__nombre { font-weight: 600; }
+.evento__lugar { color: var(--apagado); font-size: .875rem; }
+.evento__flecha { color: #8B8B86; font-size: 1.25rem; }
+.evento[hidden] { display: none; }
+
+/* Mosaico de categorías por grupo */
+.mosaico { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+@media (min-width: 768px) { .mosaico { grid-template-columns: repeat(4, 1fr); } }
+.cat { display: flex; flex-direction: column; justify-content: space-between; min-height: 120px; padding: 14px; border-radius: var(--radio-card); text-decoration: none; background: var(--g); color: var(--g-tinta); }
+.cat strong { font: 700 1.5rem/1.05 var(--titulo); text-transform: uppercase; letter-spacing: -0.01em; }
+.cat span { align-self: start; padding: 2px 10px; border-radius: 999px; background: var(--g-claro); color: var(--g-profundo); font-size: .8125rem; font-weight: 600; }
+
+.lecturas { display: grid; gap: 12px; }
+@media (min-width: 900px) { .lecturas { grid-template-columns: repeat(3, 1fr); } }
+.lectura { background: var(--blanco); border-radius: var(--radio-card); overflow: hidden; text-decoration: none; box-shadow: 0 0 0 1px var(--borde); display: grid; }
+.lectura img { aspect-ratio: 16 / 9; object-fit: cover; width: 100%; height: auto; }
+.lectura div { padding: 14px 16px 18px; display: grid; gap: 6px; }
+.lectura small { color: var(--apagado); font-size: .8125rem; }
+
+.tours { margin-top: 48px; position: relative; border-radius: var(--radio-card); overflow: hidden; min-height: 360px; display: grid; align-items: end; color: var(--blanco); background: var(--tinta); }
+.tours img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.tours__panel { position: relative; margin: 16px; padding: 20px; max-width: 460px; display: grid; gap: 12px; justify-items: start; }
+
+.aparece { margin: 48px 0; padding: 24px; border-radius: var(--radio-card); background: var(--blanco); box-shadow: 0 0 0 1px var(--borde); display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; }
+.aparece p { max-width: 52ch; color: var(--tinta-suave); margin-top: 6px; }
+
+.pie { padding: 32px 0 48px; color: var(--apagado); font-size: .875rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+.pie a { text-decoration: none; margin-right: 16px; }
+
+/* ---------- Hoja inferior: se arrastra, se arroja, se puede atrapar a medio camino ---------- */
+.velo { position: fixed; inset: 0; z-index: 40; background: rgb(31 26 20 / .4); opacity: 0; pointer-events: none; }
+.velo.activo { pointer-events: auto; }
+.hoja { position: fixed; left: 0; right: 0; bottom: 0; z-index: 41; margin: 0 auto; max-width: 600px; max-height: 88svh; display: flex; flex-direction: column;
+  background: var(--arena); border-radius: var(--radio-sheet) var(--radio-sheet) 0 0; box-shadow: 0 -1px 0 var(--borde), 0 -6px 24px rgb(31 26 20 / .12);
+  transform: translateY(110%); visibility: hidden; touch-action: none; will-change: transform; }
+.hoja.abierta { visibility: visible; }
+.hoja__asa { flex: 0 0 auto; padding: 10px 0 6px; cursor: grab; display: grid; place-items: center; }
+.hoja__asa::before { content: ""; width: 40px; height: 5px; border-radius: 999px; background: rgb(31 26 20 / .25); }
+.hoja__contenido { overflow-y: auto; padding: 0 20px 28px; touch-action: pan-y; overscroll-behavior: contain; }
+.hoja__media { border-radius: var(--radio-control); overflow: hidden; aspect-ratio: 16 / 10; background: var(--g-claro); display: grid; place-items: center; margin-bottom: 16px; }
+.hoja__media img { width: 100%; height: 100%; object-fit: cover; }
+.hoja__media span { font: 700 3rem/1 var(--titulo); text-transform: uppercase; color: var(--g-profundo); }
+.hoja__filas { margin: 16px 0; background: var(--blanco); border-radius: var(--radio-control); box-shadow: 0 0 0 1px var(--borde); }
+.hoja__fila { display: flex; justify-content: space-between; gap: 16px; padding: 12px 14px; }
+.hoja__fila + .hoja__fila { border-top: 1px solid var(--borde); }
+.hoja__fila span:first-child { color: var(--apagado); }
+.hoja__acciones { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.hoja__cerrar { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 999px; border: 0; background: rgb(31 26 20 / .08); cursor: pointer; font-size: 1.1rem; line-height: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .presionable.presionado { transform: none; opacity: .7; }
+  .barra__titulo { transform: translate(-50%, 0); }
+}
+</style>
+</head>
+<body>
+
+<header class="barra" id="barra">
+  <a class="barra__marca" href="#"><img src="../recursos/logos/logosm.svg" width="28" height="28" alt="">Guía</a>
+  <span class="barra__titulo" aria-hidden="true">La Paz</span>
+  <nav class="barra__acciones" aria-label="Opciones">
+    <button class="pildora presionable" type="button" aria-haspopup="listbox">La Paz <span aria-hidden="true">▾</span></button>
+    <a class="pildora presionable" href="#" lang="en" hreflang="en">EN</a>
+  </nav>
+</header>
+
+<main class="contenedor">
+  <section class="encabezado" aria-labelledby="titulo">
+    <p class="encabezado__miga"><a href="#">Guía</a> › La Paz</p>
+    <h1 id="titulo" class="t-grande">La Paz</h1>
+    <p class="encabezado__sub">Lugares y eventos elegidos por gente que vive aquí. Ahora son las <strong id="hora">—</strong> en La Paz.</p>
+    <div class="portada">
+      <img src="img/pangas-playa.webp" width="1600" height="1067" alt="Pangas varadas en una playa de la bahía al atardecer">
+      <div class="portada__pie">
+        <p class="vidrio portada__nota">Atardecer en la bahía · hoy a las 5:32 p. m.</p>
+        <a class="boton presionable" href="#eventos">Qué hay esta semana</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="filtro-zona">
+    <div class="segmentos" role="radiogroup" aria-label="Filtrar por grupo" id="segmentos">
+      <span class="segmentos__indicador" id="indicador" aria-hidden="true"></span>
+      <button class="segmento" role="radio" aria-checked="true" data-grupo="todo">Todo</button>
+      <button class="segmento" role="radio" aria-checked="false" data-grupo="mar">Mar</button>
+      <button class="segmento" role="radio" aria-checked="false" data-grupo="aire">Aire libre</button>
+      <button class="segmento" role="radio" aria-checked="false" data-grupo="comer">Comer y salir</button>
+      <button class="segmento" role="radio" aria-checked="false" data-grupo="local">Lo local</button>
+    </div>
+  </div>
+
+  <section class="seccion" id="lugares" aria-labelledby="t-lugares">
+    <div class="seccion__cabeza"><h2 id="t-lugares" class="t-seccion">Lugares</h2><a href="#">Ver todos</a></div>
+    <div class="carrusel" id="carrusel">
+      <button class="lugar g-mar presionable" type="button" data-grupo="mar" data-id="balandra">
+        <div class="lugar__media"><img src="img/orilla.webp" width="1600" height="1067" alt="" loading="lazy"></div>
+        <div class="lugar__texto"><span><span class="etiqueta">Playas</span></span><h3 class="t-tarjeta">Playa Balandra</h3><p>Agua baja y turquesa, a 25 min del centro.</p></div>
+      </button>
+      <button class="lugar g-comer presionable" type="button" data-grupo="comer" data-id="mariscos">
+        <div class="lugar__media"><span aria-hidden="true">Mariscos</span></div>
+        <div class="lugar__texto"><span><span class="etiqueta">Restaurantes</span></span><h3 class="t-tarjeta">Mariscos La Bahía</h3><p>Pesca del día a media cuadra del malecón.</p></div>
+      </button>
+      <button class="lugar g-aire presionable" type="button" data-grupo="aire" data-id="calavera">
+        <div class="lugar__media"><img src="img/sendero.webp" width="1600" height="1067" alt="" loading="lazy"></div>
+        <div class="lugar__texto"><span><span class="etiqueta">Actividades</span></span><h3 class="t-tarjeta">Cerro de la Calavera</h3><p>40 minutos de subida, toda la bahía abajo.</p></div>
+      </button>
+      <button class="lugar g-local presionable" type="button" data-grupo="local" data-id="madero">
+        <div class="lugar__media"><span aria-hidden="true">Mercado</span></div>
+        <div class="lugar__texto"><span><span class="etiqueta">Mercados</span></span><h3 class="t-tarjeta">Mercado Madero</h3><p>Fondas de desayuno desde las 7.</p></div>
+      </button>
+      <button class="lugar g-mar presionable" type="button" data-grupo="mar" data-id="tecolote">
+        <div class="lugar__media"><img src="img/playa-calma.webp" width="1600" height="1067" alt="" loading="lazy"></div>
+        <div class="lugar__texto"><span><span class="etiqueta">Playas</span></span><h3 class="t-tarjeta">Playa El Tecolote</h3><p>Palapas, comida y vista a la isla.</p></div>
+      </button>
+      <button class="lugar g-local presionable" type="button" data-grupo="local" data-id="museo">
+        <div class="lugar__media"><img src="img/cardones.webp" width="1600" height="1067" alt="" loading="lazy"></div>
+        <div class="lugar__texto"><span><span class="etiqueta">Cultura</span></span><h3 class="t-tarjeta">Museo Regional</h3><p>La historia de la península, en el centro.</p></div>
+      </button>
+    </div>
+  </section>
+
+  <section class="seccion" id="eventos" aria-labelledby="t-eventos">
+    <div class="seccion__cabeza"><h2 id="t-eventos" class="t-seccion">Esta semana</h2><a href="#">Calendario</a></div>
+    <div id="lista-eventos">
+      <p class="dia">Viernes 6 de noviembre</p>
+      <div class="grupo-lista">
+        <a class="evento presionable" href="#" data-grupo="comer"><span class="evento__hora">18:00</span><span><span class="evento__nombre">Trova al atardecer</span><br><span class="evento__lugar">Malecón · </span><span class="etiqueta g-comer">Música y fiestas</span></span><span class="evento__flecha" aria-hidden="true">›</span></a>
+        <a class="evento presionable" href="#" data-grupo="mar"><span class="evento__hora">17:00</span><span><span class="evento__nombre">Registro del torneo de dorado</span><br><span class="evento__lugar">Marina de La Paz · </span><span class="etiqueta g-mar">Torneos y deportes</span></span><span class="evento__flecha" aria-hidden="true">›</span></a>
+        <a class="evento presionable" href="#" data-grupo="local"><span class="evento__hora">19:00</span><span><span class="evento__nombre">Noche de museo</span><br><span class="evento__lugar">Museo Regional · </span><span class="etiqueta g-local">Cultura</span></span><span class="evento__flecha" aria-hidden="true">›</span></a>
+      </div>
+      <p class="dia">Sábado 7 de noviembre</p>
+      <div class="grupo-lista">
+        <a class="evento presionable" href="#" data-grupo="aire"><span class="evento__hora">06:30</span><span><span class="evento__nombre">Subida al Cerro de la Calavera</span><br><span class="evento__lugar">Entrada del sendero · </span><span class="etiqueta g-aire">Actividades</span></span><span class="evento__flecha" aria-hidden="true">›</span></a>
+        <a class="evento presionable" href="#" data-grupo="local"><span class="evento__hora">08:00</span><span><span class="evento__nombre">Mercado de productores</span><br><span class="evento__lugar">Jardín Velasco · </span><span class="etiqueta g-local">Ferias y festivales</span></span><span class="evento__flecha" aria-hidden="true">›</span></a>
+        <a class="evento presionable" href="#" data-grupo="comer"><span class="evento__hora">20:00</span><span><span class="evento__nombre">Banda en la plaza</span><br><span class="evento__lugar">Plaza Constitución · </span><span class="etiqueta g-comer">Música y fiestas</span></span><span class="evento__flecha" aria-hidden="true">›</span></a>
+      </div>
+      <p class="dia">Domingo 8 de noviembre</p>
+      <div class="grupo-lista">
+        <a class="evento presionable" href="#" data-grupo="aire"><span class="evento__hora">07:00</span><span><span class="evento__nombre">Kayak al manglar</span><br><span class="evento__lugar">El Mogote · </span><span class="etiqueta g-aire">Actividades</span></span><span class="evento__flecha" aria-hidden="true">›</span></a>
+        <a class="evento presionable" href="#" data-grupo="mar"><span class="evento__hora">08:00</span><span><span class="evento__nombre">Regata de remo de la bahía</span><br><span class="evento__lugar">Playa Coromuel · </span><span class="etiqueta g-mar">Torneos y deportes</span></span><span class="evento__flecha" aria-hidden="true">›</span></a>
+        <a class="evento presionable" href="#" data-grupo="local"><span class="evento__hora">10:00</span><span><span class="evento__nombre">Feria de artesanos</span><br><span class="evento__lugar">Plaza Constitución · </span><span class="etiqueta g-local">Ferias y festivales</span></span><span class="evento__flecha" aria-hidden="true">›</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-cat">
+    <div class="seccion__cabeza"><h2 id="t-cat" class="t-seccion">Categorías</h2></div>
+    <div class="mosaico">
+      <a class="cat g-mar presionable" href="#"><strong>Playas</strong><span>18 lugares</span></a>
+      <a class="cat g-aire presionable" href="#"><strong>Actividades</strong><span>24 lugares</span></a>
+      <a class="cat g-comer presionable" href="#"><strong>Restaurantes</strong><span>41 lugares</span></a>
+      <a class="cat g-local presionable" href="#"><strong>Mercados</strong><span>6 lugares</span></a>
+      <a class="cat g-comer presionable" href="#"><strong>Cafés y bares</strong><span>22 lugares</span></a>
+      <a class="cat g-local presionable" href="#"><strong>Cultura</strong><span>9 lugares</span></a>
+      <a class="cat g-local presionable" href="#"><strong>Tiendas locales</strong><span>15 lugares</span></a>
+      <a class="cat g-mar presionable" href="#"><strong>Torneos</strong><span>3 eventos</span></a>
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-leer">
+    <div class="seccion__cabeza"><h2 id="t-leer" class="t-seccion">Para leer antes de ir</h2></div>
+    <div class="lecturas">
+      <a class="lectura presionable" href="#"><img src="img/orilla.webp" width="1600" height="1067" alt="" loading="lazy"><div><h3 class="t-tarjeta">Balandra sin prisas</h3><p>Cómo llegar, a qué hora y qué llevar.</p><small>6 min · actualizado el 2 nov</small></div></a>
+      <a class="lectura presionable" href="#"><img src="img/pangas-playa.webp" width="1600" height="1067" alt="" loading="lazy"><div><h3 class="t-tarjeta">Pescado del día en La Paz</h3><p>Siete mesas, de la tostada de pie a la cena con vista.</p><small>8 min · actualizado el 28 oct</small></div></a>
+      <a class="lectura presionable" href="#"><img src="img/mar-abierto.webp" width="1600" height="1067" alt="" loading="lazy"><div><h3 class="t-tarjeta">Ballenas: temporada 2027</h3><p>Cuándo llegan y qué esperar en la panga.</p><small>5 min · actualizado el 20 oct</small></div></a>
+    </div>
+  </section>
+
+  <section class="tours" aria-labelledby="t-tours">
+    <img src="img/cardon-costa.webp" width="1600" height="1067" alt="Cardón frente al mar de Cortés" loading="lazy">
+    <div class="tours__panel vidrio">
+      <h2 id="t-tours" class="t-seccion">Tours en La Paz</h2>
+      <p>Pesca, ballenas y la Isla Espíritu Santo, con salida desde aquí.</p>
+      <a class="boton presionable" href="#">Ver tours</a>
+    </div>
+  </section>
+
+  <section class="aparece" aria-labelledby="t-aparece">
+    <div><h2 id="t-aparece" class="t-tarjeta">¿Tienes un negocio en la Baja?</h2><p>Cuéntanos de él. El equipo de la Guía lo visita antes de publicarlo.</p></div>
+    <a class="boton boton--secundario presionable" href="#">Aparece en la Guía</a>
+  </section>
+
+  <footer class="pie">
+    <span>Guía de la Baja, de Sun Baja · contenido de ejemplo, fotos de Pexels</span>
+    <span><a href="#">Privacidad</a><a href="#" lang="en">English</a>© 2026</span>
+  </footer>
+</main>
+
+<div class="velo" id="velo"></div>
+<section class="hoja" id="hoja" role="dialog" aria-modal="true" aria-labelledby="hoja-titulo">
+  <div class="hoja__asa" id="asa" aria-hidden="true"></div>
+  <button class="hoja__cerrar" type="button" id="cerrar" aria-label="Cerrar">✕</button>
+  <div class="hoja__contenido" id="hoja-contenido"></div>
+</section>
+
+<script>
+(() => {
+  const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---- Resorte con los dos parámetros de Apple: amortiguamiento y respuesta ----
+  // Arranca siempre del valor actual en pantalla y conserva la velocidad: se puede interrumpir.
+  function resorte({ desde, hasta, velocidad = 0, amortiguamiento = 1, respuesta = 0.35, alCambiar, alTerminar }) {
+    const k = Math.pow(2 * Math.PI / respuesta, 2);
+    const c = 4 * Math.PI * amortiguamiento / respuesta;
+    let x = desde, v = velocidad, ultimo = performance.now(), vivo = true;
+    function paso(ahora) {
+      if (!vivo) return;
+      let dt = Math.min(0.032, (ahora - ultimo) / 1000); ultimo = ahora;
+      const sub = 4; dt /= sub;
+      for (let i = 0; i < sub; i++) { const a = -k * (x - hasta) - c * v; v += a * dt; x += v * dt; }
+      if (Math.abs(v) < 0.5 && Math.abs(x - hasta) < 0.5) { x = hasta; alCambiar(x); vivo = false; alTerminar && alTerminar(); return; }
+      alCambiar(x); requestAnimationFrame(paso);
+    }
+    requestAnimationFrame(paso);
+    return { detener() { vivo = false; }, get valor() { return x; }, get velocidad() { return v; } };
+  }
+  // Proyección de momento (la misma forma exponencial que usa iOS).
+  const proyectar = (v, d = 0.998) => (v / 1000) * d / (1 - d);
+  // Resistencia elástica en los bordes.
+  const elastico = (exceso, dimension, c = 0.55) => (exceso * dimension * c) / (dimension + c * Math.abs(exceso));
+
+  // ---- Presión inmediata en pointerdown ----
+  document.addEventListener('pointerdown', (e) => {
+    const el = e.target.closest('.presionable'); if (!el) return;
+    el.classList.add('presionado');
+    const soltar = () => { el.classList.remove('presionado'); removeEventListener('pointerup', soltar); removeEventListener('pointercancel', soltar); };
+    addEventListener('pointerup', soltar); addEventListener('pointercancel', soltar);
+  });
+  // Si el dedo se va (scroll del carrusel), se cancela la presión.
+  document.addEventListener('pointermove', (e) => { if (e.buttons && Math.abs(e.movementX) + Math.abs(e.movementY) > 6) document.querySelectorAll('.presionado').forEach((x) => x.classList.remove('presionado')); }, { passive: true });
+
+  // ---- Hora en La Paz ----
+  const hora = document.getElementById('hora');
+  const fmt = new Intl.DateTimeFormat('es-MX', { timeZone: 'America/Mazatlan', hour: 'numeric', minute: '2-digit' });
+  const tic = () => { hora.textContent = fmt.format(new Date()); }; tic(); setInterval(tic, 30000);
+
+  // ---- Barra: título grande que pasa a la barra; borde de scroll solo con contenido debajo ----
+  const barra = document.getElementById('barra');
+  new IntersectionObserver(([e]) => barra.classList.toggle('compacta', !e.isIntersecting), { rootMargin: '-60px 0px 0px 0px' }).observe(document.getElementById('titulo'));
+  addEventListener('scroll', () => barra.classList.toggle('con-borde', scrollY > 4), { passive: true });
+
+  // ---- Control segmentado: el indicador viaja con resorte desde donde esté ----
+  const segs = [...document.querySelectorAll('.segmento')];
+  const ind = document.getElementById('indicador');
+  let pos = { x: 0, w: 0 }, animX = null, animW = null;
+  const pintar = () => { ind.style.transform = `translateX(${pos.x}px)`; ind.style.width = pos.w + 'px'; };
+  function moverIndicador(btn, inmediato) {
+    const destinoX = btn.offsetLeft, destinoW = btn.offsetWidth;
+    animX && animX.detener(); animW && animW.detener();
+    if (inmediato || reducido) { pos = { x: destinoX, w: destinoW }; pintar(); return; }
+    // X y ancho como resortes independientes
+    animX = resorte({ desde: pos.x, hasta: destinoX, velocidad: animX ? animX.velocidad : 0, respuesta: 0.3, alCambiar: (v) => { pos.x = v; pintar(); } });
+    animW = resorte({ desde: pos.w, hasta: destinoW, velocidad: animW ? animW.velocidad : 0, respuesta: 0.3, alCambiar: (v) => { pos.w = v; pintar(); } });
+  }
+  const filtrar = (g) => {
+    document.querySelectorAll('.lugar').forEach((l) => { l.hidden = !(g === 'todo' || l.dataset.grupo === g); });
+    document.querySelectorAll('.evento').forEach((ev) => { ev.hidden = !(g === 'todo' || ev.dataset.grupo === g); });
+    document.querySelectorAll('.grupo-lista').forEach((gl) => { const hay = [...gl.children].some((c) => !c.hidden); gl.hidden = !hay; gl.previousElementSibling.hidden = !hay; });
+  };
+  segs.forEach((b) => b.addEventListener('click', () => {
+    segs.forEach((x) => x.setAttribute('aria-checked', String(x === b)));
+    moverIndicador(b); filtrar(b.dataset.grupo);
+  }));
+  requestAnimationFrame(() => moverIndicador(segs[0], true));
+  addEventListener('resize', () => moverIndicador(segs.find((s) => s.getAttribute('aria-checked') === 'true'), true));
+
+  // ---- Hoja inferior ----
+  const datos = {
+    balandra: { g: 'g-mar', cat: 'Playas', nombre: 'Playa Balandra', foto: 'img/orilla.webp', nota: 'Agua baja y turquesa, ideal para nadar con niños. La entrada tiene cupo por día: llega antes de las 9.', filas: [['Zona', 'La Paz, km 25'], ['Horario', '8:00 a 18:00'], ['Precio', 'Entrada al parque']] },
+    mariscos: { g: 'g-comer', cat: 'Restaurantes', nombre: 'Mariscos La Bahía', palabra: 'Mariscos', nota: 'Pesca del día a la talla, en mesas de plástico a media cuadra del malecón.', filas: [['Zona', 'Centro'], ['Horario', '12:00 a 22:30'], ['Precio', '$$']] },
+    calavera: { g: 'g-aire', cat: 'Actividades', nombre: 'Cerro de la Calavera', foto: 'img/sendero.webp', nota: 'Subida corta al amanecer, con toda la bahía a tus pies. Lleva agua y gorra.', filas: [['Zona', 'La Paz'], ['Duración', '40 min de subida'], ['Nivel', 'Fácil']] },
+    madero: { g: 'g-local', cat: 'Mercados', nombre: 'Mercado Madero', palabra: 'Mercado', nota: 'Fondas de desayuno, queso de rancho y machaca de pescado desde las 7.', filas: [['Zona', 'Centro'], ['Horario', '7:00 a 15:00'], ['Precio', '$']] },
+    tecolote: { g: 'g-mar', cat: 'Playas', nombre: 'Playa El Tecolote', foto: 'img/playa-calma.webp', nota: 'La playa de los domingos en familia, con palapas y vista a la Isla Espíritu Santo.', filas: [['Zona', 'La Paz, km 27'], ['Servicios', 'Palapas, comida'], ['Precio', 'Gratis']] },
+    museo: { g: 'g-local', cat: 'Cultura', nombre: 'Museo Regional', foto: 'img/cardones.webp', nota: 'La historia de la península, de los pueblos antiguos a las misiones.', filas: [['Zona', 'Centro'], ['Horario', 'Mar a dom, 9:00 a 18:00'], ['Precio', '$']] },
+  };
+  const hoja = document.getElementById('hoja'), velo = document.getElementById('velo'), contenido = document.getElementById('hoja-contenido');
+  let y = 0, alto = 0, anim = null, origen = null;
+  const pintarHoja = () => {
+    hoja.style.transform = `translateY(${y}px)`;
+    velo.style.opacity = String(Math.max(0, Math.min(1, 1 - y / alto)));
+  };
+  function animarA(destino, velocidad = 0, alTerminar) {
+    anim && anim.detener();
+    if (reducido) { y = destino; pintarHoja(); alTerminar && alTerminar(); return; }
+    // Con impulso del dedo, un poco de rebote; sin él, sin rebote.
+    const amortiguamiento = Math.abs(velocidad) > 300 ? 0.85 : 1;
+    anim = resorte({ desde: y, hasta: destino, velocidad, amortiguamiento, respuesta: 0.32, alCambiar: (v) => { y = v; pintarHoja(); }, alTerminar });
+  }
+  function abrir(id, desdeEl) {
+    const d = datos[id]; origen = desdeEl;
+    hoja.className = 'hoja abierta ' + d.g;
+    contenido.innerHTML = `<div class="hoja__media">${d.foto ? `<img src="${d.foto}" alt="">` : `<span aria-hidden="true">${d.palabra}</span>`}</div>
+      <span class="etiqueta">${d.cat}</span><h2 id="hoja-titulo" class="t-seccion" style="margin:8px 0 8px">${d.nombre}</h2><p>${d.nota}</p>
+      <div class="hoja__filas">${d.filas.map(([a, b]) => `<div class="hoja__fila"><span>${a}</span><span>${b}</span></div>`).join('')}</div>
+      <div class="hoja__acciones"><a class="boton presionable" href="#">Cómo llegar</a><a class="boton boton--secundario presionable" href="#">Tours cerca</a></div>`;
+    alto = hoja.offsetHeight; y = alto; pintarHoja();
+    velo.classList.add('activo');
+    animarA(0);
+    document.getElementById('cerrar').focus({ preventScroll: true });
+  }
+  function cerrar(velocidad = 0) {
+    velo.classList.remove('activo');
+    // Sale por el mismo camino por el que entró: hacia abajo.
+    animarA(alto, velocidad, () => { hoja.classList.remove('abierta'); origen && origen.focus({ preventScroll: true }); });
+  }
+  document.querySelectorAll('.lugar').forEach((b) => b.addEventListener('click', () => abrir(b.dataset.id, b)));
+  velo.addEventListener('click', () => cerrar());
+  document.getElementById('cerrar').addEventListener('click', () => cerrar());
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && hoja.classList.contains('abierta')) cerrar(); });
+
+  // Arrastre 1:1 desde el asa (o desde el contenido cuando está arriba del todo).
+  let arrastre = null;
+  hoja.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('a, button')) return;
+    if (e.target.closest('.hoja__contenido') && contenido.scrollTop > 0) return;
+    anim && anim.detener(); // se atrapa a medio camino: parte del valor actual
+    hoja.setPointerCapture(e.pointerId);
+    arrastre = { inicioY: e.clientY, base: y, historia: [{ t: performance.now(), y: e.clientY }], dirigido: false };
+  });
+  hoja.addEventListener('pointermove', (e) => {
+    if (!arrastre) return;
+    const dy = e.clientY - arrastre.inicioY;
+    if (!arrastre.dirigido && Math.abs(dy) < 10) return; // histéresis antes de comprometerse
+    arrastre.dirigido = true;
+    let destino = arrastre.base + dy;
+    if (destino < 0) destino = -elastico(-destino, alto); // hacia arriba resiste
+    y = destino; pintarHoja();
+    arrastre.historia.push({ t: performance.now(), y: e.clientY });
+    if (arrastre.historia.length > 6) arrastre.historia.shift();
+  });
+  const soltarHoja = () => {
+    if (!arrastre) return;
+    const h = arrastre.historia, a = h[0], b = h[h.length - 1];
+    const v = b.t > a.t ? ((b.y - a.y) / (b.t - a.t)) * 1000 : 0; // px/s
+    const dirigido = arrastre.dirigido; arrastre = null;
+    if (!dirigido) return;
+    const final = y + proyectar(v);
+    if (final > alto * 0.5) cerrar(v); else animarA(0, v);
+  };
+  hoja.addEventListener('pointerup', soltarHoja);
+  hoja.addEventListener('pointercancel', soltarHoja);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Playa Balandra · Guía de La Paz · Propuesta C</title>
+<meta name="description" content="Propuesta C: ficha de un lugar.">
+<link rel="stylesheet" href="c-base.css">
+<script src="c-base.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Beach","name":"Playa Balandra","description":"Agua baja y turquesa a 25 minutos del centro de La Paz.","geo":{"@type":"GeoCoordinates","latitude":24.3216,"longitude":-110.3226},"address":{"@type":"PostalAddress","addressLocality":"La Paz","addressRegion":"Baja California Sur","addressCountry":"MX"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"08:00","closes":"18:00"}]}
+</script>
+<style>
+/* Galería */
+.galeria { display: grid; gap: 6px; border-radius: var(--radio-card); overflow: hidden; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 1fr 1fr; aspect-ratio: 21 / 9; }
+.galeria button { position: relative; padding: 0; border: 0; cursor: zoom-in; overflow: hidden; background: var(--arena); }
+.galeria button:first-child { grid-row: span 2; }
+.galeria img { width: 100%; height: 100%; object-fit: cover; transition: transform 700ms var(--curva), filter 300ms; }
+.galeria button:hover img { transform: scale(1.04); }
+.galeria__mas { position: absolute; right: 12px; bottom: 12px; padding: 8px 14px; border-radius: 999px; background: rgb(255 255 255 / .92); color: var(--tinta); font-weight: 700; font-size: .875rem; box-shadow: 0 2px 8px rgb(31 26 20 / .2); }
+@media (max-width: 767px) {
+  .galeria { display: grid; grid-template-columns: none; grid-template-rows: none; grid-auto-flow: column; grid-auto-columns: 100%; aspect-ratio: 4 / 3; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; gap: 0; margin: 0 calc(-1 * var(--margen)); border-radius: 0; }
+  .galeria::-webkit-scrollbar { display: none; }
+  .galeria button { scroll-snap-align: start; grid-row: auto !important; }
+  .galeria__mas { display: none; }
+}
+.galeria-envoltura { position: relative; }
+.contador { position: absolute; right: 12px; bottom: 12px; padding: 4px 10px; border-radius: 999px; background: rgb(31 26 20 / .6); color: var(--blanco); font-size: .8125rem; font-weight: 700; font-variant-numeric: tabular-nums; display: none; }
+@media (max-width: 767px) { .contador { display: block; } }
+
+/* Encabezado */
+.cabeza { padding: 20px 0 8px; display: grid; gap: 10px; }
+.cabeza__chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.cabeza__resumen { font-size: 1.125rem; color: var(--tinta-suave); max-width: 60ch; }
+.datos { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; font-size: .9375rem; color: var(--tinta-suave); }
+.datos span + span::before { content: "·"; margin-right: 18px; color: var(--borde-control); }
+.acciones { display: flex; gap: 8px; flex-wrap: wrap; padding-top: 6px; }
+.accion { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--borde); background: var(--blanco); font-weight: 600; font-size: .9375rem; cursor: pointer; }
+.accion:hover { border-color: var(--borde-control); }
+.accion svg { width: 18px; height: 18px; }
+
+/* Cuerpo en dos columnas */
+.cuerpo { display: grid; gap: 32px; padding-top: 24px; }
+@media (min-width: 1024px) { .cuerpo { grid-template-columns: minmax(0, 1fr) 380px; gap: 48px; align-items: start; } }
+.bloque + .bloque { margin-top: 36px; }
+.bloque h2 { margin-bottom: 12px; }
+.texto p { font-size: 1.0625rem; line-height: 1.65; max-width: 68ch; }
+.texto p + p { margin-top: 14px; }
+.consejos { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 10px; }
+.consejos li { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start; padding: 12px 14px; border-radius: var(--radio-control); background: var(--arena); }
+.consejos b { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--azul-claro); color: var(--azul-profundo); font-size: .8125rem; }
+.horario { border-radius: var(--radio-control); box-shadow: 0 0 0 1px var(--borde); overflow: hidden; max-width: 520px; }
+.horario__fila { display: flex; justify-content: space-between; padding: 10px 14px; font-variant-numeric: tabular-nums; }
+.horario__fila + .horario__fila { border-top: 1px solid var(--borde); }
+.horario__fila.hoy { background: var(--arena); font-weight: 700; }
+.horario__fila.hoy span:first-child::after { content: " · hoy"; color: var(--apagado); font-weight: 600; }
+.nota-horario { margin-top: 10px; color: var(--apagado); font-size: .9375rem; }
+.mapa { border-radius: var(--radio-card); overflow: hidden; box-shadow: 0 0 0 1px var(--borde); aspect-ratio: 16 / 9; background: var(--arena); }
+.mapa iframe { width: 100%; height: 100%; border: 0; }
+.mapa__pie { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; }
+.mini-evento { display: grid; grid-template-columns: 64px 1fr auto; gap: 14px; align-items: center; padding: 12px 14px; border-radius: var(--radio-control); box-shadow: 0 0 0 1px var(--borde); }
+.mini-evento + .mini-evento { margin-top: 8px; }
+.mini-evento__fecha { display: grid; place-items: center; height: 64px; border-radius: var(--radio-sm); background: var(--arena); line-height: 1.05; text-align: center; }
+.mini-evento__fecha b { font: 700 1.5rem/1 var(--titulo); }
+.mini-evento__fecha small { font-size: .75rem; font-weight: 700; color: var(--apagado); text-transform: uppercase; }
+.articulo-ref { display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: center; padding: 10px; border-radius: var(--radio-card); background: var(--arena); }
+.articulo-ref .media { aspect-ratio: 4 / 3; border-radius: var(--radio-sm); }
+
+/* Lateral */
+.lateral { display: grid; gap: 16px; }
+@media (min-width: 1024px) { .lateral { position: sticky; top: calc(var(--cabecera) + 16px); } }
+.ficha-datos { border-radius: var(--radio-card); box-shadow: 0 0 0 1px var(--borde); overflow: hidden; }
+.ficha-datos__fila { display: grid; grid-template-columns: 24px 1fr; gap: 12px; padding: 12px 16px; align-items: start; font-size: .9375rem; }
+.ficha-datos__fila + .ficha-datos__fila { border-top: 1px solid var(--borde); }
+.ficha-datos__fila svg { width: 20px; height: 20px; color: var(--apagado); margin-top: 2px; }
+.ficha-datos__fila a { color: var(--cafe); font-weight: 600; }
+.ficha-datos__botones { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 16px 16px; }
+.tours-zona { border-radius: var(--radio-card); background: var(--arena); padding: 16px; display: grid; gap: 10px; }
+.tours-zona h2 { font: 700 1.125rem/1.2 var(--titulo); text-transform: uppercase; }
+.tour-fila { display: grid; grid-template-columns: 76px 1fr; gap: 12px; align-items: center; padding: 8px; border-radius: var(--radio-control); background: var(--blanco); }
+.tour-fila .media { aspect-ratio: 1; border-radius: var(--radio-sm); }
+.tour-fila .titular { font-size: .9375rem; }
+.tours-zona > a:last-child { justify-self: start; font-weight: 600; color: var(--cafe); }
+
+/* Barra fija inferior en celular */
+.barra-inferior { position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; display: none; gap: 8px; padding: 10px var(--margen) calc(10px + env(safe-area-inset-bottom));
+  background: rgb(255 255 255 / .86); -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%); box-shadow: 0 -1px 0 var(--borde);
+  transform: translateY(0); transition: transform 300ms var(--curva); }
+.barra-inferior.oculta { transform: translateY(110%); }
+.barra-inferior .boton { flex: 1; }
+@media (max-width: 1023px) { .barra-inferior { display: flex; } body { padding-bottom: 76px; } }
+
+/* Visor de fotos */
+.visor { position: fixed; inset: 0; z-index: 50; background: rgb(18 15 12 / .96); display: grid; grid-template-rows: auto 1fr auto; opacity: 0; visibility: hidden; transition: opacity 240ms var(--curva), visibility 0s 240ms; }
+.visor.mostrado { opacity: 1; visibility: visible; transition: opacity 240ms var(--curva); }
+.visor__cabeza { display: flex; justify-content: space-between; align-items: center; padding: 12px var(--margen); color: var(--blanco); font-weight: 600; font-variant-numeric: tabular-nums; }
+.visor__cerrar { width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgb(255 255 255 / .14); color: var(--blanco); cursor: pointer; font-size: 1.1rem; }
+.visor__pista { display: grid; grid-auto-flow: column; grid-auto-columns: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+.visor__pista::-webkit-scrollbar { display: none; }
+.visor__pista figure { margin: 0; scroll-snap-align: center; display: grid; place-items: center; padding: 0 var(--margen); transform: scale(.96); transition: transform 360ms var(--curva); }
+.visor.mostrado .visor__pista figure { transform: none; }
+.visor__pista img { max-height: calc(100svh - 200px); width: auto; max-width: 100%; border-radius: var(--radio-control); object-fit: contain; }
+.visor__pista figcaption { color: rgb(255 255 255 / .85); margin-top: 10px; font-size: .9375rem; }
+.visor__pie { display: flex; justify-content: center; gap: 6px; padding: 12px; overflow-x: auto; }
+.visor__mini { width: 56px; height: 40px; border-radius: 6px; border: 2px solid transparent; padding: 0; overflow: hidden; cursor: pointer; opacity: .55; transition: opacity 200ms, border-color 200ms; background: none; }
+.visor__mini img { width: 100%; height: 100%; object-fit: cover; }
+.visor__mini[aria-current="true"] { opacity: 1; border-color: var(--blanco); }
+.visor__flecha { position: absolute; top: 50%; width: 48px; height: 48px; border-radius: 50%; border: 0; background: rgb(255 255 255 / .14); color: var(--blanco); font-size: 1.4rem; cursor: pointer; }
+.visor__flecha--izq { left: 16px; } .visor__flecha--der { right: 16px; }
+@media (hover: none) { .visor__flecha { display: none; } }
+
+.aviso { position: fixed; left: 50%; bottom: 96px; z-index: 60; transform: translate(-50%, 20px); opacity: 0; padding: 10px 16px; border-radius: 999px; background: var(--tinta); color: var(--blanco); font-weight: 600; font-size: .9375rem; transition: opacity 200ms, transform 300ms var(--curva); pointer-events: none; }
+.aviso.visible { opacity: 1; transform: translate(-50%, 0); }
+</style>
+</head>
+<body>
+
+<div data-cabecera="la-paz"></div>
+
+<main class="ancho g-mar">
+  <nav class="migas" aria-label="Migas de pan"><a href="c-portal.html">Guía</a><span aria-hidden="true">›</span><a href="c-portal.html">La Paz</a><span aria-hidden="true">›</span><a href="c-categoria.html">Playas</a><span aria-hidden="true">›</span><span aria-current="page">Playa Balandra</span></nav>
+
+  <div class="galeria-envoltura">
+    <div class="galeria" id="galeria">
+      <button type="button" data-i="0" aria-label="Ver foto 1 de 6"><img src="img/orilla.webp" alt="Agua baja y arena clara en la orilla de Balandra" width="1600" height="1067"></button>
+      <button type="button" data-i="1" aria-label="Ver foto 2 de 6"><img src="img/playa-calma.webp" alt="Una persona entra al mar tranquilo" width="1600" height="1067"></button>
+      <button type="button" data-i="2" aria-label="Ver foto 3 de 6"><img src="img/cardon-costa.webp" alt="Cardón en la costa junto a la playa" width="1600" height="1067"></button>
+      <button type="button" data-i="3" aria-label="Ver foto 4 de 6"><img src="img/mar-abierto.webp" alt="El mar abierto frente a la bahía" width="1600" height="1067" loading="lazy"></button>
+      <button type="button" data-i="4" aria-label="Ver foto 5 de 6"><img src="img/pangas-playa.webp" alt="Pangas en la arena al atardecer" width="1600" height="1067" loading="lazy"><span class="galeria__mas">Ver las 6 fotos</span></button>
+      <button type="button" data-i="5" aria-label="Ver foto 6 de 6" hidden><img src="img/cardones.webp" alt="Cardones contra el cielo" width="1600" height="1067" loading="lazy"></button>
+    </div>
+    <span class="contador" id="contador">1 / 6</span>
+  </div>
+
+  <section class="cabeza" aria-labelledby="titulo">
+    <div class="cabeza__chips"><span class="etiqueta">Playas</span><span class="etiqueta">Mar</span><span class="abierto" data-horario='[{"dia":"martes","abre":"08:00","cierra":"18:00"},{"dia":"miercoles","abre":"08:00","cierra":"18:00"},{"dia":"jueves","abre":"08:00","cierra":"18:00"},{"dia":"viernes","abre":"08:00","cierra":"18:00"},{"dia":"sabado","abre":"08:00","cierra":"18:00"},{"dia":"domingo","abre":"08:00","cierra":"18:00"}]'></span></div>
+    <h1 id="titulo" class="t-pagina">Playa Balandra</h1>
+    <p class="cabeza__resumen">Agua baja y turquesa a 25 minutos del centro: una bahía tan llana que se cruza caminando.</p>
+    <div class="datos"><span>La Paz</span><span>a 20 km del centro, en línea recta</span><span>Precio: $</span><span>Para niños</span></div>
+    <div class="acciones">
+      <a class="accion presionable" href="https://www.google.com/maps/dir/?api=1&amp;destination=24.3216,-110.3226" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>Cómo llegar</a>
+      <button class="accion presionable" type="button" id="compartir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>Compartir</button>
+      <a class="accion presionable" href="#tours"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17c3 2 6 2 9 0s6-2 9 0M5 13l2-6h10l2 6"/></svg>Tours cerca</a>
+    </div>
+  </section>
+
+  <div class="cuerpo">
+    <article>
+      <section class="bloque" aria-labelledby="t-saber">
+        <h2 id="t-saber" class="t-seccion">Lo que hay que saber</h2>
+        <div class="texto">
+          <p>Balandra es una bahía poco profunda rodeada de cerros rojizos. Con la marea baja, el agua llega a la rodilla y se puede cruzar de un lado al otro caminando; por eso es la playa favorita de quienes van con niños.</p>
+          <p>Es un área natural protegida: no hay restaurantes dentro y la entrada se cierra cuando se llena el cupo del día. Lleva comida, agua y sombra, y llévate tu basura de regreso.</p>
+        </div>
+        <ul class="consejos">
+          <li><b>1</b><span><strong>Llega antes de las 9.</strong> Los fines de semana el cupo se llena a media mañana.</span></li>
+          <li><b>2</b><span><strong>Sube al mirador</strong> por el sendero de la izquierda: 15 minutos y ves la bahía completa.</span></li>
+          <li><b>3</b><span><strong>No hay señal en toda la playa.</strong> Descarga el mapa antes de salir.</span></li>
+        </ul>
+      </section>
+
+      <section class="bloque" aria-labelledby="t-horario">
+        <h2 id="t-horario" class="t-seccion">Horario</h2>
+        <div class="horario" id="horario"></div>
+        <p class="nota-horario">La entrada se cierra antes si se llena el cupo diario.</p>
+      </section>
+
+      <section class="bloque" aria-labelledby="t-llegar">
+        <h2 id="t-llegar" class="t-seccion">Cómo llegar</h2>
+        <div class="mapa"><iframe title="Mapa de Playa Balandra" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=-110.37%2C24.29%2C-110.28%2C24.35&amp;layer=mapnik&amp;marker=24.3216%2C-110.3226"></iframe></div>
+        <div class="mapa__pie"><span>Carretera a Pichilingue, km 25. Camión desde la terminal del malecón.</span><a class="boton boton--secundario presionable" href="https://www.google.com/maps/dir/?api=1&amp;destination=24.3216,-110.3226" target="_blank" rel="noopener">Abrir en Mapas</a></div>
+      </section>
+
+      <section class="bloque" aria-labelledby="t-eventos">
+        <h2 id="t-eventos" class="t-seccion">Eventos aquí</h2>
+        <a class="mini-evento presionable g-aire" href="c-evento.html"><span class="mini-evento__fecha"><small>Sáb</small><b>7</b></span><span><span class="etiqueta">Actividades</span><p class="titular" style="margin-top:4px">Limpieza de playa con voluntarios</p><p class="meta">9:00 a 11:00 · gratis</p></span><span aria-hidden="true">›</span></a>
+        <a class="mini-evento presionable g-mar" href="#"><span class="mini-evento__fecha"><small>Dom</small><b>15</b></span><span><span class="etiqueta">Torneos y deportes</span><p class="titular" style="margin-top:4px">Travesía de nado en la bahía</p><p class="meta">7:30 · inscripción en línea</p></span><span aria-hidden="true">›</span></a>
+      </section>
+
+      <section class="bloque" aria-labelledby="t-aparece-en">
+        <h2 id="t-aparece-en" class="t-seccion">Aparece en</h2>
+        <a class="articulo-ref tarjeta presionable" href="#"><div class="media"><img src="img/orilla.webp" alt="" loading="lazy"></div><div><span class="etiqueta" style="background:#fff">Artículo</span><p class="titular" style="margin-top:4px">Balandra sin prisas: cómo llegar y qué llevar</p><p class="meta">6 min de lectura</p></div></a>
+      </section>
+    </article>
+
+    <aside class="lateral" aria-label="Datos del lugar">
+      <div class="ficha-datos">
+        <div class="ficha-datos__fila"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Carretera a Pichilingue km 25, La Paz, B.C.S.</span></div>
+        <div class="ficha-datos__fila"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span><span class="abierto" data-horario='[{"dia":"martes","abre":"08:00","cierra":"18:00"},{"dia":"miercoles","abre":"08:00","cierra":"18:00"},{"dia":"jueves","abre":"08:00","cierra":"18:00"},{"dia":"viernes","abre":"08:00","cierra":"18:00"},{"dia":"sabado","abre":"08:00","cierra":"18:00"},{"dia":"domingo","abre":"08:00","cierra":"18:00"}]'></span><br><span class="meta">Martes a domingo, 8:00 a 18:00</span></span></div>
+        <div class="ficha-datos__fila"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span>Precio: $ <span class="meta">(entrada al parque)</span></span></div>
+        <div class="ficha-datos__fila"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><a href="#">Sitio del área protegida</a></div>
+        <div class="ficha-datos__fila"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/></svg><a href="#">@balandra.lapaz</a></div>
+        <div class="ficha-datos__botones"><a class="boton presionable" href="https://www.google.com/maps/dir/?api=1&amp;destination=24.3216,-110.3226" target="_blank" rel="noopener">Cómo llegar</a><button class="boton boton--secundario presionable" type="button" data-compartir>Compartir</button></div>
+      </div>
+
+      <section class="tours-zona" id="tours" aria-labelledby="t-tours">
+        <h2 id="t-tours">Tours en La Paz</h2>
+        <a class="tour-fila tarjeta presionable" href="#?desde=guia&amp;pieza=lugar-playa-balandra"><div class="media"><img src="video/lancha-aerea.jpg" alt="" loading="lazy"></div><div><p class="titular">Isla Espíritu Santo y lobos marinos</p><p class="tour__precio">desde $2,150 <small>MXN por persona</small></p></div></a>
+        <a class="tour-fila tarjeta presionable" href="#?desde=guia&amp;pieza=lugar-playa-balandra"><div class="media"><img src="video/ballenas.jpg" alt="" loading="lazy"></div><div><p class="titular">Ballenas en Bahía Magdalena</p><p class="tour__precio">desde $3,900 <small>MXN · ene a mar</small></p></div></a>
+        <a class="tour-fila tarjeta presionable" href="#?desde=guia&amp;pieza=lugar-playa-balandra"><div class="media"><img src="img/tour-pesca.webp" alt="" loading="lazy"></div><div><p class="titular">Pesca deportiva en panga</p><p class="tour__precio">desde $6,500 <small>MXN por panga</small></p></div></a>
+        <a href="#?desde=guia&amp;pieza=lugar-playa-balandra">Ver todos los tours →</a>
+      </section>
+    </aside>
+  </div>
+
+  <section class="seccion" aria-labelledby="t-mas">
+    <div class="seccion__cabeza"><h2 id="t-mas" class="t-seccion">Más playas en La Paz</h2><a href="c-categoria.html">Ver todas</a></div>
+    <div class="riel">
+      <button class="riel__boton riel__boton--izq" type="button" aria-label="Anterior" data-riel="mas" data-dir="-1">‹</button>
+      <div class="riel__pista" id="mas">
+        <a class="nota tarjeta presionable g-mar entra" href="c-ficha.html"><div class="media"><img src="img/pangas-playa.webp" alt="" loading="lazy"></div><div class="nota__cuerpo"><span><span class="etiqueta">Playas</span></span><p class="titular">Playa El Tecolote</p><p class="bajada">Palapas, comida y vista a la isla.</p><div class="nota__pie"><span class="meta">Con comida</span><span class="meta">a 22 km del centro</span></div></div></a>
+        <a class="nota tarjeta presionable g-mar entra" href="c-ficha.html" style="--retraso:70ms"><div class="media"><img src="img/playa-calma.webp" alt="" loading="lazy"></div><div class="nota__cuerpo"><span><span class="etiqueta">Playas</span></span><p class="titular">Playa Coromuel</p><p class="bajada">La playa de la ciudad, con su resbaladilla al mar.</p><div class="nota__pie"><span class="abierto" data-corto data-horario='[{"dia":"lunes","abre":"07:00","cierra":"20:00"},{"dia":"martes","abre":"07:00","cierra":"20:00"},{"dia":"miercoles","abre":"07:00","cierra":"20:00"},{"dia":"jueves","abre":"07:00","cierra":"20:00"},{"dia":"viernes","abre":"07:00","cierra":"20:00"},{"dia":"sabado","abre":"07:00","cierra":"20:00"},{"dia":"domingo","abre":"07:00","cierra":"20:00"}]'></span><span class="meta">a 5 km del centro</span></div></div></a>
+        <a class="nota tarjeta presionable g-mar entra" href="c-ficha.html" style="--retraso:140ms"><div class="media"><img src="img/mar-abierto.webp" alt="" loading="lazy"></div><div class="nota__cuerpo"><span><span class="etiqueta">Playas</span></span><p class="titular">Playa El Tesoro</p><p class="bajada">Tranquila entre semana, con restaurante en la arena.</p><div class="nota__pie"><span class="abierto" data-corto data-horario='[{"dia":"lunes","abre":"08:00","cierra":"19:00"},{"dia":"martes","abre":"08:00","cierra":"19:00"},{"dia":"miercoles","abre":"08:00","cierra":"19:00"},{"dia":"jueves","abre":"08:00","cierra":"19:00"},{"dia":"viernes","abre":"08:00","cierra":"19:00"},{"dia":"sabado","abre":"08:00","cierra":"19:00"},{"dia":"domingo","abre":"08:00","cierra":"19:00"}]'></span><span class="meta">a 13 km del centro</span></div></div></a>
+        <a class="nota tarjeta presionable g-mar entra" href="c-ficha.html" style="--retraso:210ms"><div class="media"><div class="campo-palabra" aria-hidden="true">Isla</div></div><div class="nota__cuerpo"><span><span class="etiqueta">Playas</span></span><p class="titular">Ensenada Grande</p><p class="bajada">En la Isla Espíritu Santo; solo se llega en lancha.</p><div class="nota__pie"><span class="meta">Solo con tour</span><span class="meta">a 47 km del centro</span></div></div></a>
+      </div>
+      <button class="riel__boton riel__boton--der" type="button" aria-label="Siguiente" data-riel="mas" data-dir="1">›</button>
+    </div>
+  </section>
+
+  <section class="aparece" aria-labelledby="t-aparece">
+    <div><h2 id="t-aparece">¿Tienes un negocio en la Baja?</h2><p>Cuéntanos de él. El equipo de la Guía lo visita antes de publicarlo.</p></div>
+    <a class="boton boton--secundario presionable" href="c-aparece.html">Aparece en la Guía</a>
+  </section>
+</main>
+<div data-pie></div>
+
+<div class="barra-inferior" id="barra-inferior">
+  <a class="boton presionable" href="https://www.google.com/maps/dir/?api=1&amp;destination=24.3216,-110.3226" target="_blank" rel="noopener">Cómo llegar</a>
+  <a class="boton boton--secundario presionable" href="#tours">Tours cerca</a>
+</div>
+
+<div class="visor" id="visor" role="dialog" aria-modal="true" aria-label="Fotos de Playa Balandra">
+  <div class="visor__cabeza"><span id="visor-cuenta">1 / 6</span><button class="visor__cerrar" type="button" id="visor-cerrar" aria-label="Cerrar">✕</button></div>
+  <div class="visor__pista" id="visor-pista"></div>
+  <div class="visor__pie" id="visor-pie"></div>
+  <button class="visor__flecha visor__flecha--izq" type="button" id="visor-ant" aria-label="Foto anterior">‹</button>
+  <button class="visor__flecha visor__flecha--der" type="button" id="visor-sig" aria-label="Foto siguiente">›</button>
+</div>
+<div class="aviso" id="aviso" role="status"></div>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  const { reducido, ahora, hhmm } = Guia;
+
+  // Horario de la semana con el día de hoy marcado
+  const HORARIO = [{"dia":"martes","abre":"08:00","cierra":"18:00"},{"dia":"miercoles","abre":"08:00","cierra":"18:00"},{"dia":"jueves","abre":"08:00","cierra":"18:00"},{"dia":"viernes","abre":"08:00","cierra":"18:00"},{"dia":"sabado","abre":"08:00","cierra":"18:00"},{"dia":"domingo","abre":"08:00","cierra":"18:00"}];
+  const pintarHorario = () => {
+    const hoy = ahora().dia;
+    $('#horario').innerHTML = Guia.DIAS.map((d, i) => {
+      const tramos = HORARIO.filter((f) => f.dia === d).map((f) => `${hhmm(Guia.aMin(f.abre))} a ${hhmm(Guia.aMin(f.cierra))}`);
+      const nombre = Guia.NOMBRES[i][0].toUpperCase() + Guia.NOMBRES[i].slice(1);
+      return `<div class="horario__fila${i === hoy ? ' hoy' : ''}"><span>${nombre}</span><span>${tramos.length ? tramos.join(' y ') : 'Cerrado'}</span></div>`;
+    }).join('');
+  };
+  pintarHorario();
+
+  // Galería: contador al deslizar en celular
+  const galeria = $('#galeria'), fotos = $$('#galeria button');
+  galeria.addEventListener('scroll', () => { const i = Math.round(galeria.scrollLeft / galeria.clientWidth); $('#contador').textContent = `${i + 1} / ${fotos.length}`; }, { passive: true });
+  if (matchMedia('(max-width: 767px)').matches) fotos[5].hidden = false;
+
+  // Visor de fotos: deslizar con el dedo (scroll-snap), flechas, teclado y miniaturas
+  const visor = $('#visor'), pista = $('#visor-pista'), pie = $('#visor-pie');
+  pista.innerHTML = fotos.map((b) => { const img = b.querySelector('img'); return `<figure><img src="${img.src}" alt="${img.alt}"><figcaption>${img.alt} · Foto: Pexels</figcaption></figure>`; }).join('');
+  pie.innerHTML = fotos.map((b, i) => `<button class="visor__mini" type="button" aria-label="Foto ${i + 1}"><img src="${b.querySelector('img').src}" alt=""></button>`).join('');
+  const minis = $$('.visor__mini');
+  let origen = null;
+  const actual = () => Math.round(pista.scrollLeft / pista.clientWidth);
+  const ir = (i, suave = true) => pista.scrollTo({ left: Math.max(0, Math.min(fotos.length - 1, i)) * pista.clientWidth, behavior: suave && !reducido ? 'smooth' : 'auto' });
+  const marcar = () => { const i = actual(); $('#visor-cuenta').textContent = `${i + 1} / ${fotos.length}`; minis.forEach((m, k) => m.setAttribute('aria-current', String(k === i))); };
+  pista.addEventListener('scroll', marcar, { passive: true });
+  fotos.forEach((b) => b.addEventListener('click', () => { origen = b; visor.classList.add('mostrado'); document.body.style.overflow = 'hidden'; requestAnimationFrame(() => { ir(+b.dataset.i, false); marcar(); }); $('#visor-cerrar').focus(); }));
+  minis.forEach((m, i) => m.addEventListener('click', () => ir(i)));
+  const cerrar = () => { visor.classList.remove('mostrado'); document.body.style.overflow = ''; origen && origen.focus(); };
+  $('#visor-cerrar').addEventListener('click', cerrar);
+  $('#visor-ant').addEventListener('click', () => ir(actual() - 1));
+  $('#visor-sig').addEventListener('click', () => ir(actual() + 1));
+  addEventListener('keydown', (e) => {
+    if (!visor.classList.contains('mostrado')) return;
+    if (e.key === 'Escape') cerrar(); if (e.key === 'ArrowRight') ir(actual() + 1); if (e.key === 'ArrowLeft') ir(actual() - 1);
+  });
+
+  // Compartir: hoja nativa del teléfono o, si no hay, copiar el enlace
+  const aviso = $('#aviso');
+  const avisar = (t) => { aviso.textContent = t; aviso.classList.add('visible'); setTimeout(() => aviso.classList.remove('visible'), 2200); };
+  const compartir = async () => {
+    const datos = { title: 'Playa Balandra · Guía de La Paz', url: location.href };
+    if (navigator.share) { try { await navigator.share(datos); } catch {} return; }
+    try { await navigator.clipboard.writeText(location.href); avisar('Enlace copiado'); const bt = document.activeElement?.closest?.('button'); if (bt) Guia.confirmar(bt); } catch { avisar('No se pudo copiar el enlace'); }
+  };
+  $('#compartir').addEventListener('click', compartir);
+  $$('[data-compartir]').forEach((b) => b.addEventListener('click', compartir));
+
+  // Barra inferior: se esconde al bajar rápido y vuelve al subir
+  let ultimo = scrollY; const barraInf = $('#barra-inferior');
+  addEventListener('scroll', () => { const y = scrollY; barraInf.classList.toggle('oculta', y > ultimo + 4 && y > 400); if (y < ultimo - 4) barraInf.classList.remove('oculta'); ultimo = y; }, { passive: true });
+
+  setInterval(pintarHorario, 60000);
+})();
+</script>
+</body>
+</html>

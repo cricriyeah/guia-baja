@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aviso de privacidad de la Guía · Propuesta C</title>
+<meta name="description" content="Propuesta C: aviso de privacidad de la Guía.">
+<link rel="stylesheet" href="c-base.css">
+<script src="c-base.js"></script>
+<style>
+.progreso { position: fixed; left: 0; top: 0; z-index: 50; height: 3px; width: 100%; background: var(--cafe); transform-origin: left; transform: scaleX(0); }
+.aviso-cabeza { max-width: 820px; padding: 8px 0 8px; display: grid; gap: 12px; }
+.aviso-cabeza h1 { font: 700 clamp(2rem, 4.4vw, 3.25rem)/1.04 var(--titulo); text-transform: uppercase; letter-spacing: -0.025em; text-wrap: balance; }
+.aviso-cabeza p { font-size: 1.125rem; color: var(--tinta-suave); }
+.version { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.version span { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 999px; background: var(--gris); font-size: .8125rem; font-weight: 600; }
+.ejemplo { padding: 12px 14px; border-radius: var(--radio-control); background: #FEE0AC; color: #6B3A00; font-weight: 600; font-size: .9375rem; }
+.resumen-caja { display: grid; gap: 10px; grid-template-columns: 1fr; margin-top: 8px; }
+@media (min-width: 720px) { .resumen-caja { grid-template-columns: repeat(3, 1fr); } }
+.resumen-caja div { padding: 14px; border-radius: var(--radio-card); background: var(--arena); display: grid; gap: 4px; }
+.resumen-caja b { font: 700 .9375rem/1.2 var(--titulo); text-transform: uppercase; }
+.resumen-caja p { font-size: .9375rem; color: var(--tinta-suave); }
+.cuerpo-aviso { display: grid; gap: 40px; padding-top: 32px; }
+@media (min-width: 1100px) { .cuerpo-aviso { grid-template-columns: 240px minmax(0, 760px); } }
+.indice { display: none; }
+@media (min-width: 1100px) { .indice { display: block; position: sticky; top: calc(var(--cabecera) + 24px); align-self: start; } }
+.indice h2 { font: 700 .875rem/1 var(--titulo); text-transform: uppercase; margin-bottom: 10px; }
+.indice a { display: block; padding: 6px 0 6px 12px; border-left: 2px solid var(--borde); color: var(--apagado); font-size: .9375rem; transition: color 150ms, border-color 150ms; }
+.indice a.activo { color: var(--tinta); border-color: var(--cafe); font-weight: 600; }
+.legal { font-size: 1.0625rem; line-height: 1.7; }
+.legal h2 { font: 700 1.375rem/1.15 var(--titulo); text-transform: uppercase; margin: 40px 0 10px; scroll-margin-top: calc(var(--cabecera) + 24px); }
+.legal h2:first-child { margin-top: 0; }
+.legal p + p, .legal ul { margin-top: 12px; }
+.legal ul { padding-left: 1.2em; }
+.legal li + li { margin-top: 6px; }
+.encargados { display: grid; gap: 8px; grid-template-columns: repeat(2, 1fr); margin-top: 12px; }
+@media (min-width: 640px) { .encargados { grid-template-columns: repeat(4, 1fr); } }
+.encargados div { padding: 12px; border-radius: var(--radio-control); box-shadow: 0 0 0 1px var(--borde); font-size: .875rem; line-height: 1.4; }
+.encargados b { display: block; font-size: 1rem; }
+.plazos { margin-top: 12px; border-radius: var(--radio-control); box-shadow: 0 0 0 1px var(--borde); overflow: hidden; }
+.plazos div { display: grid; grid-template-columns: 1fr auto; gap: 16px; padding: 12px 14px; font-size: .9375rem; }
+.plazos div + div { border-top: 1px solid var(--borde); }
+.plazos span:last-child { font-weight: 700; text-align: right; }
+.contacto-arco { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 16px; border-radius: var(--radio-card); background: var(--tinta); color: var(--blanco); }
+.contacto-arco p { flex: 1 1 260px; font-size: 1rem; line-height: 1.5; }
+.copiar { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px; border-radius: 999px; border: 0; background: var(--blanco); color: var(--tinta); font-weight: 600; cursor: pointer; }
+.aviso { position: fixed; left: 50%; bottom: 24px; z-index: 60; transform: translate(-50%, 20px); opacity: 0; padding: 10px 16px; border-radius: 999px; background: var(--tinta); color: var(--blanco); font-weight: 600; transition: opacity 200ms, transform 300ms var(--curva); pointer-events: none; }
+.aviso.visible { opacity: 1; transform: translate(-50%, 0); }
+</style>
+</head>
+<body>
+<div class="progreso" id="progreso" aria-hidden="true"></div>
+<div data-cabecera="portada"></div>
+
+<main class="ancho">
+  <nav class="migas" aria-label="Migas de pan"><a href="c-portada.html">Guía</a><span aria-hidden="true">›</span><span aria-current="page">Aviso de privacidad</span></nav>
+  <header class="aviso-cabeza">
+    <h1>Aviso de privacidad de la Guía</h1>
+    <p>Qué datos pedimos en el formulario «Aparece en la Guía», para qué los usamos y cómo puedes pedir que los corrijamos o los borremos.</p>
+    <div class="version"><span>Versión 2026-11</span><span>Vigente desde el 1 de noviembre de 2026</span><a class="chip presionable" href="#" lang="en" hreflang="en">Read in English</a></div>
+    <p class="ejemplo" role="note">Texto de ejemplo para el diseño. El texto legal lo redacta o aprueba el dueño (entregable de F0, spec §12).</p>
+    <div class="resumen-caja" aria-label="En resumen">
+      <div><b>Qué pedimos</b><p>Los datos de tu negocio y una forma de contactarte.</p></div>
+      <div><b>Para qué</b><p>Evaluar si tu negocio entra en la Guía y ofrecerte patrocinio.</p></div>
+      <div><b>Cuánto tiempo</b><p>Hasta 12 meses sin respuesta; si te rechazamos, los borramos antes.</p></div>
+    </div>
+  </header>
+
+  <div class="cuerpo-aviso">
+    <nav class="indice" aria-label="En este aviso"><h2>En este aviso</h2><div id="indice"></div></nav>
+    <article class="legal" id="legal">
+      <h2 id="responsable">Quién es responsable</h2>
+      <p>Sun Baja Experience, con domicilio en C. Toronja 561, Indeco, Donceles 28, 23070, La Paz, Baja California Sur, es responsable de los datos que nos das en la Guía.</p>
+
+      <h2 id="datos">Qué datos pedimos</h2>
+      <ul>
+        <li>Nombre y giro del negocio, y la zona donde está.</li>
+        <li>Tu nombre, correo y teléfono o WhatsApp (con uno de los dos basta).</li>
+        <li>Sitio web o Instagram del negocio y el mensaje que quieras dejarnos.</li>
+        <li>La versión de este aviso que aceptaste.</li>
+      </ul>
+      <p>Para evitar envíos automáticos guardamos, por 24 horas, una huella cifrada de tu dirección IP. No guardamos la IP.</p>
+
+      <h2 id="finalidad">Para qué los usamos</h2>
+      <p>Para contactarte, evaluar si tu negocio se incluye en la Guía y, si te interesa, ofrecerte patrocinio. No los usamos para nada más ni los vendemos.</p>
+
+      <h2 id="encargados">Quién los procesa</h2>
+      <p>Usamos estos servicios, con servidores en Estados Unidos:</p>
+      <div class="encargados"><div><b>Vercel</b>Aloja el sitio</div><div><b>Neon</b>Guarda la base de datos</div><div><b>Resend</b>Envía el aviso de tu solicitud a nuestro equipo</div><div><b>Cloudflare</b>Turnstile, la verificación contra robots</div></div>
+
+      <h2 id="plazos">Cuánto tiempo los guardamos</h2>
+      <div class="plazos">
+        <div><span>Huella cifrada de la IP</span><span>24 horas</span></div>
+        <div><span>Solicitud rechazada</span><span>Se borran tus datos de contacto</span></div>
+        <div><span>Solicitud sin respuesta</span><span>12 meses</span></div>
+        <div><span>Negocio aceptado</span><span>Mientras dure la relación</span></div>
+      </div>
+      <p>Al borrar, quitamos tu nombre, correo, teléfono, sitio web y mensaje. Conservamos solo el nombre y giro del negocio, la zona y las fechas.</p>
+
+      <h2 id="arco">Tus derechos (ARCO)</h2>
+      <p>Puedes pedir ver, corregir, cancelar u oponerte al uso de tus datos. Escríbenos y te respondemos en el plazo que marca la ley.</p>
+      <div class="contacto-arco"><p>Escribe a <strong>privacidad@salysoltours.com</strong> con tu nombre y el de tu negocio.</p><button class="copiar presionable" type="button" id="copiar">Copiar correo</button></div>
+
+      <h2 id="medicion">Turnstile y medición</h2>
+      <p>El formulario usa Cloudflare Turnstile para comprobar que no eres un robot. Para saber qué páginas se visitan usamos la misma herramienta de analítica que el sitio de reservas; si guarda cookies, se pide tu consentimiento como en el resto del sitio.</p>
+
+      <h2 id="cambios">Cambios a este aviso</h2>
+      <p>Si cambiamos este aviso, publicamos la nueva versión aquí con su fecha. Cada solicitud guarda la versión que aceptaste.</p>
+    </article>
+  </div>
+</main>
+<div data-pie></div>
+<div class="aviso" id="aviso" role="status"></div>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  const legal = $('#legal'), barra = $('#progreso');
+  const avance = () => { const r = legal.getBoundingClientRect(); barra.style.transform = `scaleX(${Math.min(1, Math.max(0, -r.top / (r.height - innerHeight * 0.6)))})`; };
+  addEventListener('scroll', () => requestAnimationFrame(avance), { passive: true }); avance();
+  const titulos = $$('#legal h2');
+  $('#indice').innerHTML = titulos.map((h) => `<a href="#${h.id}">${h.textContent}</a>`).join('');
+  const enlaces = $$('#indice a');
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) enlaces.forEach((a) => a.classList.toggle('activo', a.getAttribute('href') === '#' + e.target.id)); }), { rootMargin: '-20% 0px -70% 0px' });
+  titulos.forEach((h) => io.observe(h));
+  const aviso = $('#aviso');
+  $('#copiar').addEventListener('click', async (e) => {
+    const b = e.currentTarget;
+    try { await navigator.clipboard.writeText('privacidad@salysoltours.com'); Guia.confirmar(b); aviso.textContent = 'Correo copiado'; }
+    catch { aviso.textContent = 'No se pudo copiar el correo'; }
+    aviso.classList.add('visible'); setTimeout(() => aviso.classList.remove('visible'), 2000);
+  });
+})();
+</script>
+</body>
+</html>

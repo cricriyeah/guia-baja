@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Noche de museo · Eventos en La Paz · Propuesta C</title>
+<meta name="description" content="Propuesta C: página de un evento.">
+<link rel="stylesheet" href="c-base.css">
+<script src="c-base.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Event","name":"Noche de museo: La Paz antes de La Paz","startDate":"2026-11-06T19:00:00-07:00","endDate":"2026-11-06T21:00:00-07:00","eventStatus":"https://schema.org/EventScheduled","location":{"@type":"Place","name":"Museo Regional de Antropología e Historia","address":"Ignacio Altamirano y 5 de Mayo, La Paz, B.C.S."},"isAccessibleForFree":true,"image":["img/cardones.webp"]}
+</script>
+<style>
+.ya-paso { display: flex; gap: 10px; align-items: center; margin-top: 12px; padding: 12px 16px; border-radius: var(--radio-control); background: #FEE0AC; color: #6B3A00; font-weight: 600; }
+.ya-paso[hidden] { display: none; }
+.evento-cabeza { display: grid; gap: var(--hueco); padding-top: 4px; }
+@media (min-width: 1024px) { .evento-cabeza { grid-template-columns: 1.25fr 1fr; align-items: stretch; } }
+.evento-foto { position: relative; border-radius: var(--radio-card); overflow: hidden; aspect-ratio: 16 / 10; }
+.evento-foto img { width: 100%; height: 100%; object-fit: cover; }
+.boleto { border-radius: var(--radio-card); background: var(--tinta); color: var(--blanco); padding: clamp(18px, 3vw, 28px); display: grid; gap: 14px; align-content: start; position: relative; overflow: hidden; }
+.boleto .etiqueta { justify-self: start; }
+.boleto h1 { font: 700 clamp(1.75rem, 3.4vw, 2.75rem)/1.04 var(--titulo); text-transform: uppercase; letter-spacing: -0.02em; text-wrap: balance; }
+.boleto__fecha { display: grid; grid-template-columns: 72px 1fr; gap: 14px; align-items: center; }
+.boleto__dia { display: grid; place-items: center; height: 72px; border-radius: var(--radio-control); background: var(--g-claro); color: var(--g-profundo); line-height: 1; text-align: center; }
+.boleto__dia small { font-size: .75rem; font-weight: 700; text-transform: uppercase; }
+.boleto__dia b { font: 700 1.875rem/1 var(--titulo); }
+.boleto__hora { font-size: 1.0625rem; font-weight: 600; }
+.boleto__hora span { display: block; font-weight: 500; opacity: .8; font-size: .9375rem; }
+/* Cuenta regresiva en cifras grandes */
+.reloj { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.reloj div { border-radius: var(--radio-control); background: rgb(255 255 255 / .08); padding: 10px 6px; text-align: center; }
+.reloj b { display: block; font: 700 1.75rem/1 var(--titulo); font-variant-numeric: tabular-nums; }
+.reloj small { font-size: .75rem; opacity: .8; }
+.reloj b.cambia { animation: cambio 400ms var(--curva); }
+@keyframes cambio { from { transform: translateY(-30%); opacity: 0; } }
+.boleto__estado { font-weight: 700; color: var(--cafe-claro); }
+.boleto__acciones { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.boleto .boton--secundario { background: transparent; color: var(--blanco); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .5); }
+.boleto .boton--secundario:hover { background: rgb(255 255 255 / .08); }
+.boleto__precio { display: flex; justify-content: space-between; align-items: baseline; padding-top: 12px; border-top: 1px solid rgb(255 255 255 / .15); }
+.boleto__precio b { font-size: 1.25rem; }
+
+.cuerpo { display: grid; gap: 32px; padding-top: 28px; }
+@media (min-width: 1024px) { .cuerpo { grid-template-columns: minmax(0, 1fr) 380px; gap: 48px; align-items: start; } }
+.texto p { font-size: 1.0625rem; line-height: 1.65; max-width: 68ch; }
+.texto p + p { margin-top: 14px; }
+.bloque + .bloque { margin-top: 36px; }
+.bloque h2 { margin-bottom: 12px; }
+.lugar-ref { display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: center; padding: 10px; border-radius: var(--radio-card); box-shadow: 0 0 0 1px var(--borde); }
+.lugar-ref .media { aspect-ratio: 4 / 3; border-radius: var(--radio-sm); }
+.mapa { border-radius: var(--radio-card); overflow: hidden; box-shadow: 0 0 0 1px var(--borde); aspect-ratio: 16 / 9; margin-top: 12px; }
+.mapa iframe { width: 100%; height: 100%; border: 0; }
+@media (min-width: 1024px) { .lateral { position: sticky; top: calc(var(--cabecera) + 16px); display: grid; gap: 16px; } }
+.aviso { position: fixed; left: 50%; bottom: 24px; z-index: 60; transform: translate(-50%, 20px); opacity: 0; padding: 10px 16px; border-radius: 999px; background: var(--tinta); color: var(--blanco); font-weight: 600; transition: opacity 200ms, transform 300ms var(--curva); pointer-events: none; }
+.aviso.visible { opacity: 1; transform: translate(-50%, 0); }
+.demo { margin-top: 16px; font-size: .875rem; color: var(--apagado); }
+.demo a { color: var(--cafe); font-weight: 600; }
+</style>
+</head>
+<body>
+<div data-cabecera="la-paz"></div>
+
+<main class="ancho g-local">
+  <nav class="migas" aria-label="Migas de pan"><a href="c-portada.html">Guía</a><span aria-hidden="true">›</span><a href="c-portal.html">La Paz</a><span aria-hidden="true">›</span><a href="#">Eventos</a><span aria-hidden="true">›</span><span aria-current="page">Noche de museo</span></nav>
+  <p class="ya-paso" id="ya-paso" role="status" hidden>⚠ Este evento ya pasó. Mira los <a href="#" style="text-decoration:underline">próximos eventos en La Paz</a>.</p>
+
+  <section class="evento-cabeza" aria-labelledby="titulo">
+    <div class="evento-foto"><img src="img/cardones.webp" alt="Cardones contra el cielo de la tarde" width="1600" height="1067"></div>
+    <div class="boleto">
+      <span class="etiqueta">Cultura</span>
+      <h1 id="titulo">Noche de museo: La Paz antes de La Paz</h1>
+      <div class="boleto__fecha"><span class="boleto__dia"><small id="dia-sem">Vie</small><b id="dia-num">6</b></span><p class="boleto__hora" id="hora">7:00 p. m. a 9:00 p. m.<span>Hora de La Paz</span></p></div>
+      <p class="boleto__estado" id="estado" aria-live="polite"></p>
+      <div class="reloj" id="reloj" aria-hidden="true"><div><b data-u="d">0</b><small>días</small></div><div><b data-u="h">0</b><small>horas</small></div><div><b data-u="m">0</b><small>min</small></div><div><b data-u="s">0</b><small>seg</small></div></div>
+      <div class="boleto__precio"><span>Entrada</span><b>Gratis</b></div>
+      <div class="boleto__acciones"><button class="boton presionable" type="button" id="calendario">Agregar al calendario</button><button class="boton boton--secundario presionable" type="button" id="compartir">Compartir</button></div>
+    </div>
+  </section>
+  <p class="demo">Prototipo: <a href="?pasado=1">ver cómo se ve si ya pasó</a> · <a href="c-evento.html">volver</a></p>
+
+  <div class="cuerpo">
+    <article>
+      <section class="bloque" aria-labelledby="t-que">
+        <h2 id="t-que" class="t-seccion">De qué se trata</h2>
+        <div class="texto">
+          <p>Una visita guiada nocturna por las salas del museo: los pueblos que vivían en la península antes de las misiones, sus pinturas rupestres y cómo se pescaba en la bahía hace mil años.</p>
+          <p>La entrada es libre, pero el cupo es de 60 personas. Llega 15 minutos antes; el recorrido dura dos horas y termina con café de olla en el patio.</p>
+        </div>
+      </section>
+      <section class="bloque" aria-labelledby="t-donde">
+        <h2 id="t-donde" class="t-seccion">Dónde</h2>
+        <a class="lugar-ref tarjeta presionable g-local" href="c-ficha.html"><div class="media"><img src="img/cardones.webp" alt="" loading="lazy"></div><div><span class="etiqueta">Cultura</span><p class="titular" style="margin-top:4px">Museo Regional de Antropología e Historia</p><p class="meta">Ignacio Altamirano y 5 de Mayo, Centro</p></div></a>
+        <div class="mapa"><iframe title="Mapa del Museo Regional" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=-110.322%2C24.150%2C-110.302%2C24.166&amp;layer=mapnik&amp;marker=24.1578%2C-110.3121"></iframe></div>
+      </section>
+    </article>
+    <aside class="lateral" aria-label="Más eventos">
+      <section aria-labelledby="t-mas-ev">
+        <h2 id="t-mas-ev" class="t-seccion" style="font-size:1.25rem;margin-bottom:10px">También esta semana</h2>
+        <a class="lugar-ref tarjeta presionable g-comer" href="#" style="margin-bottom:8px"><div class="media"><img src="img/pangas-playa.webp" alt="" loading="lazy"></div><div><span class="etiqueta">Música y fiestas</span><p class="titular" style="margin-top:4px">Trova al atardecer en el malecón</p><p class="meta">Vie 6 · 6:00 p. m.</p></div></a>
+        <a class="lugar-ref tarjeta presionable g-aire" href="#"><div class="media"><img src="img/orilla.webp" alt="" loading="lazy"></div><div><span class="etiqueta">Actividades</span><p class="titular" style="margin-top:4px">Limpieza de playa con voluntarios</p><p class="meta">Sáb 7 · 9:00 a. m.</p></div></a>
+      </section>
+    </aside>
+  </div>
+</main>
+<div data-pie></div>
+<div class="aviso" id="aviso" role="status"></div>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  // Campos de Eventos: inicio, fin (opcional), gratis/precio, urlBoletos. Para que el prototipo siempre tenga
+  // cuenta regresiva, la fecha se calcula a partir de hoy.
+  const pasado = new URLSearchParams(location.search).has('pasado');
+  // El evento es a las 7:00 p. m. de La Paz (UTC−7), dos días después de hoy (o ayer con ?pasado=1).
+  const base = new Date(Date.now() + (pasado ? -1 : 2) * 864e5);
+  const [y, mo, d] = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Mazatlan', year: 'numeric', month: '2-digit', day: '2-digit' }).format(base).split('-').map(Number);
+  const inicio = new Date(Date.UTC(y, mo - 1, d, 19 + 7, 0));
+  const fin = new Date(inicio.getTime() + 2 * 36e5);
+  const ZONA = 'America/Mazatlan';
+  const fmt = (o) => new Intl.DateTimeFormat('es-MX', { timeZone: ZONA, ...o });
+  $('#dia-sem').textContent = fmt({ weekday: 'short' }).format(inicio).replace('.', '');
+  $('#dia-num').textContent = fmt({ day: 'numeric' }).format(inicio);
+  $('#hora').firstChild.textContent = `${fmt({ weekday: 'long', day: 'numeric', month: 'long' }).format(inicio)} · ${fmt({ hour: 'numeric', minute: '2-digit' }).format(inicio)} a ${fmt({ hour: 'numeric', minute: '2-digit' }).format(fin)}`;
+  // «Ya pasó»: (fin ?? inicio) < ahora → marca arriba; la página sigue publicada (spec §6)
+  const reloj = $('#reloj'), estado = $('#estado');
+  const previo = {};
+  function tic() {
+    const ahora = Date.now();
+    $('#ya-paso').hidden = !(fin.getTime() < ahora);
+    if (ahora >= fin.getTime()) { estado.textContent = 'Terminó'; reloj.hidden = true; $('#calendario').hidden = true; return; }
+    if (ahora >= inicio.getTime()) { estado.textContent = `En curso · termina en ${Guia.duracion((fin - ahora) / 6e4)}`; reloj.hidden = true; return; }
+    estado.textContent = 'Empieza en';
+    let s = Math.floor((inicio - ahora) / 1000);
+    const u = { d: Math.floor(s / 86400), h: Math.floor(s % 86400 / 3600), m: Math.floor(s % 3600 / 60), s: s % 60 };
+    Object.entries(u).forEach(([k, v]) => {
+      const el = reloj.querySelector(`[data-u="${k}"]`);
+      if (previo[k] !== v) { el.textContent = v; if (previo[k] !== undefined && !Guia.reducido) { el.classList.remove('cambia'); void el.offsetWidth; el.classList.add('cambia'); } previo[k] = v; }
+    });
+  }
+  tic(); setInterval(tic, 1000);
+
+  // Agregar al calendario: archivo .ics hecho en el navegador
+  const ics = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  $('#calendario').addEventListener('click', () => {
+    const texto = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Guia de la Baja//ES', 'BEGIN:VEVENT', `UID:noche-de-museo@guia`, `DTSTAMP:${ics(new Date())}`, `DTSTART:${ics(inicio)}`, `DTEND:${ics(fin)}`,
+      'SUMMARY:Noche de museo: La Paz antes de La Paz', 'LOCATION:Museo Regional de Antropología e Historia\\, La Paz', `URL:${location.href}`, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([texto], { type: 'text/calendar' })); a.download = 'noche-de-museo.ics'; a.click();
+    avisar('Evento agregado a tu calendario');
+  });
+  const aviso = $('#aviso');
+  const avisar = (t) => { aviso.textContent = t; aviso.classList.add('visible'); setTimeout(() => aviso.classList.remove('visible'), 2200); };
+  $('#compartir').addEventListener('click', async () => {
+    if (navigator.share) { try { await navigator.share({ title: document.title, url: location.href }); } catch {} return; }
+    try { await navigator.clipboard.writeText(location.href); avisar('Enlace copiado'); const bt = document.activeElement?.closest?.('button'); if (bt) Guia.confirmar(bt); } catch { avisar('No se pudo copiar el enlace'); }
+  });
+})();
+</script>
+</body>
+</html>

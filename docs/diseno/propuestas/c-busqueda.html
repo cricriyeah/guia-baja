@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Buscar «playa» · Guía de la Baja · Propuesta C</title>
+<meta name="description" content="Propuesta C: resultados de búsqueda.">
+<link rel="stylesheet" href="c-base.css">
+<script src="c-base.js"></script>
+<style>
+.busca-cabeza { padding: 8px 0 4px; display: grid; gap: 14px; }
+.busca-grande { display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 8px 0 18px; border-radius: 999px; background: var(--gris); max-width: 720px; transition: background 150ms, box-shadow 200ms; }
+.busca-grande:focus-within { background: var(--blanco); box-shadow: 0 0 0 1px var(--borde-control), 0 8px 24px rgb(31 26 20 / .1); }
+.busca-grande svg { width: 20px; height: 20px; color: var(--apagado); flex: 0 0 auto; }
+.busca-grande input { flex: 1; border: 0; background: transparent; font: inherit; font-size: 1.125rem; outline: none; min-width: 0; }
+.busca-grande button { height: 42px; padding: 0 18px; border-radius: 999px; border: 0; background: var(--tinta); color: var(--blanco); font-weight: 600; cursor: pointer; }
+.busca-grande button:hover { background: var(--cafe); }
+.busca-cabeza h1 { font: 700 clamp(1.75rem, 3.6vw, 2.75rem)/1.08 var(--titulo); text-transform: uppercase; letter-spacing: -0.02em; text-wrap: balance; }
+.busca-cabeza .meta { font-size: .9375rem; }
+/* Pestañas con indicador que se desliza */
+.pestanas { position: relative; display: inline-flex; padding: 3px; border-radius: 11px; background: var(--gris); max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.pestanas::-webkit-scrollbar { display: none; }
+.pestanas__ind { position: absolute; top: 3px; bottom: 3px; left: 0; border-radius: 8px; background: var(--blanco); box-shadow: 0 2px 6px rgb(31 26 20 / .12); transition: transform 340ms cubic-bezier(.2,.9,.3,1.05), width 340ms cubic-bezier(.2,.9,.3,1.05); }
+.pestanas a { position: relative; z-index: 1; height: 34px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: .9375rem; color: var(--tinta-suave); white-space: nowrap; }
+.pestanas a[aria-current="page"] { color: var(--tinta); }
+.pestanas small { font-size: .75rem; color: var(--apagado); font-variant-numeric: tabular-nums; }
+.herramientas { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 6px 0 0; }
+/* Resultados */
+.grupo { padding-top: 32px; }
+.grupo h2 { font: 700 1.25rem/1.1 var(--titulo); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: baseline; gap: 8px; }
+.grupo h2 small { font: 600 .875rem var(--texto); color: var(--apagado); text-transform: none; }
+.resultados { display: grid; gap: var(--hueco); grid-template-columns: 1fr; }
+@media (min-width: 720px) { .resultados { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1200px) { .resultados { grid-template-columns: repeat(3, 1fr); } }
+.res { display: grid; grid-template-columns: 112px 1fr; gap: 14px; align-items: center; padding: 10px; border-radius: var(--radio-card); box-shadow: 0 0 0 1px var(--borde); background: var(--blanco); transition: box-shadow 200ms; }
+.res:hover { box-shadow: 0 0 0 1px var(--borde-control), 0 6px 16px rgb(31 26 20 / .06); }
+.res .media { aspect-ratio: 4 / 3; border-radius: var(--radio-sm); }
+.res .titular { font-size: 1rem; margin: 4px 0 2px; }
+.res p.bajada { font-size: .875rem; color: var(--tinta-suave); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.res__pie { display: flex; gap: 8px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+.atajos { display: flex; flex-wrap: wrap; gap: 8px; }
+/* Sin resultados */
+.vacio { padding: 48px 0 8px; display: grid; gap: 14px; justify-items: start; max-width: 640px; }
+.vacio svg { width: 88px; height: 88px; }
+.vacio .lupa-sola { transform-origin: 60% 60%; animation: busca-lupa 3.2s ease-in-out infinite; }
+@keyframes busca-lupa { 0%, 100% { transform: translate(0, 0) rotate(0); } 25% { transform: translate(-6px, 2px) rotate(-8deg); } 60% { transform: translate(5px, -3px) rotate(6deg); } }
+.vacio h2 { font: 700 1.5rem/1.15 var(--titulo); text-transform: uppercase; }
+.vacio p { color: var(--tinta-suave); }
+.demo { margin-top: 28px; font-size: .875rem; color: var(--apagado); }
+.demo a { color: var(--cafe); font-weight: 600; }
+@media (prefers-reduced-motion: reduce) { .vacio .lupa-sola { animation: none; } .pestanas__ind { transition: none; } }
+</style>
+</head>
+<body>
+<div data-cabecera="portada"></div>
+
+<main class="ancho">
+  <nav class="migas" aria-label="Migas de pan"><a href="c-portada.html">Guía</a><span aria-hidden="true">›</span><span aria-current="page">Buscar</span></nav>
+
+  <section class="busca-cabeza" aria-labelledby="titulo">
+    <form class="busca-grande" role="search" action="c-busqueda.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <label class="solo-lector" for="q-pagina">Buscar en la Guía</label><input id="q-pagina" type="search" name="q" autocomplete="off"><button type="submit">Buscar</button>
+    </form>
+    <h1 id="titulo"></h1>
+    <p class="meta" id="resumen" aria-live="polite"></p>
+    <nav class="pestanas" id="pestanas" aria-label="Tipo de resultado"><span class="pestanas__ind" id="pest-ind" aria-hidden="true"></span></nav>
+    <nav class="herramientas" aria-label="Zona" id="zonas-filtro"></nav>
+  </section>
+
+  <div id="salida"></div>
+  <p class="demo">Prototipo: <a href="?q=playa">buscar «playa»</a> · <a href="?q=pescado">«pescado»</a> · <a href="?q=xyz">sin resultados</a></p>
+</main>
+<div data-pie></div>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const q = new URLSearchParams(location.search);
+  const texto = (q.get('q') || 'playa').trim();
+  const tipo = q.get('tipo') || 'todo';
+  const zona = q.get('zona') || '';
+  document.getElementById('q-pagina').value = texto;
+  document.title = `Buscar «${texto}» · Guía de la Baja · Propuesta C`;
+
+  // Índice de ejemplo. En F3 sale de un índice de búsqueda por idioma (lugares, eventos, artículos, zonas y
+  // categorías publicados en ese idioma). La página de resultados lleva noindex.
+  const INDICE = [
+    { tipo: 'lugares', g: 'mar', cat: 'Playas', nombre: 'Playa Balandra', zona: 'La Paz', foto: 'img/orilla.webp', texto: 'Agua baja y turquesa; una bahía tan llana que la playa se cruza caminando.', url: 'c-ficha.html', horario: [{ dia: 'martes', abre: '08:00', cierra: '18:00' }, { dia: 'miercoles', abre: '08:00', cierra: '18:00' }, { dia: 'jueves', abre: '08:00', cierra: '18:00' }, { dia: 'viernes', abre: '08:00', cierra: '18:00' }, { dia: 'sabado', abre: '08:00', cierra: '18:00' }, { dia: 'domingo', abre: '08:00', cierra: '18:00' }] },
+    { tipo: 'lugares', g: 'mar', cat: 'Playas', nombre: 'Playa El Tecolote', zona: 'La Paz', foto: 'img/pangas-playa.webp', texto: 'Palapas, comida y vista a la Isla Espíritu Santo; la playa de los domingos.', url: 'c-ficha.html', patrocinado: true },
+    { tipo: 'lugares', g: 'mar', cat: 'Playas', nombre: 'Playa Coromuel', zona: 'La Paz', foto: 'img/playa-calma.webp', texto: 'La playa de la ciudad, con resbaladilla al mar.', url: 'c-ficha.html', horario: Guia.DIAS.map((dia) => ({ dia, abre: '07:00', cierra: '20:00' })) },
+    { tipo: 'lugares', g: 'mar', cat: 'Playas', nombre: 'Playa La Ventana', zona: 'La Ventana', foto: 'img/mar-abierto.webp', texto: 'Viento constante en invierno: la playa del kite.', url: 'c-ficha.html' },
+    { tipo: 'lugares', g: 'comer', cat: 'Restaurantes', nombre: 'Mariscos La Bahía', zona: 'La Paz', foto: 'img/pangas-playa.webp', texto: 'Pescado del día a la talla, a media cuadra de la playa del malecón.', url: 'c-ficha.html', patrocinado: true },
+    { tipo: 'lugares', g: 'local', cat: 'Mercados', nombre: 'Mercado Madero', zona: 'La Paz', foto: 'img/cardon-costa.webp', texto: 'Fondas de desayuno, queso de rancho y machaca de pescado.', url: 'c-ficha.html' },
+    { tipo: 'eventos', g: 'aire', cat: 'Actividades', nombre: 'Limpieza de playa con voluntarios', zona: 'La Paz', foto: 'img/orilla.webp', texto: 'Sábado a las 9:00 en El Tecolote. Gratis; trae gorra y agua.', url: 'c-evento.html' },
+    { tipo: 'eventos', g: 'comer', cat: 'Música y fiestas', nombre: 'Cena de pescado del día con trova', zona: 'La Paz', foto: 'img/pangas-playa.webp', texto: 'Viernes en el malecón, frente a la playa.', url: 'c-evento.html' },
+    { tipo: 'articulos', g: 'mar', cat: 'Playas', nombre: 'Balandra sin prisas: cómo llegar y qué llevar', zona: 'La Paz', foto: 'img/orilla.webp', texto: 'El cupo diario de la playa, el camión desde el centro y por qué ir entre semana.', url: 'c-articulo.html' },
+    { tipo: 'articulos', g: 'mar', cat: 'Playas', nombre: 'Cinco playas para ir con niños', zona: 'La Paz', foto: 'img/playa-calma.webp', texto: 'Agua baja, sombra y comida cerca.', url: 'c-articulo.html' },
+    { tipo: 'articulos', g: 'comer', cat: 'Restaurantes', nombre: 'Siete mesas para comer pescado del día', zona: 'La Paz', foto: 'img/pangas-playa.webp', texto: 'De la tostada de pie en el mercado a la cena con vista.', url: 'c-articulo.html' },
+  ];
+  const sinAcentos = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const termino = sinAcentos(texto);
+  const coincide = (r) => termino && sinAcentos(`${r.nombre} ${r.texto} ${r.cat}`).includes(termino);
+  // Resalta la coincidencia sin depender de acentos
+  const resaltar = (s) => {
+    const i = sinAcentos(s).indexOf(termino);
+    return i < 0 || !termino ? s : `${s.slice(0, i)}<mark>${s.slice(i, i + termino.length)}</mark>${s.slice(i + termino.length)}`;
+  };
+  // Los eventos que ya pasaron no entran al índice; sus páginas siguen publicadas.
+  const todos = INDICE.filter(coincide);
+  const enZona = todos.filter((r) => !zona || r.zona === zona);
+  const NOMBRES = { lugares: 'Lugares', eventos: 'Eventos', articulos: 'Artículos' };
+  const porTipo = (t) => enZona.filter((r) => r.tipo === t);
+
+  $('#titulo').textContent = `Resultados para «${texto}»`;
+  $('#resumen').textContent = enZona.length ? `${enZona.length} resultados${zona ? ` en ${zona}` : ' en toda la Baja'}` : '';
+
+  // Pestañas y zonas como links (?tipo=, ?zona=)
+  const url = (cambios) => { const u = new URLSearchParams(q); u.set('q', texto); Object.entries(cambios).forEach(([k, v]) => (v ? u.set(k, v) : u.delete(k))); return `?${u}`; };
+  const pest = [['todo', 'Todo', enZona.length], ...Object.keys(NOMBRES).map((t) => [t, NOMBRES[t], porTipo(t).length])];
+  $('#pestanas').insertAdjacentHTML('beforeend', pest.map(([t, n, c]) => `<a href="${url({ tipo: t === 'todo' ? '' : t })}"${t === tipo ? ' aria-current="page"' : ''}>${n} <small>${c}</small></a>`).join(''));
+  const zonas = ['La Paz', 'La Ventana', 'Puerto Chale'].filter((z) => todos.some((r) => r.zona === z));
+  $('#zonas-filtro').innerHTML = `<a class="chip" href="${url({ zona: '' })}"${!zona ? ' aria-current="page"' : ''}>Toda la Baja</a>` + zonas.map((z) => `<a class="chip" href="${url({ zona: z })}"${zona === z ? ' aria-current="page"' : ''}>${z}</a>`).join('');
+  requestAnimationFrame(() => { const a = document.querySelector('#pestanas a[aria-current]'), ind = $('#pest-ind'); ind.style.transition = 'none'; ind.style.width = a.offsetWidth + 'px'; ind.style.transform = `translateX(${a.offsetLeft - 3}px)`; });
+
+  const tarjeta = (r, i) => `
+    <a class="res tarjeta presionable g-${r.g} entra" href="${r.url}"${r.patrocinado ? ' rel="sponsored"' : ''} style="--retraso:${(i % 3) * 60}ms">
+      <div class="media"><img src="${r.foto}" alt="" loading="lazy"></div>
+      <div><span>${r.patrocinado ? '<span class="patrocinado">Patrocinado</span> ' : ''}<span class="etiqueta">${r.cat}</span></span>
+        <p class="titular">${resaltar(r.nombre)}</p><p class="bajada">${resaltar(r.texto)}</p>
+        <div class="res__pie">${r.horario ? `<span class="abierto" data-corto data-horario='${JSON.stringify(r.horario)}'></span>` : ''}<span class="meta">${r.zona}</span></div></div>
+    </a>`;
+  const salida = $('#salida');
+  if (!enZona.length) {
+    salida.innerHTML = `<section class="vacio" aria-labelledby="t-vacio">
+      <svg viewBox="0 0 88 88" aria-hidden="true"><circle cx="44" cy="44" r="42" fill="#FCF6ED"/><g class="lupa-sola" fill="none" stroke="#1F1A14" stroke-width="5" stroke-linecap="round"><circle cx="40" cy="40" r="15"/><path d="M51 51l11 11"/></g></svg>
+      <h2 id="t-vacio"></h2>
+      <p>Revisa cómo está escrito o prueba con algo más general. También puedes empezar por aquí:</p>
+      <div class="atajos"><a class="chip presionable" href="c-categoria.html">Playas</a><a class="chip presionable" href="#">Restaurantes</a><a class="chip presionable" href="#">Paseos en lancha</a><a class="chip presionable" href="c-portal.html">La Paz</a><a class="chip presionable" href="#">Eventos de esta semana</a></div>
+    </section>`;
+    // El término viene de la URL: va como texto, nunca dentro de HTML
+    salida.querySelector('#t-vacio').textContent = `No encontramos «${texto}»`;
+  } else {
+    // Hasta 2 patrocinados vigentes arriba de cada grupo (misma regla que los listados); el resto, por relevancia
+    const ordenar = (l) => { const arriba = l.filter((r) => r.patrocinado).slice(0, 2); return [...arriba, ...l.filter((r) => !arriba.includes(r))]; };
+    const grupos = tipo === 'todo' ? Object.keys(NOMBRES) : [tipo];
+    salida.innerHTML = grupos.map((t) => {
+      const l = ordenar(porTipo(t)); if (!l.length) return '';
+      const ver = tipo === 'todo' && l.length > 3 ? `<a class="chip presionable" href="${url({ tipo: t })}" style="margin-top:12px">Ver los ${l.length} ${NOMBRES[t].toLowerCase()}</a>` : '';
+      return `<section class="grupo" aria-labelledby="g-${t}"><h2 id="g-${t}">${NOMBRES[t]} <small>${l.length}</small></h2><div class="resultados">${(tipo === 'todo' ? l.slice(0, 3) : l).map(tarjeta).join('')}</div>${ver}</section>`;
+    }).join('');
+  }
+  addEventListener('DOMContentLoaded', () => { const cab = document.getElementById('q'); if (cab) cab.value = ''; });
+})();
+</script>
+</body>
+</html>

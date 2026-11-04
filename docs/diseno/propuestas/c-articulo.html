@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Siete mesas para comer pescado del día · Guía · Propuesta C</title>
+<meta name="description" content="Propuesta C: página de un artículo con sus bloques.">
+<link rel="stylesheet" href="c-base.css">
+<script src="c-base.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[{"@type":"Article","headline":"Siete mesas para comer pescado del día en La Paz","author":{"@type":"Person","name":"Ana Gómez"},"datePublished":"2026-10-20","dateModified":"2026-11-02","image":["img/pangas-playa.webp"]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"¿A qué hora conviene ir?","acceptedAnswer":{"@type":"Answer","text":"Entre la 1 y las 3 de la tarde, cuando acaba de llegar la pesca de la mañana."}},{"@type":"Question","name":"¿Aceptan tarjeta?","acceptedAnswer":{"@type":"Answer","text":"Casi todas sí; en los puestos del mercado lleva efectivo."}}]}]}
+</script>
+<style>
+.progreso { position: fixed; left: 0; top: 0; z-index: 50; height: 3px; width: 100%; background: var(--cafe); transform-origin: left; transform: scaleX(0); }
+.art-cabeza { max-width: 820px; margin: 0 auto; padding: 8px 0 20px; display: grid; gap: 12px; }
+.art-cabeza h1 { font: 700 clamp(2rem, 4.6vw, 3.5rem)/1.04 var(--titulo); text-transform: uppercase; letter-spacing: -0.025em; text-wrap: balance; }
+.art-cabeza .resumen { font-size: 1.25rem; line-height: 1.5; color: var(--tinta-suave); }
+.firma { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; font-size: .9375rem; color: var(--apagado); }
+.firma strong { color: var(--tinta); }
+.firma button { margin-left: auto; }
+.art-portada { border-radius: var(--radio-card); overflow: hidden; aspect-ratio: 21 / 9; }
+@media (max-width: 719px) { .art-portada { aspect-ratio: 4 / 3; margin: 0 calc(-1 * var(--margen)); border-radius: 0; } }
+.art-portada img { width: 100%; height: 100%; object-fit: cover; }
+.art-cuerpo { display: grid; gap: 40px; padding-top: 32px; }
+@media (min-width: 1100px) { .art-cuerpo { grid-template-columns: 220px minmax(0, 720px) 1fr; } }
+.indice { display: none; }
+@media (min-width: 1100px) { .indice { display: block; position: sticky; top: calc(var(--cabecera) + 24px); align-self: start; } }
+.indice h2 { font: 700 .875rem/1 var(--titulo); text-transform: uppercase; margin-bottom: 10px; }
+.indice a { display: block; padding: 6px 0 6px 12px; border-left: 2px solid var(--borde); color: var(--apagado); font-size: .9375rem; transition: color 150ms, border-color 150ms; }
+.indice a.activo { color: var(--tinta); border-color: var(--cafe); font-weight: 600; }
+.prosa { font-size: 1.125rem; line-height: 1.7; }
+.prosa > * + * { margin-top: 18px; }
+.prosa h2 { font: 700 1.625rem/1.15 var(--titulo); text-transform: uppercase; letter-spacing: -0.01em; margin-top: 44px; scroll-margin-top: 130px; }
+.prosa ol { padding-left: 1.25em; }
+/* Bloques del cuerpo (src/bloques/articulo.ts) */
+.b-lugar { display: grid; grid-template-columns: 140px 1fr; gap: 16px; align-items: center; padding: 12px; border-radius: var(--radio-card); box-shadow: 0 0 0 1px var(--borde); background: var(--blanco); }
+.b-lugar .media { aspect-ratio: 4 / 3; border-radius: var(--radio-sm); }
+.b-lugar .titular { font-size: 1.0625rem; margin: 4px 0 2px; }
+.b-lugar p { font-size: .9375rem; line-height: 1.45; }
+.b-lugar__pie { display: flex; gap: 8px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+@media (max-width: 479px) { .b-lugar { grid-template-columns: 96px 1fr; } }
+.b-evento { display: grid; grid-template-columns: 72px 1fr auto; gap: 14px; align-items: center; padding: 12px; border-radius: var(--radio-card); background: var(--arena); }
+.b-evento .fecha { display: grid; place-items: center; height: 72px; border-radius: var(--radio-control); background: var(--g-claro); color: var(--g-profundo); line-height: 1.05; text-align: center; }
+.b-evento .fecha b { font: 700 1.75rem/1 var(--titulo); }
+.b-evento .fecha small { font-size: .75rem; font-weight: 700; text-transform: uppercase; }
+.b-evento .titular { font-size: 1.0625rem; }
+.b-tours { border-radius: var(--radio-card); background: var(--tinta); color: var(--blanco); padding: 16px; }
+.b-tours h3 { font: 700 1.125rem/1.2 var(--titulo); text-transform: uppercase; margin-bottom: 12px; }
+.b-tours__lista { display: grid; gap: 10px; grid-template-columns: 1fr; }
+@media (min-width: 560px) { .b-tours__lista { grid-template-columns: repeat(3, 1fr); } }
+.b-tours__lista a { border-radius: var(--radio-control); overflow: hidden; background: rgb(255 255 255 / .06); display: grid; }
+.b-tours__lista .media { aspect-ratio: 16 / 10; }
+.b-tours__lista div.txt { padding: 10px 12px 12px; font-size: .9375rem; line-height: 1.35; }
+.b-tours__lista b { display: block; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.faq { border-radius: var(--radio-card); box-shadow: 0 0 0 1px var(--borde); overflow: hidden; }
+.faq details + details { border-top: 1px solid var(--borde); }
+.faq summary { list-style: none; cursor: pointer; padding: 16px 48px 16px 16px; font-weight: 700; font-size: 1.0625rem; position: relative; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 1.4rem; transition: transform 250ms var(--curva); }
+.faq details[open] summary::after { transform: translateY(-50%) rotate(45deg); }
+.faq__resp { overflow: hidden; }
+.faq__resp p { padding: 0 16px 16px; font-size: 1rem; line-height: 1.6; }
+.mas-art { display: grid; gap: var(--hueco); }
+@media (min-width: 720px) { .mas-art { grid-template-columns: repeat(3, 1fr); } }
+.aviso { position: fixed; left: 50%; bottom: 24px; z-index: 60; transform: translate(-50%, 20px); opacity: 0; padding: 10px 16px; border-radius: 999px; background: var(--tinta); color: var(--blanco); font-weight: 600; transition: opacity 200ms, transform 300ms var(--curva); pointer-events: none; }
+.aviso.visible { opacity: 1; transform: translate(-50%, 0); }
+</style>
+</head>
+<body>
+<div class="progreso" id="progreso" aria-hidden="true"></div>
+<div data-cabecera="la-paz"></div>
+
+<main class="ancho g-comer">
+  <nav class="migas" aria-label="Migas de pan"><a href="c-portada.html">Guía</a><span aria-hidden="true">›</span><a href="#">Artículos</a><span aria-hidden="true">›</span><span aria-current="page">Pescado del día</span></nav>
+
+  <header class="art-cabeza">
+    <span><span class="etiqueta">Restaurantes</span> <a class="zona" href="c-portal.html" style="height:26px;font-size:.8125rem;background:var(--gris)">La Paz</a></span>
+    <h1>Siete mesas para comer pescado del día en La Paz</h1>
+    <p class="resumen">Para comer pescado recién salido del mar en La Paz, ve entre la 1 y las 3 de la tarde a cualquiera de estas siete mesas: de la tostada de pie en el mercado a la cena con vista al malecón.</p>
+    <div class="firma"><span>Por <strong>Ana Gómez</strong></span><span>Publicado el 20 oct 2026</span><span>Actualizado el 2 nov 2026</span><span>8 min de lectura</span><button class="chip presionable" type="button" id="compartir">Compartir</button></div>
+  </header>
+  <div class="art-portada"><img src="img/pangas-playa.webp" alt="Pangas en la arena al atardecer, de regreso de pescar" width="1600" height="1067"></div>
+
+  <div class="art-cuerpo">
+    <nav class="indice" aria-label="En este artículo"><h2>En este artículo</h2><div id="indice"></div></nav>
+    <article class="prosa" id="prosa">
+      <p>La pesca de la mañana llega a la playa entre las 10 y las 12. Las mesas de esta lista compran directo a los pescadores de la bahía, así que el pescado que comes a la hora de la comida salió del agua unas horas antes.</p>
+
+      <h2 id="en-el-centro">En el centro</h2>
+      <p>Si estás caminando por el malecón, estas dos quedan a media cuadra. Las dos abren a mediodía y se llenan a las dos.</p>
+      <a class="b-lugar tarjeta presionable g-comer" href="c-ficha.html" rel="sponsored"><div class="media"><img src="img/pangas-playa.webp" alt="" loading="lazy"></div><div><span class="patrocinado">Patrocinado</span> <span class="etiqueta">Restaurantes</span><p class="titular">Mariscos La Bahía</p><p>Pesca del día a la talla, en mesas de plástico a media cuadra del malecón.</p><div class="b-lugar__pie"><span class="abierto" data-corto data-horario='[{"dia":"martes","abre":"12:00","cierra":"17:00"},{"dia":"martes","abre":"19:00","cierra":"23:00"},{"dia":"miercoles","abre":"12:00","cierra":"23:00"},{"dia":"jueves","abre":"12:00","cierra":"23:00"},{"dia":"viernes","abre":"12:00","cierra":"01:00"},{"dia":"sabado","abre":"12:00","cierra":"01:00"},{"dia":"domingo","abre":"12:00","cierra":"20:00"}]'></span><span class="meta">$$ · Centro</span></div></div></a>
+      <p>Pide el pescado «zarandeado» si lo tienen: lo abren a la mitad y lo asan con chile y mayonesa. Para dos personas alcanza uno de un kilo.</p>
+
+      <h2 id="en-el-mercado">En el mercado</h2>
+      <p>Para desayunar o comer rápido y barato, las fondas del Mercado Madero sirven machaca de pescado y tostadas desde las 7.</p>
+      <a class="b-lugar tarjeta presionable g-local" href="c-ficha.html"><div class="media"><img src="img/cardon-costa.webp" alt="" loading="lazy"></div><div><span class="etiqueta">Mercados</span><p class="titular">Mercado Madero</p><p>Fondas de desayuno, queso de rancho y machaca de pescado.</p><div class="b-lugar__pie"><span class="abierto" data-corto data-horario='[{"dia":"lunes","abre":"07:00","cierra":"15:00"},{"dia":"martes","abre":"07:00","cierra":"15:00"},{"dia":"miercoles","abre":"07:00","cierra":"15:00"},{"dia":"jueves","abre":"07:00","cierra":"15:00"},{"dia":"viernes","abre":"07:00","cierra":"15:00"},{"dia":"sabado","abre":"07:00","cierra":"15:00"},{"dia":"domingo","abre":"07:00","cierra":"15:00"}]'></span><span class="meta">$ · Centro</span></div></div></a>
+
+      <h2 id="un-evento">Si vienes en noviembre</h2>
+      <p>El primer viernes del mes hay cena de pesca del día con música en el malecón:</p>
+      <a class="b-evento tarjeta presionable g-comer" href="c-evento.html"><span class="fecha"><small>Vie</small><b>6</b></span><span><span class="etiqueta">Música y fiestas</span><p class="titular" style="margin-top:4px">Trova al atardecer en el malecón</p><p class="meta">6:00 p. m. · Malecón · Gratis</p></span><span aria-hidden="true">›</span></a>
+
+      <h2 id="pescar-tu-comida">Pesca tu propia comida</h2>
+      <p>Varias de estas mesas te cocinan lo que pescas. Si quieres salir en panga por la mañana:</p>
+      <section class="b-tours" aria-label="Tours en La Paz">
+        <h3>Tours en La Paz</h3>
+        <div class="b-tours__lista">
+          <a class="presionable" href="#?desde=guia&amp;pieza=articulo-pescado-del-dia"><div class="media"><img src="img/tour-pesca.webp" alt="" loading="lazy"></div><div class="txt">Pesca deportiva en panga<b>desde $6,500 MXN por panga</b></div></a>
+          <a class="presionable" href="#?desde=guia&amp;pieza=articulo-pescado-del-dia"><div class="media"><img src="video/lancha-aerea.jpg" alt="" loading="lazy"></div><div class="txt">Isla Espíritu Santo y lobos marinos<b>desde $2,150 MXN por persona</b></div></a>
+          <a class="presionable" href="#?desde=guia&amp;pieza=articulo-pescado-del-dia"><div class="media"><img src="video/ballenas.jpg" alt="" loading="lazy"></div><div class="txt">Ballenas en Bahía Magdalena<b>desde $3,900 MXN · ene a mar</b></div></a>
+        </div>
+      </section>
+
+      <h2 id="preguntas">Preguntas frecuentes</h2>
+      <div class="faq" id="faq">
+        <details><summary>¿A qué hora conviene ir?</summary><div class="faq__resp"><p>Entre la 1 y las 3 de la tarde, cuando acaba de llegar la pesca de la mañana.</p></div></details>
+        <details><summary>¿Aceptan tarjeta?</summary><div class="faq__resp"><p>Casi todas sí; en los puestos del mercado lleva efectivo.</p></div></details>
+        <details><summary>¿Hay opciones sin mariscos?</summary><div class="faq__resp"><p>Todas tienen pollo o quesadillas, y el mercado tiene fondas de comida casera.</p></div></details>
+      </div>
+    </article>
+  </div>
+
+  <section class="seccion" aria-labelledby="t-mas">
+    <div class="seccion__cabeza"><h2 id="t-mas" class="t-seccion">Más para leer</h2><a href="#">Todos los artículos</a></div>
+    <div class="mas-art">
+      <a class="nota tarjeta presionable g-mar entra" href="#"><div class="media"><img src="img/orilla.webp" alt="" loading="lazy"></div><div class="nota__cuerpo"><span><span class="etiqueta">Playas</span></span><p class="titular">Balandra sin prisas: cómo llegar y qué llevar</p><div class="nota__pie"><span class="meta">Por Luis · 28 oct</span><span class="meta">6 min</span></div></div></a>
+      <a class="nota tarjeta presionable g-aire entra" href="#" style="--retraso:80ms"><div class="media"><img src="img/sendero.webp" alt="" loading="lazy"></div><div class="nota__cuerpo"><span><span class="etiqueta">Actividades</span></span><p class="titular">Cinco caminatas cortas con vista a la bahía</p><div class="nota__pie"><span class="meta">Por Ana · 20 oct</span><span class="meta">5 min</span></div></div></a>
+      <a class="nota tarjeta presionable g-mar entra" href="#" style="--retraso:160ms"><div class="media"><img src="img/mar-abierto.webp" alt="" loading="lazy"></div><div class="nota__cuerpo"><span><span class="etiqueta">Paseos en lancha</span></span><p class="titular">Ballenas en Bahía Magdalena: la temporada 2027</p><div class="nota__pie"><span class="meta">Por Luis · 15 oct</span><span class="meta">5 min</span></div></div></a>
+    </div>
+  </section>
+</main>
+<div data-pie></div>
+<div class="aviso" id="aviso" role="status"></div>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  const prosa = $('#prosa');
+
+  // Barra de avance de lectura
+  const barra = $('#progreso');
+  const avance = () => { const r = prosa.getBoundingClientRect(); const p = Math.min(1, Math.max(0, -r.top / (r.height - innerHeight * 0.6))); barra.style.transform = `scaleX(${p})`; };
+  addEventListener('scroll', () => requestAnimationFrame(avance), { passive: true }); avance();
+
+  // Índice armado con los subtítulos del cuerpo, con la sección actual marcada
+  const titulos = $$('#prosa h2');
+  $('#indice').innerHTML = titulos.map((h) => `<a href="#${h.id}">${h.textContent}</a>`).join('');
+  const enlaces = $$('#indice a');
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) enlaces.forEach((a) => a.classList.toggle('activo', a.getAttribute('href') === '#' + e.target.id)); }), { rootMargin: '-20% 0px -70% 0px' });
+  titulos.forEach((h) => io.observe(h));
+
+  // Preguntas frecuentes: abrir y cerrar con altura animada
+  $$('#faq details').forEach((d) => {
+    const s = d.querySelector('summary'), c = d.querySelector('.faq__resp');
+    s.addEventListener('click', (e) => {
+      if (Guia.reducido) return;
+      e.preventDefault();
+      if (d.open) {
+        const h = c.offsetHeight; c.animate([{ height: h + 'px' }, { height: '0px' }], { duration: 220, easing: 'cubic-bezier(.2,0,0,1)' }).onfinish = () => { d.open = false; };
+      } else {
+        d.open = true; const h = c.offsetHeight; c.animate([{ height: '0px', opacity: 0 }, { height: h + 'px', opacity: 1 }], { duration: 260, easing: 'cubic-bezier(.2,0,0,1)' });
+      }
+    });
+  });
+
+  const aviso = $('#aviso');
+  const avisar = (t) => { aviso.textContent = t; aviso.classList.add('visible'); setTimeout(() => aviso.classList.remove('visible'), 2200); };
+  $('#compartir').addEventListener('click', async () => {
+    if (navigator.share) { try { await navigator.share({ title: document.title, url: location.href }); } catch {} return; }
+    try { await navigator.clipboard.writeText(location.href); avisar('Enlace copiado'); const bt = document.activeElement?.closest?.('button'); if (bt) Guia.confirmar(bt); } catch { avisar('No se pudo copiar el enlace'); }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Playas en La Paz · Guía · Propuesta C</title>
+<meta name="description" content="Propuesta C: página de una categoría dentro de una zona.">
+<link rel="stylesheet" href="c-base.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb" crossorigin="anonymous">
+<script src="c-base.js"></script>
+<style>
+/* Encabezado con banda del grupo */
+.portada-cat { position: relative; border-radius: var(--radio-card); overflow: hidden; background: var(--g); color: var(--g-tinta); display: grid; grid-template-columns: 1fr; min-height: 260px; }
+@media (min-width: 900px) { .portada-cat { grid-template-columns: 1.1fr 1fr; } }
+.portada-cat__texto { padding: clamp(20px, 4vw, 40px); display: grid; gap: 12px; align-content: end; }
+.portada-cat__texto p { max-width: 52ch; font-size: 1.0625rem; opacity: .92; }
+.portada-cat__cifras { display: flex; gap: 24px; flex-wrap: wrap; font-weight: 600; }
+.portada-cat__cifras b { display: block; font: 700 1.75rem/1 var(--titulo); }
+.portada-cat__fotos { display: none; position: relative; }
+@media (min-width: 900px) { .portada-cat__fotos { display: block; } }
+.portada-cat__fotos img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.2s var(--curva), transform 7s linear; transform: scale(1.06); }
+.portada-cat__fotos img.activa { opacity: 1; transform: scale(1); }
+
+/* Herramientas: categorías hermanas, orden, vista */
+.herramientas { position: sticky; top: var(--cabecera); z-index: 20; margin: 0 calc(-1 * var(--margen)); padding: 10px var(--margen); background: rgb(255 255 255 / .9); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  display: flex; gap: 8px; align-items: center; overflow-x: auto; scrollbar-width: none; }
+.herramientas::-webkit-scrollbar { display: none; }
+.separador { flex: 0 0 1px; height: 24px; background: var(--borde); margin: 0 4px; }
+.orden { flex: 0 0 auto; height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--borde); background: var(--blanco); font: 600 .875rem var(--texto); cursor: pointer; }
+.vista { flex: 0 0 auto; position: relative; display: grid; grid-auto-flow: column; padding: 3px; border-radius: 11px; background: var(--gris); margin-left: auto; }
+.vista__indicador { position: absolute; top: 3px; bottom: 3px; left: 0; border-radius: 8px; background: var(--blanco); box-shadow: 0 2px 6px rgb(31 26 20 / .12); }
+.vista button { position: relative; z-index: 1; height: 30px; padding: 0 14px; border: 0; background: none; font-weight: 600; font-size: .875rem; cursor: pointer; color: var(--tinta-suave); }
+.vista button[aria-checked="true"] { color: var(--tinta); }
+@media (min-width: 1024px) { .vista { display: none; } }
+
+/* Lista + mapa */
+.explorar { display: grid; gap: var(--hueco); padding-top: 8px; }
+@media (min-width: 1024px) { .explorar { grid-template-columns: minmax(0, 1fr) minmax(360px, 42%); align-items: start; } }
+.lista { display: grid; gap: var(--hueco); grid-template-columns: 1fr; align-content: start; }
+@media (min-width: 640px) { .lista { grid-template-columns: repeat(2, 1fr); } }
+.lista__vacia { grid-column: 1 / -1; padding: 32px; text-align: center; color: var(--apagado); border-radius: var(--radio-card); background: var(--arena); }
+.mapa-cat { border-radius: var(--radio-card); overflow: hidden; box-shadow: 0 0 0 1px var(--borde); height: calc(100svh - 190px); min-height: 420px; background: var(--azul-claro); }
+@media (min-width: 1024px) { .mapa-cat { position: sticky; top: calc(var(--cabecera) + 72px); } }
+@media (max-width: 1023px) { .explorar[data-vista="lista"] .mapa-cat { display: none; } .explorar[data-vista="mapa"] .lista, .explorar[data-vista="mapa"] + .paginas { display: none; } .mapa-cat { height: calc(100svh - 200px); } }
+.contador-res { color: var(--apagado); font-size: .9375rem; padding: 12px 0 0; }
+.mas { display: flex; justify-content: center; padding: 20px 0 0; }
+
+/* Pines del mapa */
+.pin { display: grid; place-items: center; padding: 4px 10px; border-radius: 999px; background: var(--blanco); color: var(--tinta); font: 700 .8125rem/1.2 var(--texto); white-space: nowrap; box-shadow: 0 2px 8px rgb(31 26 20 / .25); transform: translate(-50%, -50%); transition: transform 200ms var(--curva), background 150ms, color 150ms; }
+.pin.activo { background: var(--tinta); color: var(--blanco); transform: translate(-50%, -50%) scale(1.12); z-index: 1000; }
+.leaflet-div-icon { background: none; border: 0; }
+.leaflet-popup-content-wrapper { border-radius: var(--radio-control); }
+.leaflet-container { font-family: var(--texto); }
+
+/* Artículos de la categoría */
+.lecturas { display: grid; gap: var(--hueco); }
+@media (min-width: 900px) { .lecturas { grid-template-columns: repeat(3, 1fr); } }
+.lectura { display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: center; padding: 10px; border-radius: var(--radio-card); background: var(--arena); }
+.lectura .media { aspect-ratio: 4 / 3; border-radius: var(--radio-sm); }
+.tours { grid-auto-columns: min(80%, 300px); }
+@media (min-width: 1024px) { .tours { grid-auto-columns: calc((100% - 2 * var(--margen) - 3 * var(--hueco)) / 4); } }
+</style>
+</head>
+<body>
+
+<div data-cabecera="la-paz"></div>
+
+<main class="ancho">
+  <nav class="migas" aria-label="Migas de pan"><a href="c-portal.html">Guía</a><span aria-hidden="true">›</span><a href="c-portal.html">La Paz</a><span aria-hidden="true">›</span><span aria-current="page">Playas</span></nav>
+
+  <section class="portada-cat g-mar" aria-labelledby="titulo">
+    <div class="portada-cat__texto">
+      <span class="etiqueta" style="background:var(--azul-claro);color:var(--azul-profundo);justify-self:start">Mar</span>
+      <h1 id="titulo" class="t-pagina">Playas en La Paz</h1>
+      <p>De la playa de la ciudad a las bahías turquesa de Pichilingue y la isla. Cada una visitada por el equipo de la Guía.</p>
+      <div class="portada-cat__cifras"><span><b id="total" data-contar>8</b>playas</span><span><b id="abiertas" data-contar>—</b>abiertas ahora</span><span><b id="rango">—</b>km del centro</span></div>
+    </div>
+    <div class="portada-cat__fotos" id="rotar" aria-hidden="true">
+      <img class="activa" src="img/orilla.webp" alt=""><img src="img/pangas-playa.webp" alt=""><img src="img/playa-calma.webp" alt=""><img src="img/mar-abierto.webp" alt="">
+    </div>
+  </section>
+
+  <nav class="pildoras" aria-label="Categorías en La Paz" style="padding-top:14px">
+    <a class="chip presionable" href="c-categoria.html" aria-current="page">Playas</a>
+    <a class="chip presionable" href="c-categoria.html">Restaurantes</a>
+    <a class="chip presionable" href="c-categoria.html">Cafés y bares</a>
+    <a class="chip presionable" href="c-categoria.html">Actividades</a>
+    <a class="chip presionable" href="c-categoria.html">Mercados</a>
+    <a class="chip presionable" href="c-categoria.html">Cultura</a>
+  </nav>
+  <div class="herramientas" aria-label="Filtros">
+    <a class="chip" href="c-categoria.html" data-f="">Todas</a>
+    <a class="chip" href="?abierto=1" data-f="abierto=1">Abierto ahora</a>
+    <a class="chip" href="?caracteristica=para-ninos" data-f="caracteristica=para-ninos">Para niños</a>
+    <a class="chip" href="?caracteristica=con-comida" data-f="caracteristica=con-comida">Con comida</a>
+    <a class="chip" href="?caracteristica=solo-con-tour" data-f="caracteristica=solo-con-tour">Solo con tour</a>
+    <span class="separador" aria-hidden="true"></span>
+    <a class="chip" href="?precio=%24" data-f="precio=$">$</a>
+    <a class="chip" href="?precio=%24%24" data-f="precio=$$">$$</a>
+    <div class="vista" role="radiogroup" aria-label="Vista" id="vista"><span class="vista__indicador" id="vista-ind" aria-hidden="true"></span><button type="button" role="radio" aria-checked="true" data-vista="lista">Lista</button><button type="button" role="radio" aria-checked="false" data-vista="mapa">Mapa</button></div>
+  </div>
+
+  <p class="contador-res" id="contador-res" aria-live="polite"></p>
+  <div class="explorar" id="explorar" data-vista="lista">
+    <div class="lista" id="lista"></div>
+    <div class="mapa-cat" id="mapa" aria-label="Mapa de las playas"></div>
+  </div>
+  <nav class="paginas" id="paginas" aria-label="Páginas"></nav>
+
+  <section class="seccion" aria-labelledby="t-leer">
+    <div class="seccion__cabeza"><h2 id="t-leer" class="t-seccion">Para leer antes de ir</h2></div>
+    <div class="lecturas">
+      <a class="lectura tarjeta presionable entra" href="#"><div class="media"><img src="img/orilla.webp" alt="" loading="lazy"></div><div><p class="titular">Balandra sin prisas: cómo llegar y qué llevar</p><p class="meta">6 min de lectura</p></div></a>
+      <a class="lectura tarjeta presionable entra" href="#" style="--retraso:70ms"><div class="media"><img src="img/playa-calma.webp" alt="" loading="lazy"></div><div><p class="titular">Cinco playas para ir con niños</p><p class="meta">5 min de lectura</p></div></a>
+      <a class="lectura tarjeta presionable entra" href="#" style="--retraso:140ms"><div class="media"><img src="video/lancha-aerea.jpg" alt="" loading="lazy"></div><div><p class="titular">Cómo llegar a las playas de la isla</p><p class="meta">7 min de lectura</p></div></a>
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-tours">
+    <div class="seccion__cabeza"><h2 id="t-tours" class="t-seccion">Tours en La Paz</h2><a href="#?desde=guia&amp;pieza=categoria-playas">Ver todos</a></div>
+    <div class="riel">
+      <button class="riel__boton riel__boton--izq" type="button" aria-label="Anterior" data-riel="tours" data-dir="-1">‹</button>
+      <div class="riel__pista tours" id="tours">
+        <a class="tour tarjeta presionable entra" href="#?desde=guia&amp;pieza=categoria-playas"><div class="media"><img src="video/lancha-aerea.jpg" alt="" loading="lazy"></div><div class="tour__cuerpo"><p class="titular">Isla Espíritu Santo y lobos marinos</p><p class="tour__precio">desde $2,150 <small>MXN por persona</small></p></div></a>
+        <a class="tour tarjeta presionable entra" href="#?desde=guia&amp;pieza=categoria-playas" style="--retraso:70ms"><div class="media"><img src="video/lancha-turquesa.jpg" alt="" loading="lazy"></div><div class="tour__cuerpo"><p class="titular">Playas de la isla en lancha</p><p class="tour__precio">desde $1,800 <small>MXN por persona</small></p></div></a>
+        <a class="tour tarjeta presionable entra" href="#?desde=guia&amp;pieza=categoria-playas" style="--retraso:140ms"><div class="media"><img src="video/ballenas.jpg" alt="" loading="lazy"></div><div class="tour__cuerpo"><p class="titular">Ballenas en Bahía Magdalena</p><p class="tour__precio">desde $3,900 <small>MXN · ene a mar</small></p></div></a>
+        <a class="tour tarjeta presionable entra" href="#?desde=guia&amp;pieza=categoria-playas" style="--retraso:210ms"><div class="media"><img src="img/tour-pesca.webp" alt="" loading="lazy"></div><div class="tour__cuerpo"><p class="titular">Pesca deportiva en panga</p><p class="tour__precio">desde $6,500 <small>MXN por panga</small></p></div></a>
+      </div>
+      <button class="riel__boton riel__boton--der" type="button" aria-label="Siguiente" data-riel="tours" data-dir="1">›</button>
+    </div>
+  </section>
+
+  <section class="aparece" aria-labelledby="t-aparece">
+    <div><h2 id="t-aparece">¿Tienes un negocio en la Baja?</h2><p>Cuéntanos de él. El equipo de la Guía lo visita antes de publicarlo.</p></div>
+    <a class="boton boton--secundario presionable" href="c-aparece.html">Aparece en la Guía</a>
+  </section>
+</main>
+<div data-pie></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO" crossorigin="anonymous"></script>
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  const { reducido, estado, km } = Guia;
+  // Coordenadas de la zona (Zonas.coordenadas) para la distancia en línea recta.
+  const ZONA = [24.1426, -110.3128];
+  const dias = (abre, cierra, cuales = Guia.DIAS) => cuales.map((dia) => ({ dia, abre, cierra }));
+  // Mismos campos que Lugares en el backoffice; `caracteristicas` y `patrocinio` según las decisiones del 2026-11-03.
+  const PLAYAS = [
+    { id: 'balandra', nombre: 'Playa Balandra', foto: 'img/orilla.webp', resumen: 'Agua baja y turquesa; se cruza caminando.', coordenadas: [24.3216, -110.3226], horario: dias('08:00', '18:00', Guia.DIAS.slice(1)), caracteristicas: ['para-ninos'], rangoPrecio: '$', orden: 1 },
+    { id: 'tecolote', nombre: 'Playa El Tecolote', foto: 'img/pangas-playa.webp', resumen: 'Palapas, comida y vista a la isla.', coordenadas: [24.3363, -110.3165], horario: [], caracteristicas: ['para-ninos', 'con-comida'], rangoPrecio: '$', orden: 2, patrocinio: { desde: '2026-10-01' } },
+    { id: 'coromuel', nombre: 'Playa Coromuel', foto: 'img/playa-calma.webp', resumen: 'La playa de la ciudad, con resbaladilla al mar.', coordenadas: [24.1868, -110.3080], horario: dias('07:00', '20:00'), caracteristicas: ['para-ninos', 'con-comida'], rangoPrecio: '$', orden: 3 },
+    { id: 'tesoro', nombre: 'Playa El Tesoro', foto: 'img/mar-abierto.webp', resumen: 'Tranquila entre semana, con restaurante en la arena.', coordenadas: [24.2533, -110.3069], horario: dias('08:00', '19:00'), caracteristicas: ['con-comida'], rangoPrecio: '$$', orden: 4 },
+    { id: 'pichilingue', nombre: 'Playa Pichilingue', foto: 'img/cardon-costa.webp', resumen: 'Junto al puerto del ferry, con mariscos baratos.', coordenadas: [24.2852, -110.3332], horario: dias('09:00', '20:00'), caracteristicas: ['con-comida'], rangoPrecio: '$', orden: 5 },
+    { id: 'caimancito', nombre: 'Playa El Caimancito', foto: 'img/cardones.webp', resumen: 'Para esnórquel, a cinco minutos de la ciudad.', coordenadas: [24.2011, -110.3021], horario: dias('06:00', '19:00'), caracteristicas: [], rangoPrecio: '$', orden: 6 },
+    { id: 'ensenada', nombre: 'Ensenada Grande', foto: 'img/sendero.webp', resumen: 'En la Isla Espíritu Santo; solo se llega en lancha.', coordenadas: [24.5600, -110.3970], horario: [], caracteristicas: ['solo-con-tour'], rangoPrecio: '$$$', orden: 7 },
+    { id: 'concha', nombre: 'Playa La Concha', foto: 'img/orilla.webp', resumen: 'Aguas calmas frente a la marina de Costa Baja.', coordenadas: [24.2230, -110.3040], horario: dias('08:00', '18:00'), caracteristicas: ['para-ninos'], rangoPrecio: '$$', orden: 8 },
+  ];
+  PLAYAS.forEach((p) => { p.km = km(ZONA, p.coordenadas); });
+  const ETIQUETAS = { 'para-ninos': 'Para niños', 'con-comida': 'Con comida', 'solo-con-tour': 'Solo con tour' };
+  const POR_PAGINA = 6;
+
+  // Filtros y página vienen de la URL (spec §7: parámetros de consulta y ?pagina=2)
+  const q = new URLSearchParams(location.search);
+  const filtro = { abierto: q.get('abierto') === '1', caracteristica: q.get('caracteristica'), precio: q.get('precio') };
+  const pagina = Math.max(1, parseInt(q.get('pagina') || '1', 10));
+  const activo = [...q.entries()].filter(([k]) => k !== 'pagina').map(([k, v]) => `${k}=${v}`)[0] || '';
+  $$('.herramientas .chip').forEach((c) => { if (c.dataset.f === activo) c.setAttribute('aria-current', 'page'); });
+
+  const abierta = (p) => estado(p.horario)?.abierto === true;
+  // Orden del spec §7: hasta 2 patrocinios vigentes arriba (el «desde» más antiguo primero); luego orden y nombre.
+  function resultados() {
+    const r = PLAYAS.filter((p) => (!filtro.abierto || abierta(p)) && (!filtro.caracteristica || p.caracteristicas.includes(filtro.caracteristica)) && (!filtro.precio || p.rangoPrecio === filtro.precio));
+    const patrocinados = r.filter((p) => p.patrocinio).sort((a, b) => a.patrocinio.desde.localeCompare(b.patrocinio.desde) || a.nombre.localeCompare(b.nombre, 'es')).slice(0, 2);
+    const resto = r.filter((p) => !patrocinados.includes(p)).sort((a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre, 'es'));
+    return [...patrocinados, ...resto];
+  }
+  const tarjeta = (p, i) => `
+    <a class="nota tarjeta presionable g-mar entra" href="c-ficha.html" data-id="${p.id}" style="--retraso:${(i % 2) * 70}ms">
+      <div class="media"><img src="${p.foto}" alt="" loading="lazy"></div>
+      <div class="nota__cuerpo"><span>${p.patrocinio ? '<span class="patrocinado">Patrocinado</span> ' : ''}<span class="etiqueta">Playas</span></span>
+        <p class="titular">${p.nombre}</p><p class="bajada">${p.resumen}</p>
+        <div class="nota__pie"><span class="abierto" data-corto data-horario='${JSON.stringify(p.horario)}'></span>${p.caracteristicas.includes('solo-con-tour') ? '<span class="meta">Solo con tour</span>' : ''}<span class="meta">a ${p.km} km del centro</span></div></div>
+    </a>`;
+
+  const r = resultados();
+  const paginas = Math.max(1, Math.ceil(r.length / POR_PAGINA));
+  const mostrar = r.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
+  $('#lista').innerHTML = mostrar.length ? mostrar.map(tarjeta).join('') : '<p class="lista__vacia">Ninguna playa coincide con este filtro.</p>';
+  const nombreFiltro = filtro.abierto ? ' abiertas ahora' : filtro.caracteristica ? ` · ${ETIQUETAS[filtro.caracteristica].toLowerCase()}` : filtro.precio ? ` · precio ${filtro.precio}` : '';
+  $('#contador-res').textContent = `${r.length} ${r.length === 1 ? 'playa' : 'playas'}${nombreFiltro}${paginas > 1 ? ` · página ${pagina} de ${paginas}` : ''}`;
+  const url = (n) => { const u = new URLSearchParams(q); if (n === 1) u.delete('pagina'); else u.set('pagina', n); const t = u.toString(); return t ? `?${t}` : 'c-categoria.html'; };
+  $('#paginas').innerHTML = paginas < 2 ? '' :
+    (pagina > 1 ? `<a href="${url(pagina - 1)}" aria-label="Página anterior">‹</a>` : '<span class="inactivo" aria-hidden="true">‹</span>') +
+    Array.from({ length: paginas }, (_, i) => i + 1 === pagina ? `<span aria-current="page">${i + 1}</span>` : `<a href="${url(i + 1)}">${i + 1}</a>`).join('') +
+    (pagina < paginas ? `<a href="${url(pagina + 1)}" aria-label="Página siguiente">›</a>` : '<span class="inactivo" aria-hidden="true">›</span>');
+  $('#abiertas').textContent = PLAYAS.filter(abierta).length;
+  const kms = PLAYAS.map((p) => p.km); $('#rango').textContent = `${Math.min(...kms)}–${Math.max(...kms)}`;
+
+  // Mapa: pin y tarjeta se resaltan juntos
+  let mapa = null; const pines = {};
+  if (window.L) {
+    mapa = L.map('mapa', { scrollWheelZoom: false }).setView([24.27, -110.33], 10);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18, attribution: 'Mapa © Esri y sus colaboradores' }).addTo(mapa);
+  } else { $('#mapa').innerHTML = '<p class="lista__vacia" style="margin:16px">El mapa no cargó.</p>'; }
+  function pintarPines() {
+    if (!mapa) return;
+    Object.values(pines).forEach((m) => m.remove());
+    mostrar.forEach((p) => {
+      const icono = L.divIcon({ className: '', html: `<span class="pin" data-pin="${p.id}">${p.nombre.replace(/^Playa (El |La )?/, '')}</span>`, iconSize: [0, 0] });
+      pines[p.id] = L.marker(p.coordenadas, { icon: icono, title: p.nombre, keyboard: true }).addTo(mapa)
+        .on('mouseover', () => resaltar(p.id)).on('mouseout', () => resaltar(null))
+        .on('click', () => { const n = $(`#lista .nota[data-id="${p.id}"]`); if (n) { n.scrollIntoView({ behavior: reducido ? 'auto' : 'smooth', block: 'center' }); resaltar(p.id); } });
+    });
+    mapa.invalidateSize();
+    if (mostrar.length) mapa.fitBounds(L.latLngBounds(mostrar.map((p) => p.coordenadas)).pad(0.25), { animate: !reducido, maxZoom: 13 });
+  }
+  function resaltar(id, centrar) {
+    $$('#lista .nota').forEach((n) => n.classList.toggle('resaltada', n.dataset.id === id));
+    $$('.pin').forEach((p) => p.classList.toggle('activo', p.dataset.pin === id));
+    if (id && centrar && mapa && pines[id]) mapa.panTo(pines[id].getLatLng(), { animate: !reducido });
+  }
+  $$('#lista .nota').forEach((n) => {
+    n.addEventListener('pointerenter', () => resaltar(n.dataset.id));
+    n.addEventListener('pointerleave', () => resaltar(null));
+    n.addEventListener('focus', () => resaltar(n.dataset.id, true));
+  });
+  addEventListener('load', pintarPines);
+
+  // Vista lista / mapa en celular
+  const ind = $('#vista-ind'), botonesVista = $$('#vista button');
+  const moverInd = (b, sin) => { ind.style.transition = sin || reducido ? 'none' : 'transform 320ms cubic-bezier(.2,0,0,1), width 320ms cubic-bezier(.2,0,0,1)'; ind.style.width = b.offsetWidth + 'px'; ind.style.transform = `translateX(${b.offsetLeft - 3}px)`; };
+  botonesVista.forEach((b) => b.addEventListener('click', () => {
+    botonesVista.forEach((x) => x.setAttribute('aria-checked', String(x === b))); moverInd(b);
+    $('#explorar').dataset.vista = b.dataset.vista;
+    if (b.dataset.vista === 'mapa') setTimeout(pintarPines, 50);
+  }));
+  requestAnimationFrame(() => moverInd(botonesVista[0], true));
+
+  // Fotos de la portada de la categoría que se relevan solas
+  const fotos = $$('#rotar img'); let k = 0;
+  if (!reducido) setInterval(() => { fotos[k].classList.remove('activa'); k = (k + 1) % fotos.length; fotos[k].classList.add('activa'); }, 5000);
+})();
+</script>
+</body>
+</html>
