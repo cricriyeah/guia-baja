@@ -10,9 +10,12 @@ import { CAMPOS_IDIOMA, CAMPOS_LOCALIZADOS } from '../dominio/idioma'
 import { rutas } from '../dominio/rutas'
 import { fechasDePublicacion, llenarLugaresCitados } from '../hooks/articulos'
 import { destinoAlRetirarArticulo, hooksDeRedireccion } from '../redirecciones/hooks'
+import { hooksDeRevalidacion } from '../revalidacion/hooks'
 
 export const CAMPOS_IDIOMA_ARTICULO = CAMPOS_IDIOMA.articulos
 export const CAMPOS_LOCALIZADOS_ARTICULO = CAMPOS_LOCALIZADOS.articulos
+
+const revalidacion = hooksDeRevalidacion('articulos')
 
 const redireccion = hooksDeRedireccion({
   coleccion: 'articulos',
@@ -49,9 +52,9 @@ export const Articulos: CollectionConfig = {
   },
   hooks: {
     beforeChange: [copiarNombreAutor, fechasDePublicacion, llenarLugaresCitados, redireccion.beforeChange],
-    afterChange: [redireccion.afterChange],
+    afterChange: [redireccion.afterChange, revalidacion.afterChange],
     beforeDelete: [redireccion.beforeDelete],
-    afterDelete: [redireccion.afterDelete],
+    afterDelete: [redireccion.afterDelete, revalidacion.afterDelete],
   },
   defaultSort: '-publicadoEl',
   fields: [

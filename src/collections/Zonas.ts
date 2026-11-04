@@ -4,6 +4,7 @@ import { soloPersonal, zonasPublicas } from '../acceso/reglas'
 import { campoSlug } from '../campos/slug'
 import { esSlugReservadoZona, esSlugValido } from '../dominio/slugs'
 import { hooksDeZona } from '../redirecciones/hooks'
+import { hooksDeRevalidacion } from '../revalidacion/hooks'
 
 // El admin manda '' cuando se vacía el campo; con índice único, dos zonas con '' chocarían. Varios NULL sí caben.
 export const normalizarSedeSlug: FieldHook = ({ value }) => {
@@ -12,11 +13,13 @@ export const normalizarSedeSlug: FieldHook = ({ value }) => {
   return limpio === '' ? null : limpio
 }
 
+const revalidacion = hooksDeRevalidacion('zonas')
+
 export const Zonas: CollectionConfig = {
   slug: 'zonas',
   admin: { useAsTitle: 'nombre', defaultColumns: ['nombre', 'slug', 'activa', 'orden'] },
   access: { read: zonasPublicas, create: soloPersonal, update: soloPersonal, delete: soloPersonal },
-  hooks: { afterChange: [hooksDeZona().afterChange] },
+  hooks: { afterChange: [hooksDeZona().afterChange, revalidacion.afterChange], afterDelete: [revalidacion.afterDelete] },
   defaultSort: 'orden',
   fields: [
     { name: 'nombre', type: 'text', localized: true, required: true },

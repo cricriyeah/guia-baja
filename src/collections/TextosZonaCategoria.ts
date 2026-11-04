@@ -1,6 +1,9 @@
 import type { CollectionConfig } from 'payload'
 
 import { lecturaPublica, soloPersonal } from '../acceso/reglas'
+import { hooksDeRevalidacion } from '../revalidacion/hooks'
+
+const revalidacion = hooksDeRevalidacion('textos-zona-categoria')
 
 // Introducción de la página «Categoría en zona» (spec §6 y §7). Un registro por par zona × categoría.
 export const TextosZonaCategoria: CollectionConfig = {
@@ -8,6 +11,7 @@ export const TextosZonaCategoria: CollectionConfig = {
   labels: { singular: 'Texto de zona × categoría', plural: 'Textos de zona × categoría' },
   admin: { defaultColumns: ['zona', 'categoria', 'updatedAt'] },
   access: { read: lecturaPublica, create: soloPersonal, update: soloPersonal, delete: soloPersonal },
+  hooks: { afterChange: [revalidacion.afterChange], afterDelete: [revalidacion.afterDelete] },
   indexes: [{ fields: ['zona', 'categoria'], unique: true }],
   fields: [
     { name: 'zona', type: 'relationship', relationTo: 'zonas', required: true },

@@ -4,18 +4,24 @@ import { lecturaPublica, soloPersonal } from '../acceso/reglas'
 import { campoSlug } from '../campos/slug'
 import { GRUPOS } from '../dominio/grupos'
 import { hooksDeCategoria } from '../redirecciones/hooks'
+import { hooksDeRevalidacion } from '../revalidacion/hooks'
 
 export const TIPOS_SCHEMA = [
   'Restaurant', 'CafeOrCoffeeShop', 'BarOrPub', 'Store', 'TouristAttraction', 'Beach', 'LocalBusiness',
 ] as const
 
 const redireccionCategoria = hooksDeCategoria()
+const revalidacion = hooksDeRevalidacion('categorias')
 
 export const Categorias: CollectionConfig = {
   slug: 'categorias',
   admin: { useAsTitle: 'nombre', defaultColumns: ['nombre', 'slug', 'grupo', 'aplicaA', 'orden'] },
   access: { read: lecturaPublica, create: soloPersonal, update: soloPersonal, delete: soloPersonal },
-  hooks: { beforeChange: [redireccionCategoria.beforeChange], afterChange: [redireccionCategoria.afterChange] },
+  hooks: {
+    beforeChange: [redireccionCategoria.beforeChange],
+    afterChange: [redireccionCategoria.afterChange, revalidacion.afterChange],
+    afterDelete: [revalidacion.afterDelete],
+  },
   defaultSort: 'orden',
   fields: [
     { name: 'nombre', type: 'text', localized: true, required: true },

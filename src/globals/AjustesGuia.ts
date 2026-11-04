@@ -1,11 +1,13 @@
 import type { GlobalConfig } from 'payload'
 
 import { campoSoloPersonal, lecturaPublica, soloAdmin } from '../acceso/reglas'
+import { revalidarAjustes } from '../revalidacion/hooks'
 
 export const AjustesGuia: GlobalConfig = {
   slug: 'ajustes-guia',
   label: 'Ajustes de la guía',
   access: { read: lecturaPublica, update: soloAdmin },
+  hooks: { afterChange: [revalidarAjustes] },
   fields: [
     {
       name: 'correosAviso',

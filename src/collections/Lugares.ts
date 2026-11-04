@@ -9,9 +9,12 @@ import { CARACTERISTICAS } from '../dominio/caracteristicas'
 import { CAMPOS_IDIOMA, CAMPOS_LOCALIZADOS } from '../dominio/idioma'
 import { rutas } from '../dominio/rutas'
 import { destinoAlRetirarLugar, hooksDeRedireccion } from '../redirecciones/hooks'
+import { hooksDeRevalidacion } from '../revalidacion/hooks'
 
 export const CAMPOS_IDIOMA_LUGAR = CAMPOS_IDIOMA.lugares
 export const CAMPOS_LOCALIZADOS_LUGAR = CAMPOS_LOCALIZADOS.lugares
+
+const revalidacion = hooksDeRevalidacion('lugares')
 
 const redireccion = hooksDeRedireccion({
   coleccion: 'lugares',
@@ -53,9 +56,9 @@ export const Lugares: CollectionConfig = {
   },
   hooks: {
     beforeChange: [redireccion.beforeChange],
-    afterChange: [redireccion.afterChange],
+    afterChange: [redireccion.afterChange, revalidacion.afterChange],
     beforeDelete: [redireccion.beforeDelete],
-    afterDelete: [redireccion.afterDelete],
+    afterDelete: [redireccion.afterDelete, revalidacion.afterDelete],
   },
   defaultSort: 'orden',
   fields: [

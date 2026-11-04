@@ -2,6 +2,9 @@ import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { APIError, type CollectionBeforeValidateHook } from 'payload'
 
 import { lecturaPublica, soloAdmin } from '../acceso/reglas'
+import { hooksDeRevalidacion } from '../revalidacion/hooks'
+
+const revalidacion = hooksDeRevalidacion('redirects')
 
 // El destino de una redirección «reference» depende del idioma y del slug del momento; el mapa cacheado del
 // sitio no lo seguiría (plan F3a). Solo rutas: es lo que escriben los hooks y lo que un Admin debe usar.
@@ -19,7 +22,7 @@ export const pluginRedirecciones = redirectsPlugin({
   redirectTypes: ['308'],
   overrides: {
     admin: { group: 'Configuración' },
-    hooks: { beforeValidate: [soloRutas] },
+    hooks: { beforeValidate: [soloRutas], afterChange: [revalidacion.afterChange], afterDelete: [revalidacion.afterDelete] },
     access: { read: lecturaPublica, create: soloAdmin, update: soloAdmin, delete: soloAdmin },
   },
 })

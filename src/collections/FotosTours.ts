@@ -2,6 +2,9 @@ import type { CollectionConfig, TextField } from 'payload'
 
 import { lecturaPublica, soloPersonal } from '../acceso/reglas'
 import { esSlugValido } from '../dominio/slugs'
+import { hooksDeRevalidacion } from '../revalidacion/hooks'
+
+const revalidacion = hooksDeRevalidacion('fotos-tours')
 
 const slugDelCatalogo = (name: string, description: string): TextField => ({
   name,
@@ -17,6 +20,7 @@ export const FotosTours: CollectionConfig = {
   labels: { singular: 'Foto de tour', plural: 'Fotos de tours' },
   admin: { useAsTitle: 'slug', defaultColumns: ['slug', 'sedeSlug', 'tipo', 'updatedAt'] },
   access: { read: lecturaPublica, create: soloPersonal, update: soloPersonal, delete: soloPersonal },
+  hooks: { afterChange: [revalidacion.afterChange], afterDelete: [revalidacion.afterDelete] },
   indexes: [{ fields: ['sedeSlug', 'tipo', 'slug'], unique: true }],
   fields: [
     slugDelCatalogo('sedeSlug', 'Sede del sitio de reservas (la-paz, la-ventana, puerto-chale).'),

@@ -1,6 +1,7 @@
 import { APIError, type CollectionBeforeValidateHook, type CollectionConfig } from 'payload'
 
 import { lecturaPublica, soloPersonal } from '../acceso/reglas'
+import { hooksDeRevalidacion } from '../revalidacion/hooks'
 
 export const TAMANO_MAXIMO_SUBIDA = 20 * 1024 * 1024
 
@@ -13,6 +14,8 @@ export const limitarTamano: CollectionBeforeValidateHook = ({ data, req }) => {
   return data
 }
 
+const revalidacion = hooksDeRevalidacion('media')
+
 const webp = { format: 'webp' as const, options: { quality: 80 } }
 
 export const Media: CollectionConfig = {
@@ -23,7 +26,7 @@ export const Media: CollectionConfig = {
     update: soloPersonal,
     delete: soloPersonal,
   },
-  hooks: { beforeValidate: [limitarTamano] },
+  hooks: { beforeValidate: [limitarTamano], afterChange: [revalidacion.afterChange], afterDelete: [revalidacion.afterDelete] },
   upload: {
     mimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
     adminThumbnail: 's480',
