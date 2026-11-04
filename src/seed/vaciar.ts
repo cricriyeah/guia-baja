@@ -5,6 +5,7 @@ const ORDEN = [
   'redirects',
   'solicitudes',
   'textos-zona-categoria',
+  'fotos-tours',
   'articulos',
   'eventos',
   'lugares',

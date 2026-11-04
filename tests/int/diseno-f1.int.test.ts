@@ -258,4 +258,28 @@ describe('Backoffice del diseño de F1', () => {
       ).rejects.toThrow()
     })
   })
+
+  describe('Fotos de tours', () => {
+    it('guarda foto y temporada por tour; un tour no se repite', async () => {
+      const foto = await crearImagen(payload)
+      const datos = { sedeSlug: 'la-paz', tipo: 'servicio' as const, slug: 'ballenas-bahia-magdalena', foto: foto.id, temporada: 'enero a marzo' }
+      await payload.create({ collection: 'fotos-tours', locale: 'es', data: datos, overrideAccess: true })
+      const publico = await payload.find({
+        collection: 'fotos-tours', locale: 'es', overrideAccess: false,
+        where: { sedeSlug: { equals: 'la-paz' } },
+      })
+      expect(publico.docs[0]?.temporada).toBe('enero a marzo')
+      await expect(payload.create({ collection: 'fotos-tours', locale: 'es', data: datos, overrideAccess: true })).rejects.toThrow()
+    })
+
+    it('rechaza slugs inválidos y al público', async () => {
+      const foto = await crearImagen(payload)
+      await expect(
+        payload.create({ collection: 'fotos-tours', data: { sedeSlug: 'La Paz', tipo: 'servicio', slug: 'x', foto: foto.id }, overrideAccess: true }),
+      ).rejects.toThrow()
+      await expect(
+        payload.create({ collection: 'fotos-tours', data: { sedeSlug: 'la-paz', tipo: 'paquete', slug: 'x', foto: foto.id }, overrideAccess: false }),
+      ).rejects.toThrow()
+    })
+  })
 })

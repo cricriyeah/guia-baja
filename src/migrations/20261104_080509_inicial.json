@@ -5677,6 +5677,240 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.fotos_tours": {
+      "name": "fotos_tours",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "sede_slug": {
+          "name": "sede_slug",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "enum_fotos_tours_tipo",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "foto_id": {
+          "name": "foto_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp(3) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp(3) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "fotos_tours_foto_idx": {
+          "name": "fotos_tours_foto_idx",
+          "columns": [
+            {
+              "expression": "foto_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "fotos_tours_updated_at_idx": {
+          "name": "fotos_tours_updated_at_idx",
+          "columns": [
+            {
+              "expression": "updated_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "fotos_tours_created_at_idx": {
+          "name": "fotos_tours_created_at_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "sedeSlug_tipo_slug_idx": {
+          "name": "sedeSlug_tipo_slug_idx",
+          "columns": [
+            {
+              "expression": "sede_slug",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "tipo",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "slug",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "fotos_tours_foto_id_media_id_fk": {
+          "name": "fotos_tours_foto_id_media_id_fk",
+          "tableFrom": "fotos_tours",
+          "tableTo": "media",
+          "columnsFrom": [
+            "foto_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.fotos_tours_locales": {
+      "name": "fotos_tours_locales",
+      "schema": "",
+      "columns": {
+        "temporada": {
+          "name": "temporada",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "_locale": {
+          "name": "_locale",
+          "type": "_locales",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "fotos_tours_locales_locale_parent_id_unique": {
+          "name": "fotos_tours_locales_locale_parent_id_unique",
+          "columns": [
+            {
+              "expression": "_locale",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "_parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "fotos_tours_locales_parent_id_idx": {
+          "name": "fotos_tours_locales_parent_id_idx",
+          "columns": [
+            {
+              "expression": "_parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "fotos_tours_locales_parent_id_fk": {
+          "name": "fotos_tours_locales_parent_id_fk",
+          "tableFrom": "fotos_tours_locales",
+          "tableTo": "fotos_tours",
+          "columnsFrom": [
+            "_parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.redirects": {
       "name": "redirects",
       "schema": "",
@@ -6196,6 +6430,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "fotos_tours_id": {
+          "name": "fotos_tours_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "redirects_id": {
           "name": "redirects_id",
           "type": "integer",
@@ -6384,6 +6624,21 @@
           "method": "btree",
           "with": {}
         },
+        "payload_locked_documents_rels_fotos_tours_id_idx": {
+          "name": "payload_locked_documents_rels_fotos_tours_id_idx",
+          "columns": [
+            {
+              "expression": "fotos_tours_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
         "payload_locked_documents_rels_redirects_id_idx": {
           "name": "payload_locked_documents_rels_redirects_id_idx",
           "columns": [
@@ -6524,6 +6779,19 @@
           "tableTo": "textos_zona_categoria",
           "columnsFrom": [
             "textos_zona_categoria_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "payload_locked_documents_rels_fotos_tours_fk": {
+          "name": "payload_locked_documents_rels_fotos_tours_fk",
+          "tableFrom": "payload_locked_documents_rels",
+          "tableTo": "fotos_tours",
+          "columnsFrom": [
+            "fotos_tours_id"
           ],
           "columnsTo": [
             "id"
@@ -7300,6 +7568,14 @@
         "rechazada"
       ]
     },
+    "public.enum_fotos_tours_tipo": {
+      "name": "enum_fotos_tours_tipo",
+      "schema": "public",
+      "values": [
+        "servicio",
+        "paquete"
+      ]
+    },
     "public.enum_redirects_to_type": {
       "name": "enum_redirects_to_type",
       "schema": "public",
@@ -7326,6 +7602,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "1a4e2e4e-de38-4c60-b408-acae8ceacbdf",
+  "id": "f4707850-c911-4f6f-9d98-654ce2e8cd8f",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

@@ -27,6 +27,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TYPE "public"."enum__articulos_v_version_status" AS ENUM('draft', 'published');
   CREATE TYPE "public"."enum__articulos_v_published_locale" AS ENUM('es', 'en');
   CREATE TYPE "public"."enum_solicitudes_estado" AS ENUM('nueva', 'en-contacto', 'aceptada', 'rechazada');
+  CREATE TYPE "public"."enum_fotos_tours_tipo" AS ENUM('servicio', 'paquete');
   CREATE TYPE "public"."enum_redirects_to_type" AS ENUM('reference', 'custom');
   CREATE TYPE "public"."enum_redirects_type" AS ENUM('308');
   CREATE TABLE "users_sessions" (
@@ -477,6 +478,23 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_parent_id" integer NOT NULL
   );
   
+  CREATE TABLE "fotos_tours" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"sede_slug" varchar NOT NULL,
+  	"tipo" "enum_fotos_tours_tipo" NOT NULL,
+  	"slug" varchar NOT NULL,
+  	"foto_id" integer NOT NULL,
+  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+  );
+  
+  CREATE TABLE "fotos_tours_locales" (
+  	"temporada" varchar,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"_parent_id" integer NOT NULL
+  );
+  
   CREATE TABLE "redirects" (
   	"id" serial PRIMARY KEY NOT NULL,
   	"from" varchar NOT NULL,
@@ -524,6 +542,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"articulos_id" integer,
   	"solicitudes_id" integer,
   	"textos_zona_categoria_id" integer,
+  	"fotos_tours_id" integer,
   	"redirects_id" integer
   );
   
@@ -627,6 +646,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "textos_zona_categoria" ADD CONSTRAINT "textos_zona_categoria_zona_id_zonas_id_fk" FOREIGN KEY ("zona_id") REFERENCES "public"."zonas"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "textos_zona_categoria" ADD CONSTRAINT "textos_zona_categoria_categoria_id_categorias_id_fk" FOREIGN KEY ("categoria_id") REFERENCES "public"."categorias"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "textos_zona_categoria_locales" ADD CONSTRAINT "textos_zona_categoria_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."textos_zona_categoria"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "fotos_tours" ADD CONSTRAINT "fotos_tours_foto_id_media_id_fk" FOREIGN KEY ("foto_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "fotos_tours_locales" ADD CONSTRAINT "fotos_tours_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."fotos_tours"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "redirects_rels" ADD CONSTRAINT "redirects_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."redirects"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "redirects_rels" ADD CONSTRAINT "redirects_rels_lugares_fk" FOREIGN KEY ("lugares_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "redirects_rels" ADD CONSTRAINT "redirects_rels_eventos_fk" FOREIGN KEY ("eventos_id") REFERENCES "public"."eventos"("id") ON DELETE cascade ON UPDATE no action;
@@ -641,6 +662,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_articulos_fk" FOREIGN KEY ("articulos_id") REFERENCES "public"."articulos"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_solicitudes_fk" FOREIGN KEY ("solicitudes_id") REFERENCES "public"."solicitudes"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_textos_zona_categoria_fk" FOREIGN KEY ("textos_zona_categoria_id") REFERENCES "public"."textos_zona_categoria"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_fotos_tours_fk" FOREIGN KEY ("fotos_tours_id") REFERENCES "public"."fotos_tours"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_redirects_fk" FOREIGN KEY ("redirects_id") REFERENCES "public"."redirects"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_preferences_rels" ADD CONSTRAINT "payload_preferences_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."payload_preferences"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_preferences_rels" ADD CONSTRAINT "payload_preferences_rels_users_fk" FOREIGN KEY ("users_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
@@ -793,6 +815,12 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE UNIQUE INDEX "zona_categoria_idx" ON "textos_zona_categoria" USING btree ("zona_id","categoria_id");
   CREATE UNIQUE INDEX "textos_zona_categoria_locales_locale_parent_id_unique" ON "textos_zona_categoria_locales" USING btree ("_locale","_parent_id");
   CREATE INDEX "textos_zona_categoria_locales_parent_id_idx" ON "textos_zona_categoria_locales" USING btree ("_parent_id");
+  CREATE INDEX "fotos_tours_foto_idx" ON "fotos_tours" USING btree ("foto_id");
+  CREATE INDEX "fotos_tours_updated_at_idx" ON "fotos_tours" USING btree ("updated_at");
+  CREATE INDEX "fotos_tours_created_at_idx" ON "fotos_tours" USING btree ("created_at");
+  CREATE UNIQUE INDEX "sedeSlug_tipo_slug_idx" ON "fotos_tours" USING btree ("sede_slug","tipo","slug");
+  CREATE UNIQUE INDEX "fotos_tours_locales_locale_parent_id_unique" ON "fotos_tours_locales" USING btree ("_locale","_parent_id");
+  CREATE INDEX "fotos_tours_locales_parent_id_idx" ON "fotos_tours_locales" USING btree ("_parent_id");
   CREATE UNIQUE INDEX "redirects_from_idx" ON "redirects" USING btree ("from");
   CREATE INDEX "redirects_updated_at_idx" ON "redirects" USING btree ("updated_at");
   CREATE INDEX "redirects_created_at_idx" ON "redirects" USING btree ("created_at");
@@ -818,6 +846,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "payload_locked_documents_rels_articulos_id_idx" ON "payload_locked_documents_rels" USING btree ("articulos_id");
   CREATE INDEX "payload_locked_documents_rels_solicitudes_id_idx" ON "payload_locked_documents_rels" USING btree ("solicitudes_id");
   CREATE INDEX "payload_locked_documents_rels_textos_zona_categoria_id_idx" ON "payload_locked_documents_rels" USING btree ("textos_zona_categoria_id");
+  CREATE INDEX "payload_locked_documents_rels_fotos_tours_id_idx" ON "payload_locked_documents_rels" USING btree ("fotos_tours_id");
   CREATE INDEX "payload_locked_documents_rels_redirects_id_idx" ON "payload_locked_documents_rels" USING btree ("redirects_id");
   CREATE INDEX "payload_preferences_key_idx" ON "payload_preferences" USING btree ("key");
   CREATE INDEX "payload_preferences_updated_at_idx" ON "payload_preferences" USING btree ("updated_at");
@@ -868,6 +897,8 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "solicitudes" CASCADE;
   DROP TABLE "textos_zona_categoria" CASCADE;
   DROP TABLE "textos_zona_categoria_locales" CASCADE;
+  DROP TABLE "fotos_tours" CASCADE;
+  DROP TABLE "fotos_tours_locales" CASCADE;
   DROP TABLE "redirects" CASCADE;
   DROP TABLE "redirects_rels" CASCADE;
   DROP TABLE "payload_kv" CASCADE;
@@ -904,6 +935,7 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TYPE "public"."enum__articulos_v_version_status";
   DROP TYPE "public"."enum__articulos_v_published_locale";
   DROP TYPE "public"."enum_solicitudes_estado";
+  DROP TYPE "public"."enum_fotos_tours_tipo";
   DROP TYPE "public"."enum_redirects_to_type";
   DROP TYPE "public"."enum_redirects_type";`)
 }

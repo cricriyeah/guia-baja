@@ -29,6 +29,7 @@ export interface Config {
     articulos: Articulo;
     solicitudes: Solicitude;
     'textos-zona-categoria': TextosZonaCategoria;
+    'fotos-tours': FotosTour;
     redirects: Redirect;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -46,6 +47,7 @@ export interface Config {
     articulos: ArticulosSelect<false> | ArticulosSelect<true>;
     solicitudes: SolicitudesSelect<false> | SolicitudesSelect<true>;
     'textos-zona-categoria': TextosZonaCategoriaSelect<false> | TextosZonaCategoriaSelect<true>;
+    'fotos-tours': FotosToursSelect<false> | FotosToursSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -472,6 +474,29 @@ export interface TextosZonaCategoria {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "fotos-tours".
+ */
+export interface FotosTour {
+  id: number;
+  /**
+   * Sede del sitio de reservas (la-paz, la-ventana, puerto-chale).
+   */
+  sedeSlug: string;
+  tipo: 'servicio' | 'paquete';
+  /**
+   * Slug del servicio o paquete en el catálogo.
+   */
+  slug: string;
+  foto: number | Media;
+  /**
+   * Opcional, p. ej. «enero a marzo».
+   */
+  temporada?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -557,6 +582,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'textos-zona-categoria';
         value: number | TextosZonaCategoria;
+      } | null)
+    | ({
+        relationTo: 'fotos-tours';
+        value: number | FotosTour;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -884,6 +913,19 @@ export interface TextosZonaCategoriaSelect<T extends boolean = true> {
   zona?: T;
   categoria?: T;
   introduccion?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "fotos-tours_select".
+ */
+export interface FotosToursSelect<T extends boolean = true> {
+  sedeSlug?: T;
+  tipo?: T;
+  slug?: T;
+  foto?: T;
+  temporada?: T;
   updatedAt?: T;
   createdAt?: T;
 }
