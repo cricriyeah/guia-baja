@@ -157,4 +157,42 @@ describe('Backoffice del diseño de F1', () => {
       expect(new Date(cambio.actualizadoEl as string).getTime()).toBeGreaterThan(new Date(pub.actualizadoEl as string).getTime())
     })
   })
+
+  describe('Artículos: lugares citados', () => {
+    const conTarjeta = (lugar: number) => ({
+      root: {
+        type: 'root', format: '' as const, indent: 0, version: 1, direction: 'ltr' as const,
+        children: [{ type: 'block', version: 2, format: '', fields: { id: `b${lugar}`, blockName: '', blockType: 'tarjetaLugar', lugar } }],
+      },
+    })
+
+    it('junta los lugares de los dos idiomas y suelta los que se quitan', async () => {
+      const zona = await crearZona(payload)
+      const cat = await crearCategoria(payload)
+      const foto = await crearImagen(payload)
+      const a = await crearLugar(payload, { zona: zona.id, categorias: [cat.id], foto: foto.id, slugEs: 'lugar-es' })
+      const b = await crearLugar(payload, { zona: zona.id, categorias: [cat.id], foto: foto.id, slugEs: 'lugar-en' })
+      const editor = await crearUsuario(payload, 'editor')
+      const art = await payload.create({
+        collection: 'articulos', locale: 'es',
+        data: { titulo: 'Con tarjetas', portada: foto.id, autor: editor.id, resumen: 'r', cuerpo: conTarjeta(a.id) as never, _status: 'published' },
+        overrideAccess: true,
+      })
+      expect(art.lugaresCitados?.map((l) => (typeof l === 'number' ? l : l.id))).toEqual([a.id])
+
+      const en = await payload.update({
+        collection: 'articulos', id: art.id, locale: 'en',
+        data: { titulo: 'With cards', resumen: 'r', cuerpo: conTarjeta(b.id) as never, _status: 'published' },
+        overrideAccess: true,
+      })
+      expect(new Set(en.lugaresCitados?.map((l) => (typeof l === 'number' ? l : l.id)))).toEqual(new Set([a.id, b.id]))
+
+      const sinA = await payload.update({
+        collection: 'articulos', id: art.id, locale: 'es',
+        data: { cuerpo: lexical('ya sin tarjeta'), _status: 'published' },
+        overrideAccess: true,
+      })
+      expect(sinA.lugaresCitados?.map((l) => (typeof l === 'number' ? l : l.id))).toEqual([b.id])
+    })
+  })
 })

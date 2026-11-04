@@ -416,6 +416,7 @@ export interface Articulo {
     };
     [k: string]: unknown;
   } | null;
+  lugaresCitados?: (number | Lugare)[] | null;
   /**
    * Sale en los destacados de la portada de la Guía.
    */
@@ -819,6 +820,7 @@ export interface ArticulosSelect<T extends boolean = true> {
   publicadoEl?: T;
   actualizadoEl?: T;
   cuerpo?: T;
+  lugaresCitados?: T;
   destacadoEnPortada?: T;
   ordenDestacado?: T;
   seo?:

@@ -7,7 +7,7 @@ import { camposDestacado } from '../campos/destacado'
 import { camposSeo } from '../campos/seo'
 import { campoSlug } from '../campos/slug'
 import { rutas } from '../dominio/rutas'
-import { fechasDePublicacion } from '../hooks/articulos'
+import { fechasDePublicacion, llenarLugaresCitados } from '../hooks/articulos'
 import { destinoAlRetirarArticulo, hooksDeRedireccion } from '../redirecciones/hooks'
 
 export const CAMPOS_IDIOMA_ARTICULO = ['titulo', 'slug', 'resumen', 'cuerpo'] as const
@@ -47,7 +47,7 @@ export const Articulos: CollectionConfig = {
     delete: soloPersonal,
   },
   hooks: {
-    beforeChange: [copiarNombreAutor, fechasDePublicacion, redireccion.beforeChange],
+    beforeChange: [copiarNombreAutor, fechasDePublicacion, llenarLugaresCitados, redireccion.beforeChange],
     afterChange: [redireccion.afterChange],
     beforeDelete: [redireccion.beforeDelete],
     afterDelete: [redireccion.afterDelete],
@@ -83,6 +83,13 @@ export const Articulos: CollectionConfig = {
       editor: lexicalEditor({
         features: ({ defaultFeatures }) => [...defaultFeatures, BlocksFeature({ blocks: bloquesArticulo })],
       }),
+    },
+    {
+      name: 'lugaresCitados',
+      type: 'relationship',
+      relationTo: 'lugares',
+      hasMany: true,
+      admin: { hidden: true },
     },
     ...camposDestacado(),
     camposSeo(),

@@ -393,7 +393,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"parent_id" integer NOT NULL,
   	"path" varchar NOT NULL,
   	"zonas_id" integer,
-  	"categorias_id" integer
+  	"categorias_id" integer,
+  	"lugares_id" integer
   );
   
   CREATE TABLE "_articulos_v" (
@@ -435,7 +436,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"parent_id" integer NOT NULL,
   	"path" varchar NOT NULL,
   	"zonas_id" integer,
-  	"categorias_id" integer
+  	"categorias_id" integer,
+  	"lugares_id" integer
   );
   
   CREATE TABLE "solicitudes" (
@@ -595,6 +597,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "articulos_rels" ADD CONSTRAINT "articulos_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."articulos"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "articulos_rels" ADD CONSTRAINT "articulos_rels_zonas_fk" FOREIGN KEY ("zonas_id") REFERENCES "public"."zonas"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "articulos_rels" ADD CONSTRAINT "articulos_rels_categorias_fk" FOREIGN KEY ("categorias_id") REFERENCES "public"."categorias"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "articulos_rels" ADD CONSTRAINT "articulos_rels_lugares_fk" FOREIGN KEY ("lugares_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "_articulos_v" ADD CONSTRAINT "_articulos_v_parent_id_articulos_id_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."articulos"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "_articulos_v" ADD CONSTRAINT "_articulos_v_version_portada_id_media_id_fk" FOREIGN KEY ("version_portada_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "_articulos_v" ADD CONSTRAINT "_articulos_v_version_autor_id_users_id_fk" FOREIGN KEY ("version_autor_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;
@@ -602,6 +605,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "_articulos_v_rels" ADD CONSTRAINT "_articulos_v_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."_articulos_v"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "_articulos_v_rels" ADD CONSTRAINT "_articulos_v_rels_zonas_fk" FOREIGN KEY ("zonas_id") REFERENCES "public"."zonas"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "_articulos_v_rels" ADD CONSTRAINT "_articulos_v_rels_categorias_fk" FOREIGN KEY ("categorias_id") REFERENCES "public"."categorias"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_articulos_v_rels" ADD CONSTRAINT "_articulos_v_rels_lugares_fk" FOREIGN KEY ("lugares_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "solicitudes" ADD CONSTRAINT "solicitudes_zona_id_zonas_id_fk" FOREIGN KEY ("zona_id") REFERENCES "public"."zonas"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "solicitudes" ADD CONSTRAINT "solicitudes_lugar_creado_id_lugares_id_fk" FOREIGN KEY ("lugar_creado_id") REFERENCES "public"."lugares"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "redirects_rels" ADD CONSTRAINT "redirects_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."redirects"("id") ON DELETE cascade ON UPDATE no action;
@@ -736,6 +740,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "articulos_rels_path_idx" ON "articulos_rels" USING btree ("path");
   CREATE INDEX "articulos_rels_zonas_id_idx" ON "articulos_rels" USING btree ("zonas_id");
   CREATE INDEX "articulos_rels_categorias_id_idx" ON "articulos_rels" USING btree ("categorias_id");
+  CREATE INDEX "articulos_rels_lugares_id_idx" ON "articulos_rels" USING btree ("lugares_id");
   CREATE INDEX "_articulos_v_parent_idx" ON "_articulos_v" USING btree ("parent_id");
   CREATE INDEX "_articulos_v_version_version_portada_idx" ON "_articulos_v" USING btree ("version_portada_id");
   CREATE INDEX "_articulos_v_version_version_autor_idx" ON "_articulos_v" USING btree ("version_autor_id");
@@ -756,6 +761,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "_articulos_v_rels_path_idx" ON "_articulos_v_rels" USING btree ("path");
   CREATE INDEX "_articulos_v_rels_zonas_id_idx" ON "_articulos_v_rels" USING btree ("zonas_id");
   CREATE INDEX "_articulos_v_rels_categorias_id_idx" ON "_articulos_v_rels" USING btree ("categorias_id");
+  CREATE INDEX "_articulos_v_rels_lugares_id_idx" ON "_articulos_v_rels" USING btree ("lugares_id");
   CREATE INDEX "solicitudes_zona_idx" ON "solicitudes" USING btree ("zona_id");
   CREATE INDEX "solicitudes_lugar_creado_idx" ON "solicitudes" USING btree ("lugar_creado_id");
   CREATE INDEX "solicitudes_updated_at_idx" ON "solicitudes" USING btree ("updated_at");

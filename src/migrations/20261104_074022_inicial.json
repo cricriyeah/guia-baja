@@ -4365,6 +4365,12 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false
+        },
+        "lugares_id": {
+          "name": "lugares_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -4442,6 +4448,21 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "articulos_rels_lugares_id_idx": {
+          "name": "articulos_rels_lugares_id_idx",
+          "columns": [
+            {
+              "expression": "lugares_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -4477,6 +4498,19 @@
           "tableTo": "categorias",
           "columnsFrom": [
             "categorias_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "articulos_rels_lugares_fk": {
+          "name": "articulos_rels_lugares_fk",
+          "tableFrom": "articulos_rels",
+          "tableTo": "lugares",
+          "columnsFrom": [
+            "lugares_id"
           ],
           "columnsTo": [
             "id"
@@ -5020,6 +5054,12 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false
+        },
+        "lugares_id": {
+          "name": "lugares_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -5097,6 +5137,21 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "_articulos_v_rels_lugares_id_idx": {
+          "name": "_articulos_v_rels_lugares_id_idx",
+          "columns": [
+            {
+              "expression": "lugares_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -5132,6 +5187,19 @@
           "tableTo": "categorias",
           "columnsFrom": [
             "categorias_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "_articulos_v_rels_lugares_fk": {
+          "name": "_articulos_v_rels_lugares_fk",
+          "tableFrom": "_articulos_v_rels",
+          "tableTo": "lugares",
+          "columnsFrom": [
+            "lugares_id"
           ],
           "columnsTo": [
             "id"
@@ -6981,6 +7049,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "db493451-9eb7-4150-8622-c49ca6ecbe0b",
+  "id": "31ca5f2d-8e91-4f4b-b777-09a92c1e0e8d",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
