@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { SEGMENTOS } from '../../src/dominio/rutas'
 import { esSlugReservadoZona, esSlugValido, slugify, SLUGS_RESERVADOS_ZONA } from '../../src/dominio/slugs'
 
 describe('slugify', () => {
@@ -26,12 +27,23 @@ describe('slugs reservados de zona', () => {
     expect([...SLUGS_RESERVADOS_ZONA].sort()).toEqual(
       [
         'aparece-en-la-guia', 'articles', 'articulos', 'categoria', 'category', 'eventos', 'events',
-        'get-listed', 'lugares', 'places', 'privacidad', 'privacy',
+        'buscar', 'get-listed', 'lugares', 'places', 'privacidad', 'privacy', 'search',
       ].sort(),
     )
   })
   it('detecta reservados', () => {
     expect(esSlugReservadoZona('eventos')).toBe(true)
     expect(esSlugReservadoZona('la-paz')).toBe(false)
+  })
+})
+
+describe('segmentos de la guía y slugs reservados de zona', () => {
+  it('ningún segmento de la guía puede ser el slug de una zona', () => {
+    for (const idioma of ['es', 'en'] as const) {
+      for (const [clave, segmento] of Object.entries(SEGMENTOS[idioma])) {
+        if (clave === 'guia') continue
+        expect(SLUGS_RESERVADOS_ZONA, `${idioma}.${clave}`).toContain(segmento)
+      }
+    }
   })
 })

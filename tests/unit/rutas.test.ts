@@ -19,6 +19,8 @@ describe('rutas públicas (spec §7)', () => {
     [rutas.negocios('en'), '/en/guide/get-listed'],
     [rutas.privacidad('es'), '/es/guia/privacidad'],
     [rutas.privacidad('en'), '/en/guide/privacy'],
+    [rutas.buscar('es'), '/es/guia/buscar'],
+    [rutas.buscar('en'), '/en/guide/search'],
   ])('%s', (obtenida, esperada) => {
     expect(obtenida).toBe(esperada)
   })

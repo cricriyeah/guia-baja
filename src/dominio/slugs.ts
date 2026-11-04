@@ -1,6 +1,6 @@
 export const SLUGS_RESERVADOS_ZONA = [
   'lugares', 'places', 'eventos', 'events', 'articulos', 'articles', 'categoria', 'category',
-  'aparece-en-la-guia', 'get-listed', 'privacidad', 'privacy',
+  'aparece-en-la-guia', 'get-listed', 'privacidad', 'privacy', 'buscar', 'search',
 ] as const
 
 const FORMATO = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
