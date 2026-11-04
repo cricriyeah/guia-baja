@@ -194,5 +194,32 @@ describe('Backoffice del diseño de F1', () => {
       })
       expect(sinA.lugaresCitados?.map((l) => (typeof l === 'number' ? l : l.id))).toEqual([b.id])
     })
+
+    it('un lugar borrado que sigue citado en otro idioma no impide guardar ni queda en lugaresCitados', async () => {
+      const zona = await crearZona(payload)
+      const cat = await crearCategoria(payload)
+      const foto = await crearImagen(payload)
+      const a = await crearLugar(payload, { zona: zona.id, categorias: [cat.id], foto: foto.id, slugEs: 'lugar-vivo' })
+      const b = await crearLugar(payload, { zona: zona.id, categorias: [cat.id], foto: foto.id, slugEs: 'lugar-borrado' })
+      const editor = await crearUsuario(payload, 'editor')
+      const art = await payload.create({
+        collection: 'articulos', locale: 'es',
+        data: { titulo: 'Con borrado', portada: foto.id, autor: editor.id, resumen: 'r', cuerpo: conTarjeta(a.id) as never, _status: 'published' },
+        overrideAccess: true,
+      })
+      await payload.update({
+        collection: 'articulos', id: art.id, locale: 'en',
+        data: { titulo: 'With deletion', resumen: 'r', cuerpo: conTarjeta(b.id) as never, _status: 'published' },
+        overrideAccess: true,
+      })
+      await payload.delete({ collection: 'lugares', id: b.id, overrideAccess: true })
+
+      const guardado = await payload.update({
+        collection: 'articulos', id: art.id, locale: 'es',
+        data: { resumen: 'cambio', _status: 'published' },
+        overrideAccess: true,
+      })
+      expect(guardado.lugaresCitados?.map((l) => (typeof l === 'number' ? l : l.id))).toEqual([a.id])
+    })
   })
 })

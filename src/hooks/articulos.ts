@@ -35,5 +35,15 @@ export const llenarLugaresCitados: CollectionBeforeChangeHook = async ({ data, o
     })
     for (const locale of otros) lugaresEnCuerpo(doc?.cuerpo?.[locale]).forEach((id) => ids.add(id))
   }
-  return { ...data, lugaresCitados: [...ids] }
+  // Un bloque Lexical no limpia su referencia si el lugar se borra; solo se guardan los que siguen existiendo
+  // (si no, la FK de articulos_rels impediría guardar el artículo). Conserva el orden de aparición.
+  if (ids.size === 0) return { ...data, lugaresCitados: [] }
+  const existentes = await req.payload.db.find({
+    collection: 'lugares',
+    where: { id: { in: [...ids] } },
+    pagination: false,
+    req,
+  })
+  const vivos = new Set(existentes.docs.map((lugar) => lugar.id as number))
+  return { ...data, lugaresCitados: [...ids].filter((id) => vivos.has(id)) }
 }
