@@ -343,7 +343,7 @@ borradores, versiones y publicación programada.
 - Conservación y borrado: sección 12.
 
 ### Redirecciones
-- Plugin oficial de redirecciones de Payload: `desde` (ruta), `hacia` (ruta o documento), tipo `308`.
+- Plugin oficial de redirecciones de Payload: `desde` (ruta), `hacia` (ruta; las redirecciones a un documento se rechazan porque su destino dependería del idioma y del slug del momento, y la caché del sitio no lo seguiría), tipo `308`.
 - Se crean solas (hooks), y un Admin puede crearlas a mano:
   - **Cambio de slug** de un documento publicado: ruta vieja → ruta nueva, por idioma. Si había una
     redirección hacia la ruta vieja, se actualiza para que apunte a la nueva (sin cadenas).
