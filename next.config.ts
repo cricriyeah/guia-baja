@@ -12,10 +12,16 @@ const nextConfig: NextConfig = {
   assetPrefix: '/guia-assets',
   // /_next/image no lleva assetPrefix; las imágenes se sirven directo desde R2 (spec §4.2).
   images: { unoptimized: true },
-  // Temporal hasta F3: nada de esta app se indexa todavía.
+  // La guía decide su X-Robots-Tag en src/proxy.ts (spec §4.1); el admin y la API nunca se indexan.
   async headers() {
-    return [{ source: '/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex' }] }]
+    const noindex = [{ key: 'X-Robots-Tag', value: 'noindex' }]
+    return [
+      { source: '/admin/:path*', headers: noindex },
+      { source: '/api/:path*', headers: noindex },
+    ]
   },
+  // El formulario llega por salysoltours.com (rewrite): su Server Action debe aceptar ese origen (spec §4).
+  experimental: { serverActions: { allowedOrigins: ['salysoltours.com', 'www.salysoltours.com'] } },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {
       '.cjs': ['.cts', '.cjs'],
