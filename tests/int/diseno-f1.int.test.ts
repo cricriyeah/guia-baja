@@ -128,4 +128,33 @@ describe('Backoffice del diseño de F1', () => {
       ).rejects.toThrow()
     })
   })
+
+  describe('Artículos: fechas de publicación', () => {
+    async function borrador() {
+      const editor = await crearUsuario(payload, 'editor')
+      const portada = await crearImagen(payload)
+      return payload.create({
+        collection: 'articulos', locale: 'es',
+        data: { titulo: `Fechas ${Date.now()}`, portada: portada.id, autor: editor.id, resumen: 'r', cuerpo: lexical('c'), _status: 'draft' },
+        overrideAccess: true,
+      })
+    }
+
+    it('un borrador no tiene fechas de publicación', async () => {
+      const a = await borrador()
+      expect(a.publicadoEl ?? null).toBeNull()
+      expect(a.actualizadoEl ?? null).toBeNull()
+    })
+
+    it('publicar fija las dos fechas; publicar un cambio solo mueve actualizadoEl', async () => {
+      const a = await borrador()
+      const pub = await payload.update({ collection: 'articulos', id: a.id, locale: 'es', data: { _status: 'published' }, overrideAccess: true })
+      expect(pub.publicadoEl).toBeTruthy()
+      expect(pub.actualizadoEl).toBeTruthy()
+      await new Promise((r) => setTimeout(r, 20))
+      const cambio = await payload.update({ collection: 'articulos', id: a.id, locale: 'es', data: { resumen: 'nuevo', _status: 'published' }, overrideAccess: true })
+      expect(cambio.publicadoEl).toBe(pub.publicadoEl)
+      expect(new Date(cambio.actualizadoEl as string).getTime()).toBeGreaterThan(new Date(pub.actualizadoEl as string).getTime())
+    })
+  })
 })

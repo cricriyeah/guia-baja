@@ -7,6 +7,7 @@ import { camposDestacado } from '../campos/destacado'
 import { camposSeo } from '../campos/seo'
 import { campoSlug } from '../campos/slug'
 import { rutas } from '../dominio/rutas'
+import { fechasDePublicacion } from '../hooks/articulos'
 import { destinoAlRetirarArticulo, hooksDeRedireccion } from '../redirecciones/hooks'
 
 export const CAMPOS_IDIOMA_ARTICULO = ['titulo', 'slug', 'resumen', 'cuerpo'] as const
@@ -46,7 +47,7 @@ export const Articulos: CollectionConfig = {
     delete: soloPersonal,
   },
   hooks: {
-    beforeChange: [copiarNombreAutor, redireccion.beforeChange],
+    beforeChange: [copiarNombreAutor, fechasDePublicacion, redireccion.beforeChange],
     afterChange: [redireccion.afterChange],
     beforeDelete: [redireccion.beforeDelete],
     afterDelete: [redireccion.afterDelete],
@@ -73,8 +74,8 @@ export const Articulos: CollectionConfig = {
       defaultValue: ({ user }: { user?: { id: number } | null }) => user?.id,
     },
     { name: 'autorNombre', type: 'text', admin: { readOnly: true, position: 'sidebar' } },
-    { name: 'publicadoEl', type: 'date', defaultValue: () => new Date().toISOString(), admin: { position: 'sidebar' } },
-    { name: 'actualizadoEl', type: 'date', defaultValue: () => new Date().toISOString(), admin: { position: 'sidebar' } },
+    { name: 'publicadoEl', type: 'date', admin: { position: 'sidebar', description: 'Se fija al publicar por primera vez.' } },
+    { name: 'actualizadoEl', type: 'date', admin: { position: 'sidebar', readOnly: true, description: 'Se actualiza cada vez que se publica un cambio.' } },
     {
       name: 'cuerpo',
       type: 'richText',

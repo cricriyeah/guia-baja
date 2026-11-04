@@ -393,7 +393,13 @@ export interface Articulo {
   portada: number | Media;
   autor: number | User;
   autorNombre?: string | null;
+  /**
+   * Se fija al publicar por primera vez.
+   */
   publicadoEl?: string | null;
+  /**
+   * Se actualiza cada vez que se publica un cambio.
+   */
   actualizadoEl?: string | null;
   cuerpo?: {
     root: {
