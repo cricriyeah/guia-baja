@@ -6,6 +6,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TYPE "public"."enum_users_rol" AS ENUM('admin', 'editor');
   CREATE TYPE "public"."enum_categorias_aplica_a" AS ENUM('lugar', 'evento', 'ambos');
   CREATE TYPE "public"."enum_categorias_tipo_schema" AS ENUM('Restaurant', 'CafeOrCoffeeShop', 'BarOrPub', 'Store', 'TouristAttraction', 'Beach', 'LocalBusiness');
+  CREATE TYPE "public"."enum_categorias_grupo" AS ENUM('mar', 'aire-libre', 'comer-y-salir', 'lo-local');
   CREATE TYPE "public"."enum_lugares_horario_dia" AS ENUM('lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo');
   CREATE TYPE "public"."enum_lugares_rango_precio" AS ENUM('$', '$$', '$$$', '$$$$');
   CREATE TYPE "public"."enum_lugares_status" AS ENUM('draft', 'published');
@@ -118,6 +119,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"id" serial PRIMARY KEY NOT NULL,
   	"aplica_a" "enum_categorias_aplica_a" DEFAULT 'lugar' NOT NULL,
   	"tipo_schema" "enum_categorias_tipo_schema" DEFAULT 'LocalBusiness' NOT NULL,
+  	"grupo" "enum_categorias_grupo" NOT NULL,
   	"orden" numeric DEFAULT 100,
   	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
   	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
@@ -797,6 +799,7 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TYPE "public"."enum_users_rol";
   DROP TYPE "public"."enum_categorias_aplica_a";
   DROP TYPE "public"."enum_categorias_tipo_schema";
+  DROP TYPE "public"."enum_categorias_grupo";
   DROP TYPE "public"."enum_lugares_horario_dia";
   DROP TYPE "public"."enum_lugares_rango_precio";
   DROP TYPE "public"."enum_lugares_status";

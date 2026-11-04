@@ -70,7 +70,7 @@ describe('Zonas y Categorías', () => {
     const doc = await payload.create({
       collection: 'categorias',
       locale: 'es',
-      data: { nombre: 'Tiendas', aplicaA: 'lugar', tipoSchema: 'Store' },
+      data: { nombre: 'Tiendas', aplicaA: 'lugar', tipoSchema: 'Store', grupo: 'lo-local' },
       overrideAccess: true,
     })
     expect(doc.slug).toBe('tiendas')
@@ -90,7 +90,7 @@ describe('Zonas y Categorías', () => {
     const doc = await payload.create({
       collection: 'categorias',
       locale: 'es',
-      data: { nombre: 'Playas', aplicaA: 'lugar', tipoSchema: 'Beach' },
+      data: { nombre: 'Playas', aplicaA: 'lugar', tipoSchema: 'Beach', grupo: 'mar' },
       overrideAccess: true,
     })
     const actualizada = await payload.update({
@@ -117,7 +117,7 @@ describe('Zonas y Categorías', () => {
     await expect(
       payload.create({
         collection: 'categorias',
-        data: { nombre: 'X', slug: 'x', aplicaA: 'lugar', tipoSchema: 'Store' },
+        data: { nombre: 'X', slug: 'x', aplicaA: 'lugar', tipoSchema: 'Store', grupo: 'lo-local' },
         overrideAccess: false,
       }),
     ).rejects.toThrow()

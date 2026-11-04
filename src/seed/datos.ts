@@ -23,13 +23,13 @@ const parrafo = (texto: string) => ({
 })
 
 const CATEGORIAS = [
-  { es: 'Restaurantes', en: 'Restaurants', tipo: 'Restaurant', aplica: 'lugar' },
-  { es: 'Cafés y bares', en: 'Cafes and bars', tipo: 'CafeOrCoffeeShop', aplica: 'lugar' },
-  { es: 'Actividades', en: 'Activities', tipo: 'TouristAttraction', aplica: 'ambos' },
-  { es: 'Playas', en: 'Beaches', tipo: 'Beach', aplica: 'lugar' },
-  { es: 'Tiendas locales', en: 'Local shops', tipo: 'Store', aplica: 'lugar' },
-  { es: 'Mercados', en: 'Markets', tipo: 'LocalBusiness', aplica: 'ambos' },
-  { es: 'Cultura', en: 'Culture', tipo: 'TouristAttraction', aplica: 'ambos' },
+  { es: 'Restaurantes', en: 'Restaurants', tipo: 'Restaurant', aplica: 'lugar', grupo: 'comer-y-salir' },
+  { es: 'Cafés y bares', en: 'Cafes and bars', tipo: 'CafeOrCoffeeShop', aplica: 'lugar', grupo: 'comer-y-salir' },
+  { es: 'Actividades', en: 'Activities', tipo: 'TouristAttraction', aplica: 'ambos', grupo: 'aire-libre' },
+  { es: 'Playas', en: 'Beaches', tipo: 'Beach', aplica: 'lugar', grupo: 'mar' },
+  { es: 'Tiendas locales', en: 'Local shops', tipo: 'Store', aplica: 'lugar', grupo: 'lo-local' },
+  { es: 'Mercados', en: 'Markets', tipo: 'LocalBusiness', aplica: 'ambos', grupo: 'lo-local' },
+  { es: 'Cultura', en: 'Culture', tipo: 'TouristAttraction', aplica: 'ambos', grupo: 'lo-local' },
 ] as const
 
 // Nombres inventados: nunca datos reales (spec §5.5).
@@ -98,7 +98,7 @@ export async function sembrar(
   for (const [i, c] of CATEGORIAS.entries()) {
     const doc = await payload.create({
       collection: 'categorias', locale: 'es',
-      data: { nombre: c.es, aplicaA: c.aplica, tipoSchema: c.tipo, orden: i + 1 },
+      data: { nombre: c.es, aplicaA: c.aplica, tipoSchema: c.tipo, grupo: c.grupo, orden: i + 1 },
       overrideAccess: true, context: ctx,
     })
     await payload.update({ collection: 'categorias', id: doc.id, locale: 'en', data: { nombre: c.en }, overrideAccess: true, context: ctx })

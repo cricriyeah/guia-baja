@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { lecturaPublica, soloPersonal } from '../acceso/reglas'
 import { campoSlug } from '../campos/slug'
+import { GRUPOS } from '../dominio/grupos'
 import { hooksDeCategoria } from '../redirecciones/hooks'
 
 export const TIPOS_SCHEMA = [
@@ -12,7 +13,7 @@ const redireccionCategoria = hooksDeCategoria()
 
 export const Categorias: CollectionConfig = {
   slug: 'categorias',
-  admin: { useAsTitle: 'nombre', defaultColumns: ['nombre', 'slug', 'aplicaA', 'orden'] },
+  admin: { useAsTitle: 'nombre', defaultColumns: ['nombre', 'slug', 'grupo', 'aplicaA', 'orden'] },
   access: { read: lecturaPublica, create: soloPersonal, update: soloPersonal, delete: soloPersonal },
   hooks: { beforeChange: [redireccionCategoria.beforeChange], afterChange: [redireccionCategoria.afterChange] },
   defaultSort: 'orden',
@@ -36,6 +37,13 @@ export const Categorias: CollectionConfig = {
       required: true,
       defaultValue: 'LocalBusiness',
       options: TIPOS_SCHEMA.map((t) => ({ label: t, value: t })),
+    },
+    {
+      name: 'grupo',
+      type: 'select',
+      required: true,
+      options: GRUPOS.map((g) => ({ label: { es: g.es, en: g.en }, value: g.valor })),
+      admin: { description: 'Decide el color de la categoría en el sitio.' },
     },
     { name: 'orden', type: 'number', defaultValue: 100 },
   ],

@@ -882,6 +882,13 @@
           "notNull": true,
           "default": "'LocalBusiness'"
         },
+        "grupo": {
+          "name": "grupo",
+          "type": "enum_categorias_grupo",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
         "orden": {
           "name": "orden",
           "type": "numeric",
@@ -6356,6 +6363,16 @@
         "LocalBusiness"
       ]
     },
+    "public.enum_categorias_grupo": {
+      "name": "enum_categorias_grupo",
+      "schema": "public",
+      "values": [
+        "mar",
+        "aire-libre",
+        "comer-y-salir",
+        "lo-local"
+      ]
+    },
     "public.enum_lugares_horario_dia": {
       "name": "enum_lugares_horario_dia",
       "schema": "public",
@@ -6538,6 +6555,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "9c93a2a3-79c9-41ad-a111-21bb5e0e2981",
+  "id": "84537b8b-1251-4963-ae3e-1dec53407922",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

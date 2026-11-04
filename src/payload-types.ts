@@ -222,6 +222,10 @@ export interface Categoria {
     | 'TouristAttraction'
     | 'Beach'
     | 'LocalBusiness';
+  /**
+   * Decide el color de la categoría en el sitio.
+   */
+  grupo: 'mar' | 'aire-libre' | 'comer-y-salir' | 'lo-local';
   orden?: number | null;
   updatedAt: string;
   createdAt: string;
@@ -672,6 +676,7 @@ export interface CategoriasSelect<T extends boolean = true> {
   slug?: T;
   aplicaA?: T;
   tipoSchema?: T;
+  grupo?: T;
   orden?: T;
   updatedAt?: T;
   createdAt?: T;

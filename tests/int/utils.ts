@@ -50,14 +50,17 @@ export async function crearZona(
   })
 }
 
-export async function crearCategoria(payload: Payload, datos: { es?: string; en?: string } = {}) {
+export async function crearCategoria(
+  payload: Payload,
+  datos: { es?: string; en?: string; grupo?: 'mar' | 'aire-libre' | 'comer-y-salir' | 'lo-local' } = {},
+) {
   const sufijo = randomUUID().slice(0, 8)
   const es = datos.es ?? `categoria-${sufijo}`
   const en = datos.en ?? `category-${sufijo}`
   const doc = await payload.create({
     collection: 'categorias',
     locale: 'es',
-    data: { nombre: es, slug: es, aplicaA: 'ambos', tipoSchema: 'LocalBusiness' },
+    data: { nombre: es, slug: es, aplicaA: 'ambos', tipoSchema: 'LocalBusiness', grupo: datos.grupo ?? 'mar' },
     overrideAccess: true,
   })
   return payload.update({
