@@ -3,6 +3,7 @@ import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
 
 import { lecturaPublicaPublicada, soloPersonal } from '../acceso/reglas'
 import { bloquesArticulo } from '../bloques/articulo'
+import { camposDestacado } from '../campos/destacado'
 import { camposSeo } from '../campos/seo'
 import { campoSlug } from '../campos/slug'
 import { rutas } from '../dominio/rutas'
@@ -75,6 +76,7 @@ export const Articulos: CollectionConfig = {
         features: ({ defaultFeatures }) => [...defaultFeatures, BlocksFeature({ blocks: bloquesArticulo })],
       }),
     },
+    ...camposDestacado(),
     camposSeo(),
   ],
 }

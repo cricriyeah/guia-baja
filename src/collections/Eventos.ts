@@ -1,6 +1,7 @@
 import type { CollectionConfig, DateField, TextField } from 'payload'
 
 import { lecturaPublicaPublicada, soloPersonal } from '../acceso/reglas'
+import { camposDestacado } from '../campos/destacado'
 import { grupoPatrocinio } from '../campos/patrocinio'
 import { camposSeo } from '../campos/seo'
 import { campoSlug } from '../campos/slug'
@@ -74,6 +75,7 @@ export const Eventos: CollectionConfig = {
     { name: 'resumen', type: 'textarea', localized: true, maxLength: 160 },
     { name: 'cuerpo', type: 'richText', localized: true },
     grupoPatrocinio(),
+    ...camposDestacado(),
     camposSeo(),
   ],
 }

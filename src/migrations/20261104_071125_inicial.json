@@ -1161,6 +1161,89 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.lugares_caracteristicas": {
+      "name": "lugares_caracteristicas",
+      "schema": "",
+      "columns": {
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "enum_lugares_caracteristicas",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "lugares_caracteristicas_order_idx": {
+          "name": "lugares_caracteristicas_order_idx",
+          "columns": [
+            {
+              "expression": "order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "lugares_caracteristicas_parent_idx": {
+          "name": "lugares_caracteristicas_parent_idx",
+          "columns": [
+            {
+              "expression": "parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "lugares_caracteristicas_parent_fk": {
+          "name": "lugares_caracteristicas_parent_fk",
+          "tableFrom": "lugares_caracteristicas",
+          "tableTo": "lugares",
+          "columnsFrom": [
+            "parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.lugares": {
       "name": "lugares",
       "schema": "",
@@ -1233,6 +1316,20 @@
           "notNull": false,
           "default": 100
         },
+        "destacado_en_portada": {
+          "name": "destacado_en_portada",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "orden_destacado": {
+          "name": "orden_destacado",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 100
+        },
         "patrocinio_activo": {
           "name": "patrocinio_activo",
           "type": "boolean",
@@ -1294,6 +1391,21 @@
           "columns": [
             {
               "expression": "zona_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "lugares_destacado_en_portada_idx": {
+          "name": "lugares_destacado_en_portada_idx",
+          "columns": [
+            {
+              "expression": "destacado_en_portada",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -1777,6 +1889,89 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public._lugares_v_version_caracteristicas": {
+      "name": "_lugares_v_version_caracteristicas",
+      "schema": "",
+      "columns": {
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "enum__lugares_v_version_caracteristicas",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "_lugares_v_version_caracteristicas_order_idx": {
+          "name": "_lugares_v_version_caracteristicas_order_idx",
+          "columns": [
+            {
+              "expression": "order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "_lugares_v_version_caracteristicas_parent_idx": {
+          "name": "_lugares_v_version_caracteristicas_parent_idx",
+          "columns": [
+            {
+              "expression": "parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "_lugares_v_version_caracteristicas_parent_fk": {
+          "name": "_lugares_v_version_caracteristicas_parent_fk",
+          "tableFrom": "_lugares_v_version_caracteristicas",
+          "tableTo": "_lugares_v",
+          "columnsFrom": [
+            "parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public._lugares_v": {
       "name": "_lugares_v",
       "schema": "",
@@ -1850,6 +2045,20 @@
         },
         "version_orden": {
           "name": "version_orden",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 100
+        },
+        "version_destacado_en_portada": {
+          "name": "version_destacado_en_portada",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "version_orden_destacado": {
+          "name": "version_orden_destacado",
           "type": "numeric",
           "primaryKey": false,
           "notNull": false,
@@ -1962,6 +2171,21 @@
           "columns": [
             {
               "expression": "version_zona_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "_lugares_v_version_version_destacado_en_portada_idx": {
+          "name": "_lugares_v_version_version_destacado_en_portada_idx",
+          "columns": [
+            {
+              "expression": "version_destacado_en_portada",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -2526,6 +2750,20 @@
           "primaryKey": false,
           "notNull": false
         },
+        "destacado_en_portada": {
+          "name": "destacado_en_portada",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "orden_destacado": {
+          "name": "orden_destacado",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 100
+        },
         "seo_no_indexar": {
           "name": "seo_no_indexar",
           "type": "boolean",
@@ -2592,6 +2830,21 @@
           "columns": [
             {
               "expression": "inicio",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "eventos_destacado_en_portada_idx": {
+          "name": "eventos_destacado_en_portada_idx",
+          "columns": [
+            {
+              "expression": "destacado_en_portada",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -3093,6 +3346,20 @@
           "primaryKey": false,
           "notNull": false
         },
+        "version_destacado_en_portada": {
+          "name": "version_destacado_en_portada",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "version_orden_destacado": {
+          "name": "version_orden_destacado",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 100
+        },
         "version_seo_no_indexar": {
           "name": "version_seo_no_indexar",
           "type": "boolean",
@@ -3205,6 +3472,21 @@
           "columns": [
             {
               "expression": "version_inicio",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "_eventos_v_version_version_destacado_en_portada_idx": {
+          "name": "_eventos_v_version_version_destacado_en_portada_idx",
+          "columns": [
+            {
+              "expression": "version_destacado_en_portada",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -3734,6 +4016,20 @@
           "primaryKey": false,
           "notNull": false
         },
+        "destacado_en_portada": {
+          "name": "destacado_en_portada",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "orden_destacado": {
+          "name": "orden_destacado",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 100
+        },
         "seo_no_indexar": {
           "name": "seo_no_indexar",
           "type": "boolean",
@@ -3785,6 +4081,21 @@
           "columns": [
             {
               "expression": "autor_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "articulos_destacado_en_portada_idx": {
+          "name": "articulos_destacado_en_portada_idx",
+          "columns": [
+            {
+              "expression": "destacado_en_portada",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -4192,6 +4503,20 @@
           "primaryKey": false,
           "notNull": false
         },
+        "version_destacado_en_portada": {
+          "name": "version_destacado_en_portada",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "version_orden_destacado": {
+          "name": "version_orden_destacado",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 100
+        },
         "version_seo_no_indexar": {
           "name": "version_seo_no_indexar",
           "type": "boolean",
@@ -4289,6 +4614,21 @@
           "columns": [
             {
               "expression": "version_autor_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "_articulos_v_version_version_destacado_en_portada_idx": {
+          "name": "_articulos_v_version_version_destacado_en_portada_idx",
+          "columns": [
+            {
+              "expression": "version_destacado_en_portada",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -6386,6 +6726,15 @@
         "domingo"
       ]
     },
+    "public.enum_lugares_caracteristicas": {
+      "name": "enum_lugares_caracteristicas",
+      "schema": "public",
+      "values": [
+        "para-ninos",
+        "con-comida",
+        "solo-con-tour"
+      ]
+    },
     "public.enum_lugares_rango_precio": {
       "name": "enum_lugares_rango_precio",
       "schema": "public",
@@ -6415,6 +6764,15 @@
         "viernes",
         "sabado",
         "domingo"
+      ]
+    },
+    "public.enum__lugares_v_version_caracteristicas": {
+      "name": "enum__lugares_v_version_caracteristicas",
+      "schema": "public",
+      "values": [
+        "para-ninos",
+        "con-comida",
+        "solo-con-tour"
       ]
     },
     "public.enum__lugares_v_version_rango_precio": {
@@ -6555,6 +6913,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "84537b8b-1251-4963-ae3e-1dec53407922",
+  "id": "1635d491-5b0e-471c-ad8a-e1019262ad47",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

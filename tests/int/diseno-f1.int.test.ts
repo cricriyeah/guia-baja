@@ -1,7 +1,7 @@
 import type { Payload } from 'payload'
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import { crearCategoria, limpiar, obtenerPayload } from './utils'
+import { crearCategoria, crearImagen, crearLugar, crearUsuario, crearZona, lexical, limpiar, obtenerPayload } from './utils'
 
 let payload: Payload
 
@@ -29,6 +29,72 @@ describe('Backoffice del diseño de F1', () => {
           overrideAccess: true,
         }),
       ).rejects.toThrow()
+    })
+  })
+
+  describe('Lugares: características y destacados', () => {
+    it('guarda varias características y filtra por una', async () => {
+      const zona = await crearZona(payload)
+      const cat = await crearCategoria(payload)
+      const foto = await crearImagen(payload)
+      const l = await crearLugar(payload, { zona: zona.id, categorias: [cat.id], foto: foto.id, slugEs: 'playa-uno' })
+      await payload.update({
+        collection: 'lugares', id: l.id, locale: 'es',
+        data: { caracteristicas: ['para-ninos', 'con-comida'] },
+        overrideAccess: true, context: { sinRedirecciones: true },
+      })
+      const conComida = await payload.find({
+        collection: 'lugares', locale: 'es', overrideAccess: false,
+        where: { caracteristicas: { in: ['con-comida'] } },
+      })
+      expect(conComida.docs.map((d) => d.id)).toEqual([l.id])
+    })
+
+    it('rechaza una característica que no está en la lista', async () => {
+      const zona = await crearZona(payload)
+      const cat = await crearCategoria(payload)
+      const foto = await crearImagen(payload)
+      const l = await crearLugar(payload, { zona: zona.id, categorias: [cat.id], foto: foto.id, slugEs: 'playa-dos' })
+      await expect(
+        payload.update({
+          collection: 'lugares', id: l.id, locale: 'es',
+          data: { caracteristicas: ['con-alberca'] as never },
+          overrideAccess: true, context: { sinRedirecciones: true },
+        }),
+      ).rejects.toThrow()
+    })
+
+    it('el público lee los destacados por su orden', async () => {
+      const zona = await crearZona(payload)
+      const cat = await crearCategoria(payload)
+      const foto = await crearImagen(payload)
+      const a = await crearLugar(payload, { zona: zona.id, categorias: [cat.id], foto: foto.id, slugEs: 'lugar-a' })
+      const b = await crearLugar(payload, { zona: zona.id, categorias: [cat.id], foto: foto.id, slugEs: 'lugar-b' })
+      await crearLugar(payload, { zona: zona.id, categorias: [cat.id], foto: foto.id, slugEs: 'lugar-c' })
+      for (const [id, orden] of [[a.id, 2], [b.id, 1]] as const) {
+        await payload.update({
+          collection: 'lugares', id, locale: 'es',
+          data: { destacadoEnPortada: true, ordenDestacado: orden },
+          overrideAccess: true, context: { sinRedirecciones: true },
+        })
+      }
+      const destacados = await payload.find({
+        collection: 'lugares', locale: 'es', overrideAccess: false,
+        where: { destacadoEnPortada: { equals: true } }, sort: 'ordenDestacado',
+      })
+      expect(destacados.docs.map((d) => d.id)).toEqual([b.id, a.id])
+    })
+
+    it('eventos y artículos también se pueden destacar', async () => {
+      const editor = await crearUsuario(payload, 'editor')
+      const portada = await crearImagen(payload)
+      const art = await payload.create({
+        collection: 'articulos', locale: 'es',
+        data: { titulo: 'Destacado', portada: portada.id, autor: editor.id, resumen: 'r', cuerpo: lexical('c'), destacadoEnPortada: true, _status: 'published' },
+        overrideAccess: true,
+      })
+      expect(art.destacadoEnPortada).toBe(true)
+      expect(art.ordenDestacado).toBe(100)
     })
   })
 })

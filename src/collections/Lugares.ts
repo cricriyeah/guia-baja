@@ -1,9 +1,11 @@
 import type { CollectionConfig, TextField } from 'payload'
 
 import { lecturaPublicaPublicada, soloPersonal } from '../acceso/reglas'
+import { camposDestacado } from '../campos/destacado'
 import { grupoPatrocinio } from '../campos/patrocinio'
 import { camposSeo } from '../campos/seo'
 import { campoSlug } from '../campos/slug'
+import { CARACTERISTICAS } from '../dominio/caracteristicas'
 import { rutas } from '../dominio/rutas'
 import { destinoAlRetirarLugar, hooksDeRedireccion } from '../redirecciones/hooks'
 
@@ -92,7 +94,14 @@ export const Lugares: CollectionConfig = {
       ],
     },
     { name: 'notaHorario', type: 'text', localized: true },
+    {
+      name: 'caracteristicas',
+      type: 'select',
+      hasMany: true,
+      options: CARACTERISTICAS.map((c) => ({ label: { es: c.es, en: c.en }, value: c.valor })),
+    },
     { name: 'orden', type: 'number', defaultValue: 100, admin: { position: 'sidebar' } },
+    ...camposDestacado(),
     grupoPatrocinio(),
     camposSeo(),
   ],

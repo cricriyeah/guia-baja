@@ -283,7 +283,13 @@ export interface Lugare {
       }[]
     | null;
   notaHorario?: string | null;
+  caracteristicas?: ('para-ninos' | 'con-comida' | 'solo-con-tour')[] | null;
   orden?: number | null;
+  /**
+   * Sale en los destacados de la portada de la Guía.
+   */
+  destacadoEnPortada?: boolean | null;
+  ordenDestacado?: number | null;
   /**
    * Vigente si está activo y desde ≤ hoy < hasta (días en hora de BCS).
    */
@@ -350,6 +356,11 @@ export interface Evento {
     hasta?: string | null;
     notaInterna?: string | null;
   };
+  /**
+   * Sale en los destacados de la portada de la Guía.
+   */
+  destacadoEnPortada?: boolean | null;
+  ordenDestacado?: number | null;
   seo?: {
     metaTitulo?: string | null;
     metaDescripcion?: string | null;
@@ -392,6 +403,11 @@ export interface Articulo {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Sale en los destacados de la portada de la Guía.
+   */
+  destacadoEnPortada?: boolean | null;
+  ordenDestacado?: number | null;
   seo?: {
     metaTitulo?: string | null;
     metaDescripcion?: string | null;
@@ -709,7 +725,10 @@ export interface LugaresSelect<T extends boolean = true> {
         id?: T;
       };
   notaHorario?: T;
+  caracteristicas?: T;
   orden?: T;
+  destacadoEnPortada?: T;
+  ordenDestacado?: T;
   patrocinio?:
     | T
     | {
@@ -758,6 +777,8 @@ export interface EventosSelect<T extends boolean = true> {
         hasta?: T;
         notaInterna?: T;
       };
+  destacadoEnPortada?: T;
+  ordenDestacado?: T;
   seo?:
     | T
     | {
@@ -784,6 +805,8 @@ export interface ArticulosSelect<T extends boolean = true> {
   publicadoEl?: T;
   actualizadoEl?: T;
   cuerpo?: T;
+  destacadoEnPortada?: T;
+  ordenDestacado?: T;
   seo?:
     | T
     | {
