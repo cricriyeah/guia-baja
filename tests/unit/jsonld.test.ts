@@ -27,6 +27,7 @@ describe('JSON-LD de base (spec §9)', () => {
 
   it('<JsonLd> escapa «<» para que el texto no cierre el script', () => {
     const html = renderToStaticMarkup(createElement(JsonLd, { datos: { name: '</script><b>x' } }))
-    expect(html).toBe('<script type="application/ld+json">{"name":"\u003c/script>\u003cb>x"}</script>')
+    expect(html).toBe('<script type="application/ld+json">{"name":"\\u003c/script>\\u003cb>x"}</script>')
+    expect(html).not.toContain('</script><b>')
   })
 })
