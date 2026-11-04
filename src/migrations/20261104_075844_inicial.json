@@ -5434,6 +5434,249 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.textos_zona_categoria": {
+      "name": "textos_zona_categoria",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "zona_id": {
+          "name": "zona_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "categoria_id": {
+          "name": "categoria_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp(3) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp(3) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "textos_zona_categoria_zona_idx": {
+          "name": "textos_zona_categoria_zona_idx",
+          "columns": [
+            {
+              "expression": "zona_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "textos_zona_categoria_categoria_idx": {
+          "name": "textos_zona_categoria_categoria_idx",
+          "columns": [
+            {
+              "expression": "categoria_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "textos_zona_categoria_updated_at_idx": {
+          "name": "textos_zona_categoria_updated_at_idx",
+          "columns": [
+            {
+              "expression": "updated_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "textos_zona_categoria_created_at_idx": {
+          "name": "textos_zona_categoria_created_at_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "zona_categoria_idx": {
+          "name": "zona_categoria_idx",
+          "columns": [
+            {
+              "expression": "zona_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "categoria_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "textos_zona_categoria_zona_id_zonas_id_fk": {
+          "name": "textos_zona_categoria_zona_id_zonas_id_fk",
+          "tableFrom": "textos_zona_categoria",
+          "tableTo": "zonas",
+          "columnsFrom": [
+            "zona_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "textos_zona_categoria_categoria_id_categorias_id_fk": {
+          "name": "textos_zona_categoria_categoria_id_categorias_id_fk",
+          "tableFrom": "textos_zona_categoria",
+          "tableTo": "categorias",
+          "columnsFrom": [
+            "categoria_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.textos_zona_categoria_locales": {
+      "name": "textos_zona_categoria_locales",
+      "schema": "",
+      "columns": {
+        "introduccion": {
+          "name": "introduccion",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "_locale": {
+          "name": "_locale",
+          "type": "_locales",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "textos_zona_categoria_locales_locale_parent_id_unique": {
+          "name": "textos_zona_categoria_locales_locale_parent_id_unique",
+          "columns": [
+            {
+              "expression": "_locale",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "_parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "textos_zona_categoria_locales_parent_id_idx": {
+          "name": "textos_zona_categoria_locales_parent_id_idx",
+          "columns": [
+            {
+              "expression": "_parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "textos_zona_categoria_locales_parent_id_fk": {
+          "name": "textos_zona_categoria_locales_parent_id_fk",
+          "tableFrom": "textos_zona_categoria_locales",
+          "tableTo": "textos_zona_categoria",
+          "columnsFrom": [
+            "_parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.redirects": {
       "name": "redirects",
       "schema": "",
@@ -5947,6 +6190,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "textos_zona_categoria_id": {
+          "name": "textos_zona_categoria_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "redirects_id": {
           "name": "redirects_id",
           "type": "integer",
@@ -6120,6 +6369,21 @@
           "method": "btree",
           "with": {}
         },
+        "payload_locked_documents_rels_textos_zona_categoria_id_idx": {
+          "name": "payload_locked_documents_rels_textos_zona_categoria_id_idx",
+          "columns": [
+            {
+              "expression": "textos_zona_categoria_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
         "payload_locked_documents_rels_redirects_id_idx": {
           "name": "payload_locked_documents_rels_redirects_id_idx",
           "columns": [
@@ -6247,6 +6511,19 @@
           "tableTo": "solicitudes",
           "columnsFrom": [
             "solicitudes_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "payload_locked_documents_rels_textos_zona_categoria_fk": {
+          "name": "payload_locked_documents_rels_textos_zona_categoria_fk",
+          "tableFrom": "payload_locked_documents_rels",
+          "tableTo": "textos_zona_categoria",
+          "columnsFrom": [
+            "textos_zona_categoria_id"
           ],
           "columnsTo": [
             "id"
@@ -7049,6 +7326,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "31ca5f2d-8e91-4f4b-b777-09a92c1e0e8d",
+  "id": "1a4e2e4e-de38-4c60-b408-acae8ceacbdf",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

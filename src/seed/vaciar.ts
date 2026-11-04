@@ -4,6 +4,7 @@ import type { CollectionSlug, Payload } from 'payload'
 const ORDEN = [
   'redirects',
   'solicitudes',
+  'textos-zona-categoria',
   'articulos',
   'eventos',
   'lugares',

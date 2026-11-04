@@ -28,6 +28,7 @@ export interface Config {
     eventos: Evento;
     articulos: Articulo;
     solicitudes: Solicitude;
+    'textos-zona-categoria': TextosZonaCategoria;
     redirects: Redirect;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -44,6 +45,7 @@ export interface Config {
     eventos: EventosSelect<false> | EventosSelect<true>;
     articulos: ArticulosSelect<false> | ArticulosSelect<true>;
     solicitudes: SolicitudesSelect<false> | SolicitudesSelect<true>;
+    'textos-zona-categoria': TextosZonaCategoriaSelect<false> | TextosZonaCategoriaSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -458,6 +460,18 @@ export interface Solicitude {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "textos-zona-categoria".
+ */
+export interface TextosZonaCategoria {
+  id: number;
+  zona: number | Zona;
+  categoria: number | Categoria;
+  introduccion: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -539,6 +553,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'solicitudes';
         value: number | Solicitude;
+      } | null)
+    | ({
+        relationTo: 'textos-zona-categoria';
+        value: number | TextosZonaCategoria;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -855,6 +873,17 @@ export interface SolicitudesSelect<T extends boolean = true> {
   notasInternas?: T;
   lugarCreado?: T;
   anonimizadaEl?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "textos-zona-categoria_select".
+ */
+export interface TextosZonaCategoriaSelect<T extends boolean = true> {
+  zona?: T;
+  categoria?: T;
+  introduccion?: T;
   updatedAt?: T;
   createdAt?: T;
 }

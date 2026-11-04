@@ -222,4 +222,40 @@ describe('Backoffice del diseño de F1', () => {
       expect(guardado.lugaresCitados?.map((l) => (typeof l === 'number' ? l : l.id))).toEqual([a.id])
     })
   })
+
+  describe('Textos de zona × categoría', () => {
+    it('el público lee la introducción; un par no se repite', async () => {
+      const zona = await crearZona(payload)
+      const cat = await crearCategoria(payload)
+      await payload.create({
+        collection: 'textos-zona-categoria', locale: 'es',
+        data: { zona: zona.id, categoria: cat.id, introduccion: 'De la playa de la ciudad a las bahías turquesa.' },
+        overrideAccess: true,
+      })
+      const publico = await payload.find({
+        collection: 'textos-zona-categoria', locale: 'es', overrideAccess: false,
+        where: { and: [{ zona: { equals: zona.id } }, { categoria: { equals: cat.id } }] },
+      })
+      expect(publico.docs[0]?.introduccion).toBe('De la playa de la ciudad a las bahías turquesa.')
+      await expect(
+        payload.create({
+          collection: 'textos-zona-categoria', locale: 'es',
+          data: { zona: zona.id, categoria: cat.id, introduccion: 'Otra' },
+          overrideAccess: true,
+        }),
+      ).rejects.toThrow()
+    })
+
+    it('el público no escribe', async () => {
+      const zona = await crearZona(payload)
+      const cat = await crearCategoria(payload)
+      await expect(
+        payload.create({
+          collection: 'textos-zona-categoria', locale: 'es',
+          data: { zona: zona.id, categoria: cat.id, introduccion: 'x' },
+          overrideAccess: false,
+        }),
+      ).rejects.toThrow()
+    })
+  })
 })

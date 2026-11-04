@@ -462,6 +462,21 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
   );
   
+  CREATE TABLE "textos_zona_categoria" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"zona_id" integer NOT NULL,
+  	"categoria_id" integer NOT NULL,
+  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+  );
+  
+  CREATE TABLE "textos_zona_categoria_locales" (
+  	"introduccion" varchar NOT NULL,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"_parent_id" integer NOT NULL
+  );
+  
   CREATE TABLE "redirects" (
   	"id" serial PRIMARY KEY NOT NULL,
   	"from" varchar NOT NULL,
@@ -508,6 +523,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"eventos_id" integer,
   	"articulos_id" integer,
   	"solicitudes_id" integer,
+  	"textos_zona_categoria_id" integer,
   	"redirects_id" integer
   );
   
@@ -608,6 +624,9 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "_articulos_v_rels" ADD CONSTRAINT "_articulos_v_rels_lugares_fk" FOREIGN KEY ("lugares_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "solicitudes" ADD CONSTRAINT "solicitudes_zona_id_zonas_id_fk" FOREIGN KEY ("zona_id") REFERENCES "public"."zonas"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "solicitudes" ADD CONSTRAINT "solicitudes_lugar_creado_id_lugares_id_fk" FOREIGN KEY ("lugar_creado_id") REFERENCES "public"."lugares"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "textos_zona_categoria" ADD CONSTRAINT "textos_zona_categoria_zona_id_zonas_id_fk" FOREIGN KEY ("zona_id") REFERENCES "public"."zonas"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "textos_zona_categoria" ADD CONSTRAINT "textos_zona_categoria_categoria_id_categorias_id_fk" FOREIGN KEY ("categoria_id") REFERENCES "public"."categorias"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "textos_zona_categoria_locales" ADD CONSTRAINT "textos_zona_categoria_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."textos_zona_categoria"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "redirects_rels" ADD CONSTRAINT "redirects_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."redirects"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "redirects_rels" ADD CONSTRAINT "redirects_rels_lugares_fk" FOREIGN KEY ("lugares_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "redirects_rels" ADD CONSTRAINT "redirects_rels_eventos_fk" FOREIGN KEY ("eventos_id") REFERENCES "public"."eventos"("id") ON DELETE cascade ON UPDATE no action;
@@ -621,6 +640,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_eventos_fk" FOREIGN KEY ("eventos_id") REFERENCES "public"."eventos"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_articulos_fk" FOREIGN KEY ("articulos_id") REFERENCES "public"."articulos"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_solicitudes_fk" FOREIGN KEY ("solicitudes_id") REFERENCES "public"."solicitudes"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_textos_zona_categoria_fk" FOREIGN KEY ("textos_zona_categoria_id") REFERENCES "public"."textos_zona_categoria"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_redirects_fk" FOREIGN KEY ("redirects_id") REFERENCES "public"."redirects"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_preferences_rels" ADD CONSTRAINT "payload_preferences_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."payload_preferences"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_preferences_rels" ADD CONSTRAINT "payload_preferences_rels_users_fk" FOREIGN KEY ("users_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
@@ -766,6 +786,13 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "solicitudes_lugar_creado_idx" ON "solicitudes" USING btree ("lugar_creado_id");
   CREATE INDEX "solicitudes_updated_at_idx" ON "solicitudes" USING btree ("updated_at");
   CREATE INDEX "solicitudes_created_at_idx" ON "solicitudes" USING btree ("created_at");
+  CREATE INDEX "textos_zona_categoria_zona_idx" ON "textos_zona_categoria" USING btree ("zona_id");
+  CREATE INDEX "textos_zona_categoria_categoria_idx" ON "textos_zona_categoria" USING btree ("categoria_id");
+  CREATE INDEX "textos_zona_categoria_updated_at_idx" ON "textos_zona_categoria" USING btree ("updated_at");
+  CREATE INDEX "textos_zona_categoria_created_at_idx" ON "textos_zona_categoria" USING btree ("created_at");
+  CREATE UNIQUE INDEX "zona_categoria_idx" ON "textos_zona_categoria" USING btree ("zona_id","categoria_id");
+  CREATE UNIQUE INDEX "textos_zona_categoria_locales_locale_parent_id_unique" ON "textos_zona_categoria_locales" USING btree ("_locale","_parent_id");
+  CREATE INDEX "textos_zona_categoria_locales_parent_id_idx" ON "textos_zona_categoria_locales" USING btree ("_parent_id");
   CREATE UNIQUE INDEX "redirects_from_idx" ON "redirects" USING btree ("from");
   CREATE INDEX "redirects_updated_at_idx" ON "redirects" USING btree ("updated_at");
   CREATE INDEX "redirects_created_at_idx" ON "redirects" USING btree ("created_at");
@@ -790,6 +817,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "payload_locked_documents_rels_eventos_id_idx" ON "payload_locked_documents_rels" USING btree ("eventos_id");
   CREATE INDEX "payload_locked_documents_rels_articulos_id_idx" ON "payload_locked_documents_rels" USING btree ("articulos_id");
   CREATE INDEX "payload_locked_documents_rels_solicitudes_id_idx" ON "payload_locked_documents_rels" USING btree ("solicitudes_id");
+  CREATE INDEX "payload_locked_documents_rels_textos_zona_categoria_id_idx" ON "payload_locked_documents_rels" USING btree ("textos_zona_categoria_id");
   CREATE INDEX "payload_locked_documents_rels_redirects_id_idx" ON "payload_locked_documents_rels" USING btree ("redirects_id");
   CREATE INDEX "payload_preferences_key_idx" ON "payload_preferences" USING btree ("key");
   CREATE INDEX "payload_preferences_updated_at_idx" ON "payload_preferences" USING btree ("updated_at");
@@ -838,6 +866,8 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "_articulos_v_locales" CASCADE;
   DROP TABLE "_articulos_v_rels" CASCADE;
   DROP TABLE "solicitudes" CASCADE;
+  DROP TABLE "textos_zona_categoria" CASCADE;
+  DROP TABLE "textos_zona_categoria_locales" CASCADE;
   DROP TABLE "redirects" CASCADE;
   DROP TABLE "redirects_rels" CASCADE;
   DROP TABLE "payload_kv" CASCADE;

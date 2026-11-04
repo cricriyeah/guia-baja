@@ -12,6 +12,7 @@ import { Eventos } from './collections/Eventos'
 import { Lugares } from './collections/Lugares'
 import { Media } from './collections/Media'
 import { Solicitudes } from './collections/Solicitudes'
+import { TextosZonaCategoria } from './collections/TextosZonaCategoria'
 import { Users } from './collections/Users'
 import { Zonas } from './collections/Zonas'
 import { correoSilencioso } from './correo/silencioso'
@@ -29,7 +30,7 @@ export default buildConfig({
       defaultTimezone: 'America/Mazatlan',
     },
   },
-  collections: [Users, Media, Zonas, Categorias, Lugares, Eventos, Articulos, Solicitudes],
+  collections: [Users, Media, Zonas, Categorias, Lugares, Eventos, Articulos, Solicitudes, TextosZonaCategoria],
   globals: [AjustesGuia],
   localization: {
     locales: [
