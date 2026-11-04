@@ -4359,6 +4359,12 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false
+        },
+        "categorias_id": {
+          "name": "categorias_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -4421,6 +4427,21 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "articulos_rels_categorias_id_idx": {
+          "name": "articulos_rels_categorias_id_idx",
+          "columns": [
+            {
+              "expression": "categorias_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -4443,6 +4464,19 @@
           "tableTo": "zonas",
           "columnsFrom": [
             "zonas_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "articulos_rels_categorias_fk": {
+          "name": "articulos_rels_categorias_fk",
+          "tableFrom": "articulos_rels",
+          "tableTo": "categorias",
+          "columnsFrom": [
+            "categorias_id"
           ],
           "columnsTo": [
             "id"
@@ -4980,6 +5014,12 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false
+        },
+        "categorias_id": {
+          "name": "categorias_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -5042,6 +5082,21 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "_articulos_v_rels_categorias_id_idx": {
+          "name": "_articulos_v_rels_categorias_id_idx",
+          "columns": [
+            {
+              "expression": "categorias_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -5064,6 +5119,19 @@
           "tableTo": "zonas",
           "columnsFrom": [
             "zonas_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "_articulos_v_rels_categorias_fk": {
+          "name": "_articulos_v_rels_categorias_fk",
+          "tableFrom": "_articulos_v_rels",
+          "tableTo": "categorias",
+          "columnsFrom": [
+            "categorias_id"
           ],
           "columnsTo": [
             "id"
@@ -6913,6 +6981,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "1635d491-5b0e-471c-ad8a-e1019262ad47",
+  "id": "13aea342-2125-4676-a9bc-e451ea300f0d",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

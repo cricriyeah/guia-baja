@@ -56,6 +56,13 @@ export const Articulos: CollectionConfig = {
     { name: 'titulo', type: 'text', localized: true, required: true },
     campoSlug({ desde: 'titulo', localizado: true }),
     { name: 'zonas', type: 'relationship', relationTo: 'zonas', hasMany: true },
+    {
+      name: 'categorias',
+      type: 'relationship',
+      relationTo: 'categorias',
+      hasMany: true,
+      admin: { description: 'La primera da la etiqueta y el color del artículo.' },
+    },
     { name: 'resumen', type: 'textarea', localized: true, maxLength: 160 },
     { name: 'portada', type: 'upload', relationTo: 'media', required: true },
     {

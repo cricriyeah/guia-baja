@@ -322,7 +322,10 @@ export interface Evento {
   zona: number | Zona;
   lugar?: (number | null) | Lugare;
   direccionLibre?: string | null;
-  categorias?: (number | Categoria)[] | null;
+  /**
+   * La primera da la etiqueta y el color del evento.
+   */
+  categorias: (number | Categoria)[];
   inicio: string;
   inicio_tz: SupportedTimezones;
   fin?: string | null;
@@ -382,6 +385,10 @@ export interface Articulo {
    */
   slug?: string | null;
   zonas?: (number | Zona)[] | null;
+  /**
+   * La primera da la etiqueta y el color del artículo.
+   */
+  categorias?: (number | Categoria)[] | null;
   resumen?: string | null;
   portada: number | Media;
   autor: number | User;
@@ -798,6 +805,7 @@ export interface ArticulosSelect<T extends boolean = true> {
   titulo?: T;
   slug?: T;
   zonas?: T;
+  categorias?: T;
   resumen?: T;
   portada?: T;
   autor?: T;

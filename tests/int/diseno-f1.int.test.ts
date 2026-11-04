@@ -97,4 +97,35 @@ describe('Backoffice del diseño de F1', () => {
       expect(art.ordenDestacado).toBe(100)
     })
   })
+
+  describe('Categorías en artículos y eventos', () => {
+    it('un artículo guarda sus categorías', async () => {
+      const editor = await crearUsuario(payload, 'editor')
+      const portada = await crearImagen(payload)
+      const cat = await crearCategoria(payload, { grupo: 'comer-y-salir' })
+      const art = await payload.create({
+        collection: 'articulos', locale: 'es',
+        data: { titulo: 'Pescado del día', portada: portada.id, autor: editor.id, resumen: 'r', cuerpo: lexical('c'), categorias: [cat.id], _status: 'published' },
+        overrideAccess: true,
+      })
+      const leido = await payload.findByID({ collection: 'articulos', id: art.id, locale: 'es', depth: 0, overrideAccess: false })
+      expect(leido.categorias).toEqual([cat.id])
+    })
+
+    it('un evento sin categoría no se guarda', async () => {
+      const zona = await crearZona(payload)
+      const foto = await crearImagen(payload)
+      await expect(
+        payload.create({
+          collection: 'eventos', locale: 'es',
+          data: {
+            nombre: 'Sin categoría', zona: zona.id, direccionLibre: 'Malecón',
+            inicio: '2026-11-14T18:00:00-07:00', inicio_tz: 'America/Mazatlan',
+            fotos: [foto.id], resumen: 'r', cuerpo: lexical('c'), _status: 'published',
+          } as never,
+          overrideAccess: true,
+        }),
+      ).rejects.toThrow()
+    })
+  })
 })
