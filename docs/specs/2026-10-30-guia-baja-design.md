@@ -250,6 +250,7 @@ Ninguna es del sitio de reservas, salvo `GUIA_PROXY_SECRET`, que se comparte. No
 | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `R2_PUBLIC_URL` | Imágenes. | `guia-media-preview` y su llave. |
 | `CATALOGO_API_URL` | Base de la API pública del catálogo (`https://pescadeportiva-api.onrender.com`). | Igual. |
 | `SITIO_URL` | `https://www.salysoltours.com` (canónicas, links a tours). | Igual. |
+| `WHATSAPP_NUMERO` | Botón de WhatsApp del pie (el mismo número del sitio de reservas). | Igual. |
 | `GUIA_PROXY_SECRET` | Secreto de la cabecera `x-guia-proxy` (sección 4.1). | Otro valor. |
 | `IP_HASH_SALT` | Sal del `ipHash` del formulario. | Otro valor. |
 | `RESEND_API_KEY`, `CORREO_REMITENTE` | Avisos de Solicitudes. | Llave de previews. |
