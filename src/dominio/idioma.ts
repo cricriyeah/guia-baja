@@ -1,6 +1,22 @@
 export const LOCALES = ['es', 'en'] as const
 export type Locale = (typeof LOCALES)[number]
 
+export const esLocale = (v: unknown): v is Locale => v === 'es' || v === 'en'
+export const otroIdioma = (l: Locale): Locale => (l === 'es' ? 'en' : 'es')
+
+// Regla de idioma (spec §6): campos que deben tener valor en un idioma para que el documento exista en él.
+export const CAMPOS_IDIOMA = {
+  lugares: ['slug', 'resumen', 'cuerpo'],
+  eventos: ['nombre', 'slug', 'resumen', 'cuerpo'],
+  articulos: ['titulo', 'slug', 'resumen', 'cuerpo'],
+} as const
+
+export const CAMPOS_LOCALIZADOS = {
+  lugares: ['slug', 'resumen', 'cuerpo', 'notaHorario'],
+  eventos: ['nombre', 'slug', 'resumen', 'cuerpo', 'precio'],
+  articulos: ['titulo', 'slug', 'resumen', 'cuerpo'],
+} as const
+
 function textoDeLexical(nodo: unknown): string {
   if (!nodo || typeof nodo !== 'object') return ''
   const n = nodo as { text?: unknown; children?: unknown; root?: unknown }

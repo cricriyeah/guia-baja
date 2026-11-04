@@ -5,11 +5,12 @@ import { camposDestacado } from '../campos/destacado'
 import { grupoPatrocinio } from '../campos/patrocinio'
 import { camposSeo } from '../campos/seo'
 import { campoSlug } from '../campos/slug'
+import { CAMPOS_IDIOMA, CAMPOS_LOCALIZADOS } from '../dominio/idioma'
 import { rutas } from '../dominio/rutas'
 import { destinoAlRetirarEvento, hooksDeRedireccion } from '../redirecciones/hooks'
 
-export const CAMPOS_IDIOMA_EVENTO = ['nombre', 'slug', 'resumen', 'cuerpo'] as const
-export const CAMPOS_LOCALIZADOS_EVENTO = ['nombre', 'slug', 'resumen', 'cuerpo', 'precio'] as const
+export const CAMPOS_IDIOMA_EVENTO = CAMPOS_IDIOMA.eventos
+export const CAMPOS_LOCALIZADOS_EVENTO = CAMPOS_LOCALIZADOS.eventos
 
 const redireccion = hooksDeRedireccion({
   coleccion: 'eventos',

@@ -6,11 +6,12 @@ import { grupoPatrocinio } from '../campos/patrocinio'
 import { camposSeo } from '../campos/seo'
 import { campoSlug } from '../campos/slug'
 import { CARACTERISTICAS } from '../dominio/caracteristicas'
+import { CAMPOS_IDIOMA, CAMPOS_LOCALIZADOS } from '../dominio/idioma'
 import { rutas } from '../dominio/rutas'
 import { destinoAlRetirarLugar, hooksDeRedireccion } from '../redirecciones/hooks'
 
-export const CAMPOS_IDIOMA_LUGAR = ['slug', 'resumen', 'cuerpo'] as const
-export const CAMPOS_LOCALIZADOS_LUGAR = ['slug', 'resumen', 'cuerpo', 'notaHorario'] as const
+export const CAMPOS_IDIOMA_LUGAR = CAMPOS_IDIOMA.lugares
+export const CAMPOS_LOCALIZADOS_LUGAR = CAMPOS_LOCALIZADOS.lugares
 
 const redireccion = hooksDeRedireccion({
   coleccion: 'lugares',

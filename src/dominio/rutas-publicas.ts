@@ -1,4 +1,4 @@
-import { LOCALES, type Locale } from './idioma'
+import { esLocale, otroIdioma, type Locale } from './idioma'
 import { SEGMENTOS } from './rutas'
 
 export type AccionRuta =
@@ -16,8 +16,6 @@ export const FILTROS_LISTADO = ['precio', 'abierto', 'caracteristica', 'zona', '
 type Clave = Exclude<keyof (typeof SEGMENTOS)['es'], 'guia'>
 const CLAVES = (Object.keys(SEGMENTOS.es) as (keyof (typeof SEGMENTOS)['es'])[]).filter((k): k is Clave => k !== 'guia')
 const claveDe = (lang: Locale, seg: string): Clave | undefined => CLAVES.find((k) => SEGMENTOS[lang][k] === seg)
-const otro = (lang: Locale): Locale => (lang === 'es' ? 'en' : 'es')
-const esLocale = (v: string | undefined): v is Locale => (LOCALES as readonly string[]).includes(v ?? '')
 
 // Spec §7: zona × categoría, categoría en todas las zonas y eventos (árbol en español).
 function esListado(arbol: string[]): boolean {
@@ -31,14 +29,14 @@ function esListado(arbol: string[]): boolean {
 export function resolverRutaPublica(pathname: string, params: URLSearchParams): AccionRuta {
   const [lang, guia, ...resto] = pathname.split('/').filter(Boolean)
   if (!esLocale(lang)) return { tipo: 'pasar' }
-  if (guia === SEGMENTOS[otro(lang)].guia) return { tipo: 'noEncontrado', lang }
+  if (guia === SEGMENTOS[otroIdioma(lang)].guia) return { tipo: 'noEncontrado', lang }
   if (guia !== SEGMENTOS[lang].guia) return { tipo: 'pasar' }
   if (resto.some((s) => s.startsWith('--'))) return { tipo: 'noEncontrado', lang }
 
   const [primero, ...demas] = resto
   let arbol = resto
   if (primero !== undefined) {
-    if (claveDe(otro(lang), primero) && !claveDe(lang, primero)) return { tipo: 'noEncontrado', lang }
+    if (claveDe(otroIdioma(lang), primero) && !claveDe(lang, primero)) return { tipo: 'noEncontrado', lang }
     const clave = claveDe(lang, primero)
     if (clave) arbol = [SEGMENTOS.es[clave], ...demas]
   }

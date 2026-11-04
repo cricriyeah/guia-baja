@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { aplanarIdioma, existeEnIdioma, tieneValor } from '../../src/dominio/idioma'
+import { aplanarIdioma, CAMPOS_IDIOMA, esLocale, existeEnIdioma, otroIdioma, tieneValor } from '../../src/dominio/idioma'
 
 const lexical = (texto: string) => ({
   root: { type: 'root', children: [{ type: 'paragraph', children: texto ? [{ type: 'text', text: texto }] : [] }] },
@@ -37,5 +37,19 @@ describe('aplanarIdioma', () => {
       slug: 'luna-cafe',
       cuerpo: undefined,
     })
+  })
+})
+
+describe('constantes de idioma', () => {
+  it('campos de la regla de idioma por colección', () => {
+    expect(CAMPOS_IDIOMA.lugares).toEqual(['slug', 'resumen', 'cuerpo'])
+    expect(CAMPOS_IDIOMA.eventos).toEqual(['nombre', 'slug', 'resumen', 'cuerpo'])
+    expect(CAMPOS_IDIOMA.articulos).toEqual(['titulo', 'slug', 'resumen', 'cuerpo'])
+  })
+
+  it('esLocale y otroIdioma', () => {
+    expect(esLocale('es')).toBe(true)
+    expect(esLocale('fr')).toBe(false)
+    expect(otroIdioma('es')).toBe('en')
   })
 })

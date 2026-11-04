@@ -6,12 +6,13 @@ import { bloquesArticulo } from '../bloques/articulo'
 import { camposDestacado } from '../campos/destacado'
 import { camposSeo } from '../campos/seo'
 import { campoSlug } from '../campos/slug'
+import { CAMPOS_IDIOMA, CAMPOS_LOCALIZADOS } from '../dominio/idioma'
 import { rutas } from '../dominio/rutas'
 import { fechasDePublicacion, llenarLugaresCitados } from '../hooks/articulos'
 import { destinoAlRetirarArticulo, hooksDeRedireccion } from '../redirecciones/hooks'
 
-export const CAMPOS_IDIOMA_ARTICULO = ['titulo', 'slug', 'resumen', 'cuerpo'] as const
-export const CAMPOS_LOCALIZADOS_ARTICULO = CAMPOS_IDIOMA_ARTICULO
+export const CAMPOS_IDIOMA_ARTICULO = CAMPOS_IDIOMA.articulos
+export const CAMPOS_LOCALIZADOS_ARTICULO = CAMPOS_LOCALIZADOS.articulos
 
 const redireccion = hooksDeRedireccion({
   coleccion: 'articulos',
