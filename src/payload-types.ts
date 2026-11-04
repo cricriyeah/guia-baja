@@ -1007,6 +1007,28 @@ export interface AjustesGuia {
    * Versión vigente del aviso (p. ej. 2026-11).
    */
   versionAviso?: string | null;
+  /**
+   * Desde cuándo rige la versión vigente del aviso.
+   */
+  avisoVigenteDesde?: string | null;
+  /**
+   * Texto del aviso de privacidad de la Guía. Al cambiarlo, sube la versión.
+   */
+  avisoPrivacidad?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   portadaTitulo?: string | null;
   portadaIntro?: string | null;
   updatedAt?: string | null;
@@ -1026,6 +1048,8 @@ export interface AjustesGuiaSelect<T extends boolean = true> {
   correoPrivacidad?: T;
   formularioActivo?: T;
   versionAviso?: T;
+  avisoVigenteDesde?: T;
+  avisoPrivacidad?: T;
   portadaTitulo?: T;
   portadaIntro?: T;
   updatedAt?: T;

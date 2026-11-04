@@ -282,4 +282,20 @@ describe('Backoffice del diseño de F1', () => {
       ).rejects.toThrow()
     })
   })
+
+  describe('Ajustes: aviso de privacidad', () => {
+    it('el público lee el aviso, su versión, su vigencia y el correo de privacidad', async () => {
+      const admin = await crearUsuario(payload, 'admin')
+      await payload.updateGlobal({
+        slug: 'ajustes-guia', locale: 'es',
+        data: { avisoPrivacidad: lexical('Texto del aviso.'), versionAviso: '2026-11', avisoVigenteDesde: '2026-11-01T00:00:00.000Z', correoPrivacidad: 'privacidad@prueba.test' },
+        overrideAccess: false, user: admin,
+      })
+      const publico = await payload.findGlobal({ slug: 'ajustes-guia', locale: 'es', overrideAccess: false })
+      expect(JSON.stringify(publico.avisoPrivacidad)).toContain('Texto del aviso.')
+      expect(publico.versionAviso).toBe('2026-11')
+      expect(publico.avisoVigenteDesde).toBeTruthy()
+      expect(publico.correoPrivacidad).toBe('privacidad@prueba.test')
+    })
+  })
 })

@@ -96,7 +96,7 @@ describe('Artículos, Solicitudes y Ajustes', () => {
     expect(lista.totalDocs).toBe(1)
   })
 
-  it('el Global: el público lee lo público y nunca los correos; un editor no lo edita', async () => {
+  it('el Global: el público lee lo público y el correo de privacidad, nunca los correos de aviso; un editor no lo edita', async () => {
     const admin = await crearUsuario(payload, 'admin')
     await payload.updateGlobal({
       slug: 'ajustes-guia',
@@ -108,7 +108,7 @@ describe('Artículos, Solicitudes y Ajustes', () => {
     expect(publico.formularioActivo).toBe(false)
     // Payload deja un array vacío (no el valor) cuando el acceso de lectura del campo se niega.
     expect(publico.correosAviso ?? []).toEqual([])
-    expect(publico.correoPrivacidad).toBeUndefined()
+    expect(publico.correoPrivacidad).toBe('privacidad@prueba.test')
     const editor = await crearUsuario(payload, 'editor')
     const paraPersonal = await payload.findGlobal({ slug: 'ajustes-guia', overrideAccess: false, user: editor })
     expect(paraPersonal.correosAviso).toHaveLength(1)

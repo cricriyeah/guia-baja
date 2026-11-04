@@ -7228,6 +7228,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "aviso_vigente_desde": {
+          "name": "aviso_vigente_desde",
+          "type": "timestamp(3) with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp(3) with time zone",
@@ -7253,6 +7259,12 @@
       "name": "ajustes_guia_locales",
       "schema": "",
       "columns": {
+        "aviso_privacidad": {
+          "name": "aviso_privacidad",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
         "portada_titulo": {
           "name": "portada_titulo",
           "type": "varchar",
@@ -7602,6 +7614,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "f4707850-c911-4f6f-9d98-654ce2e8cd8f",
+  "id": "d2afbdff-698f-46dc-9e8a-e06af671afd4",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

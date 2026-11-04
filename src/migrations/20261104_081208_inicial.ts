@@ -582,11 +582,13 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"correo_privacidad" varchar,
   	"formulario_activo" boolean DEFAULT false,
   	"version_aviso" varchar,
+  	"aviso_vigente_desde" timestamp(3) with time zone,
   	"updated_at" timestamp(3) with time zone,
   	"created_at" timestamp(3) with time zone
   );
   
   CREATE TABLE "ajustes_guia_locales" (
+  	"aviso_privacidad" jsonb,
   	"portada_titulo" varchar,
   	"portada_intro" varchar,
   	"id" serial PRIMARY KEY NOT NULL,

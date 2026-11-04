@@ -13,7 +13,8 @@ export const AjustesGuia: GlobalConfig = {
       access: { read: campoSoloPersonal },
       fields: [{ name: 'correo', type: 'email', required: true }],
     },
-    { name: 'correoPrivacidad', type: 'email', access: { read: campoSoloPersonal } },
+    // Público: el aviso de privacidad lo muestra para los derechos ARCO (spec §12).
+    { name: 'correoPrivacidad', type: 'email' },
     {
       name: 'formularioActivo',
       type: 'checkbox',
@@ -21,6 +22,17 @@ export const AjustesGuia: GlobalConfig = {
       admin: { description: 'Encender solo cuando el aviso de privacidad esté publicado en los dos idiomas.' },
     },
     { name: 'versionAviso', type: 'text', admin: { description: 'Versión vigente del aviso (p. ej. 2026-11).' } },
+    {
+      name: 'avisoVigenteDesde',
+      type: 'date',
+      admin: { date: { pickerAppearance: 'dayOnly' }, description: 'Desde cuándo rige la versión vigente del aviso.' },
+    },
+    {
+      name: 'avisoPrivacidad',
+      type: 'richText',
+      localized: true,
+      admin: { description: 'Texto del aviso de privacidad de la Guía. Al cambiarlo, sube la versión.' },
+    },
     { name: 'portadaTitulo', type: 'text', localized: true },
     { name: 'portadaIntro', type: 'textarea', localized: true },
   ],
