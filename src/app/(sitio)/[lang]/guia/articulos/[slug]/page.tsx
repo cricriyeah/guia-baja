@@ -106,7 +106,7 @@ export default async function PaginaArticulo({ params }: Props) {
           <Compartir lang={lang} titulo={a.titulo} clase="chip presionable" />
         </div>
       </header>
-      <div className="art-portada"><Imagen imagen={a.portada} cargar="eager" sizes="(min-width: 1120px) 1120px, 100vw" /></div>
+      {a.portada && <div className="art-portada"><Imagen imagen={a.portada} cargar="eager" sizes="(min-width: 1120px) 1120px, 100vw" /></div>}
 
       <div className="art-cuerpo">
         {indice.length > 1 && (
