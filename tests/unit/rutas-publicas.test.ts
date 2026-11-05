@@ -41,6 +41,17 @@ describe('resolverRutaPublica (spec §4, §7)', () => {
     ['/en/guide/events/--filtros', 'en'],
   ])('404 para %s', (url, lang) => expect(r(url)).toEqual({ tipo: 'noEncontrado', lang }))
 
+  it.each([
+    ['/es/guia/wp-login.php', 'es'],
+    ['/en/guide/.env', 'en'],
+    ['/es/guia/La-Paz', 'es'],
+    ['/es/guia/la-paz/playas%20x', 'es'],
+  ])('404 único para el segmento que no es slug en %s', (url, lang) => expect(r(url)).toEqual({ tipo: 'noEncontrado', lang }))
+
+  it('un listado válido con ?pagina=2 sigue reescribiendo igual tras el filtro de slugs', () => {
+    expect(r('/es/guia/la-paz/playas?pagina=2')).toEqual({ tipo: 'reescribir', destino: '/es/guia/la-paz/playas/--pagina/2' })
+  })
+
   it('lleva ?pagina=N de un listado a su segmento interno', () => {
     expect(r('/es/guia/la-paz/playas?pagina=2')).toEqual({ tipo: 'reescribir', destino: '/es/guia/la-paz/playas/--pagina/2' })
     expect(r('/en/guide/category/beaches?pagina=3')).toEqual({ tipo: 'reescribir', destino: '/en/guia/categoria/beaches/--pagina/3' })

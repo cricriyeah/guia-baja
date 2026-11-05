@@ -1,5 +1,6 @@
 import { esLocale, otroIdioma, type Locale } from './idioma'
 import { SEGMENTOS } from './rutas'
+import { esSlugValido } from './slugs'
 
 export type AccionRuta =
   | { tipo: 'pasar' }
@@ -32,6 +33,9 @@ export function resolverRutaPublica(pathname: string, params: URLSearchParams): 
   if (guia === SEGMENTOS[otroIdioma(lang)].guia) return { tipo: 'noEncontrado', lang }
   if (guia !== SEGMENTOS[lang].guia) return { tipo: 'pasar' }
   if (resto.some((s) => s.startsWith('--'))) return { tipo: 'noEncontrado', lang }
+  // Todo segmento que no es un slug válido (wp-login.php, .env, mayúsculas, %20…) va al 404 único. El 404 de la guía es ISR:
+  // sin esto, cada URL inventada por un escaneo dejaría su propia entrada en la caché.
+  if (!resto.every(esSlugValido)) return { tipo: 'noEncontrado', lang }
 
   const [primero, ...demas] = resto
   let arbol = resto
