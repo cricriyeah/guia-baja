@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { esLocale } from '../../../../dominio/idioma'
 import { zonasActivasCacheadas } from '../../../../sitio/datos/cacheadas'
 import { Cabecera } from '../../../../sitio/ui/Cabecera'
+import { Efectos } from '../../../../sitio/ui/Efectos'
 import { Pie } from '../../../../sitio/ui/Pie'
 
 // Marco de toda página de la guía: así el 404 y el error también salen con cabecera y pie, en su idioma.
@@ -17,6 +18,7 @@ export default async function LayoutGuia(props: { children: ReactNode; idioma: R
       <Cabecera lang={lang} zonas={zonas} idioma={props.idioma} />
       <main id="contenido">{props.children}</main>
       <Pie lang={lang} />
+      <Efectos />
     </>
   )
 }

@@ -28,7 +28,11 @@ export default async function LayoutRaiz({ children, params }: { children: React
   const { lang } = await params
   if (!esLocale(lang)) notFound()
   return (
-    <html lang={lang} className={consola.variable}>
+    <html lang={lang} className={consola.variable} suppressHydrationWarning>
+      <head>
+        {/* Antes del primer pintado: .js .entra oculta lo que Efectos va a mostrar al verse (c-base.css). */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
+      </head>
       <body>{children}</body>
     </html>
   )
