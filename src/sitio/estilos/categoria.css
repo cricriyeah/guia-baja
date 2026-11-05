@@ -1,0 +1,62 @@
+/* Encabezado con banda del grupo */
+.portada-cat { position: relative; border-radius: var(--radio-card); overflow: hidden; background: var(--g); color: var(--g-tinta); display: grid; grid-template-columns: 1fr; min-height: 260px; }
+@media (min-width: 900px) {
+  .portada-cat { grid-template-columns: 1.1fr 1fr; }
+}
+.portada-cat__texto { padding: clamp(20px, 4vw, 40px); display: grid; gap: 12px; align-content: end; }
+.portada-cat__texto p { max-width: 52ch; font-size: 1.0625rem; opacity: .92; }
+.portada-cat__cifras { display: flex; gap: 24px; flex-wrap: wrap; font-weight: 600; }
+.portada-cat__cifras b { display: block; font: 700 1.75rem/1 var(--titulo); }
+.portada-cat__fotos { display: none; position: relative; }
+@media (min-width: 900px) {
+  .portada-cat__fotos { display: block; }
+}
+.portada-cat__fotos img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.2s var(--curva), transform 7s linear; transform: scale(1.06); }
+.portada-cat__fotos img.activa { opacity: 1; transform: scale(1); }
+/* Herramientas: categorías hermanas, orden, vista */
+.herramientas { position: sticky; top: var(--cabecera); z-index: 20; margin: 0 calc(-1 * var(--margen)); padding: 10px var(--margen); background: rgb(255 255 255 / .9); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  display: flex; gap: 8px; align-items: center; overflow-x: auto; scrollbar-width: none; }
+.herramientas::-webkit-scrollbar { display: none; }
+.separador { flex: 0 0 1px; height: 24px; background: var(--borde); margin: 0 4px; }
+.orden { flex: 0 0 auto; height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--borde); background: var(--blanco); font: 600 .875rem var(--texto); cursor: pointer; }
+.vista { flex: 0 0 auto; position: relative; display: grid; grid-auto-flow: column; padding: 3px; border-radius: 11px; background: var(--gris); margin-left: auto; }
+.vista__indicador { position: absolute; top: 3px; bottom: 3px; left: 0; border-radius: 8px; background: var(--blanco); box-shadow: 0 2px 6px rgb(31 26 20 / .12); }
+.vista button { position: relative; z-index: 1; height: 30px; padding: 0 14px; border: 0; background: none; font-weight: 600; font-size: .875rem; cursor: pointer; color: var(--tinta-suave); }
+.vista button[aria-checked="true"] { color: var(--tinta); }
+@media (min-width: 1024px) {
+  .vista { display: none; }
+}
+/* Lista + mapa */
+.explorar { display: grid; gap: var(--hueco); padding-top: 8px; }
+@media (min-width: 1024px) {
+  .explorar { grid-template-columns: minmax(0, 1fr) minmax(360px, 42%); align-items: start; }
+}
+.lista { display: grid; gap: var(--hueco); grid-template-columns: 1fr; align-content: start; }
+@media (min-width: 640px) {
+  .lista { grid-template-columns: repeat(2, 1fr); }
+}
+.lista__vacia { grid-column: 1 / -1; padding: 32px; text-align: center; color: var(--apagado); border-radius: var(--radio-card); background: var(--arena); }
+.mapa-cat { border-radius: var(--radio-card); overflow: hidden; box-shadow: 0 0 0 1px var(--borde); height: calc(100svh - 190px); min-height: 420px; background: var(--azul-claro); }
+@media (min-width: 1024px) {
+  .mapa-cat { position: sticky; top: calc(var(--cabecera) + 72px); }
+}
+@media (max-width: 1023px) {
+  .explorar[data-vista="lista"] .mapa-cat { display: none; }
+  .explorar[data-vista="mapa"] .lista, .explorar[data-vista="mapa"] + .paginas { display: none; }
+  .mapa-cat { height: calc(100svh - 200px); }
+}
+.contador-res { color: var(--apagado); font-size: .9375rem; padding: 12px 0 0; }
+.pagina-categoria .mas { display: flex; justify-content: center; padding: 20px 0 0; }
+/* Artículos de la categoría */
+.lecturas { display: grid; gap: var(--hueco); }
+@media (min-width: 900px) {
+  .lecturas { grid-template-columns: repeat(3, 1fr); }
+}
+.lectura { display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: center; padding: 10px; border-radius: var(--radio-card); background: var(--arena); }
+.lectura .media { aspect-ratio: 4 / 3; border-radius: var(--radio-sm); }
+.pagina-categoria .tours { grid-auto-columns: min(80%, 300px); }
+@media (min-width: 1024px) {
+  .pagina-categoria .tours { grid-auto-columns: calc((100% - 2 * var(--margen) - 3 * var(--hueco)) / 4); }
+}
+/* El mapa de la categoría es MapLibre (decisión 20): su caja .mapa llena el contenedor. */
+.mapa-cat .mapa { height: 100%; }
