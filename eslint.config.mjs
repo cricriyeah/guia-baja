@@ -24,6 +24,11 @@ const eslintConfig = [
     },
   },
   {
+    // Spec §4.2: imágenes servidas directo de R2 con srcset; /_next/image no lleva el assetPrefix.
+    files: ['src/sitio/**', 'src/app/(sitio)/**'],
+    rules: { '@next/next/no-img-element': 'off' },
+  },
+  {
     ignores: [
       '.next/',
       'src/payload-types.ts',

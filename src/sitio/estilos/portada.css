@@ -1,0 +1,52 @@
+/* Encabezado: título e introducción del Global «Ajustes de la guía» */
+.encabezado { padding: 20px 0 4px; display: grid; gap: 8px; }
+.encabezado p { color: var(--tinta-suave); font-size: 1.125rem; max-width: 62ch; }
+
+/* Destacados (casilla «destacar en portada» en Artículos, Lugares y Eventos) */
+.destacados { display: grid; gap: var(--hueco); padding-top: var(--hueco); }
+@media (min-width: 900px) { .destacados { grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; } .destacados > :first-child { grid-row: span 2; } }
+.destacado { position: relative; border-radius: var(--radio-card); overflow: hidden; min-height: 240px; display: block; }
+.destacados > :first-child { min-height: 420px; }
+.destacado .media { position: absolute; inset: 0; }
+.destacado .titular { font-size: 1.125rem; margin-top: 8px; }
+.destacados > :first-child .titular { font: 700 clamp(1.5rem, 3vw, 2.5rem)/1.08 var(--titulo); text-transform: uppercase; letter-spacing: -0.02em; max-width: 20ch; }
+.destacado .meta { color: rgb(255 255 255 / .85); }
+
+/* Zonas activas */
+.zonas-rejilla { display: grid; gap: var(--hueco); grid-template-columns: 1fr; }
+@media (min-width: 720px) { .zonas-rejilla { grid-template-columns: repeat(3, 1fr); } }
+.zona-tarjeta { position: relative; border-radius: var(--radio-card); overflow: hidden; aspect-ratio: 4 / 5; display: block; color: var(--blanco); }
+@media (max-width: 719px) { .zona-tarjeta { aspect-ratio: 16 / 10; } }
+.zona-tarjeta .media { position: absolute; inset: 0; }
+.zona-tarjeta h3 { font: 700 clamp(1.75rem, 3.2vw, 2.75rem)/1 var(--titulo); text-transform: uppercase; letter-spacing: -0.02em; }
+.zona-tarjeta p { margin-top: 6px; max-width: 34ch; font-size: .9375rem; opacity: .92; }
+.zona-tarjeta .cifras { display: flex; gap: 14px; margin-top: 10px; font-size: .875rem; font-weight: 700; }
+.zona-tarjeta .flecha { position: absolute; top: 14px; right: 14px; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: rgb(255 255 255 / .9); color: var(--tinta); font-size: 1.1rem; transition: transform 300ms var(--curva); }
+.zona-tarjeta:hover .flecha { transform: translateX(4px); }
+
+/* Agenda de próximos eventos */
+.agenda { display: grid; gap: 8px; }
+@media (min-width: 900px) { .agenda { grid-template-columns: 1fr 1fr; column-gap: var(--hueco); } }
+.agenda__fila { display: grid; grid-template-columns: 64px 1fr auto; gap: 14px; align-items: center; padding: 10px 12px; border-radius: var(--radio-control); box-shadow: 0 0 0 1px var(--borde); background: var(--blanco); transition: box-shadow 200ms var(--curva); }
+.agenda__fila:hover { box-shadow: 0 0 0 1px var(--borde-control); }
+.agenda__fila[hidden] { display: none; }
+.fecha { display: grid; place-items: center; height: 64px; border-radius: var(--radio-sm); background: var(--g-claro, var(--arena)); color: var(--g-profundo, var(--tinta)); line-height: 1.05; text-align: center; }
+.fecha b { font: 700 1.5rem/1 var(--titulo); }
+.fecha small { font-size: .75rem; font-weight: 700; text-transform: uppercase; }
+.agenda__fila .titular { font-size: 1rem; margin: 3px 0 2px; }
+.agenda__fila .media { width: 72px; height: 56px; border-radius: var(--radio-sm); }
+.cuenta { font-size: .8125rem; font-weight: 700; color: var(--info); }
+@media (max-width: 479px) { .agenda__fila { grid-template-columns: 56px 1fr; } .agenda__fila .media { display: none; } }
+
+/* Artículos recientes */
+.articulos { display: grid; gap: var(--hueco); grid-template-columns: 1fr; }
+@media (min-width: 720px) { .articulos { grid-template-columns: repeat(3, 1fr); } }
+.articulos .nota .media { aspect-ratio: 16 / 10; }
+
+/* Categorías en todas las zonas */
+.categorias { display: grid; gap: 10px; grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 720px) { .categorias { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1200px) { .categorias { grid-template-columns: repeat(5, 1fr); } }
+.cat { display: flex; flex-direction: column; justify-content: space-between; min-height: 112px; padding: 14px; border-radius: var(--radio-card); background: var(--g); color: var(--g-tinta); transition: transform 160ms var(--curva); }
+.cat strong { font: 700 1.375rem/1.05 var(--titulo); text-transform: uppercase; letter-spacing: -0.01em; }
+.cat span { align-self: start; padding: 2px 10px; border-radius: 999px; background: var(--g-claro); color: var(--g-profundo); font-size: .8125rem; font-weight: 600; }
