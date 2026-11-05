@@ -1,13 +1,37 @@
 import { otroIdioma, type Locale } from '../dominio/idioma'
 import { rutas, SEGMENTOS } from '../dominio/rutas'
-import { categoriasCacheadas, zonasActivasCacheadas } from './datos/cacheadas'
+import { articulosCacheados, categoriasCacheadas, eventosCacheados, lugaresCacheados, zonasActivasCacheadas } from './datos/cacheadas'
+import { conteoCombinacion, porId, porSlug } from './datos/consultas'
 import type { ZonaPublica } from './datos/tipos'
 
 export type Contexto = { alterno: string; zona: ZonaPublica | null }
 type Resolutor = (lang: Locale, resto: string[]) => Promise<Contexto | null>
 
-// Documentos con slug propio. F3b agrega aquí lugares, eventos y artículos.
-const DOCUMENTOS: Partial<Record<string, Resolutor>> = {}
+async function zonaPorId(lang: Locale, id: number | undefined): Promise<ZonaPublica | null> {
+  if (id === undefined) return null
+  return (await zonasActivasCacheadas(lang)).find((z) => z.id === id) ?? null
+}
+
+function resolutor<T extends { id: number; slug: string }>(
+  lista: (lang: Locale) => Promise<T[]>,
+  ruta: (lang: Locale, slug: string) => string,
+  zonaDe: (x: T) => number | undefined,
+): Resolutor {
+  return async (lang, [slug]) => {
+    const doc = porSlug(await lista(lang), slug)
+    if (!doc) return null
+    const destino = otroIdioma(lang)
+    const otro = porId(await lista(destino), doc.id)
+    return { alterno: otro ? ruta(destino, otro.slug) : rutas.portada(destino), zona: await zonaPorId(lang, zonaDe(doc)) }
+  }
+}
+
+// Documentos con slug propio (plan F3a, contexto.ts).
+const DOCUMENTOS: Partial<Record<string, Resolutor>> = {
+  [SEGMENTOS.es.lugares]: resolutor(lugaresCacheados, rutas.lugar, (x) => x.zonaId),
+  [SEGMENTOS.es.eventos]: resolutor(eventosCacheados, rutas.evento, (x) => x.zonaId),
+  [SEGMENTOS.es.articulos]: resolutor(articulosCacheados, rutas.articulo, (x) => x.zonaIds[0]),
+}
 
 const FIJAS: Record<string, (l: Locale) => string> = {
   [SEGMENTOS.es.eventos]: rutas.eventos,
@@ -48,7 +72,9 @@ export async function contextoDe(lang: Locale, segmentos: string[]): Promise<Con
   const existeEnDestino = (await zonasActivasCacheadas(destino)).some((z) => z.id === zona.id)
   if (!existeEnDestino) return { ...portada, zona }
   if (interno(segundo)) return { alterno: rutas.zona(destino, zona.slug), zona }
-  // F3b: si la combinación no tiene lugares en el otro idioma, cae a la zona.
+  // La combinación debe tener lugares en el otro idioma (spec §7); si no, a la zona.
   const slugCat = await slugDeCategoriaEn(lang, segundo)
-  return { alterno: slugCat ? rutas.categoriaEnZona(destino, zona.slug, slugCat) : rutas.zona(destino, zona.slug), zona }
+  const cat = (await categoriasCacheadas(lang)).find((c) => c.slug === segundo)
+  const conLugares = cat ? conteoCombinacion(await lugaresCacheados(destino), zona.id, cat.id) > 0 : false
+  return { alterno: slugCat && conLugares ? rutas.categoriaEnZona(destino, zona.slug, slugCat) : rutas.zona(destino, zona.slug), zona }
 }
