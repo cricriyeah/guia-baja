@@ -167,6 +167,7 @@ const ES = {
   },
   paginacion: { etiqueta: 'Páginas', anterior: 'Anterior', siguiente: 'Siguiente', pagina: (n: number) => `Página ${n}` },
   sol: { hoy: (h: string) => `El sol se pone hoy a las ${h}.` },
+  carrusel: { reproducir: 'Reanudar', pausar: 'Pausar' },
 }
 
 type Textos = typeof ES
@@ -337,6 +338,7 @@ const EN: Textos = {
   },
   paginacion: { etiqueta: 'Pages', anterior: 'Previous', siguiente: 'Next', pagina: (n: number) => `Page ${n}` },
   sol: { hoy: (h: string) => `Sunset today is at ${h}.` },
+  carrusel: { reproducir: 'Play', pausar: 'Pause' },
 }
 
 export const textos = (lang: Locale): Textos => (lang === 'es' ? ES : EN)
