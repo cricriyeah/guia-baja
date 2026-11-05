@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 
 import type { Locale } from '../../dominio/idioma'
 import { hreflang, type VersionIdioma } from '../../dominio/indexable'
+import { textos } from '../textos'
 
 export type EntradaMetadatos = {
   lang: Locale
@@ -26,7 +27,7 @@ export function metadatos(e: EntradaMetadatos): Metadata {
       url: e.ruta,
       locale: e.lang === 'es' ? 'es_MX' : 'en_US',
       type: 'website',
-      siteName: 'Guía de la Baja',
+      siteName: textos(e.lang).guia,
     },
   }
 }

@@ -27,4 +27,9 @@ describe('metadatos (spec §9)', () => {
   it('Open Graph con el idioma', () => {
     expect(metadatos({ ...base, lang: 'en', indexable: true, versiones }).openGraph).toMatchObject({ locale: 'en_US', title: 'La Paz' })
   })
+
+  it('siteName sale en el idioma de la página', () => {
+    expect(metadatos({ ...base, indexable: true, versiones }).openGraph).toMatchObject({ siteName: 'Guía de la Baja' })
+    expect(metadatos({ ...base, lang: 'en', indexable: true, versiones }).openGraph).toMatchObject({ siteName: 'Baja Guide' })
+  })
 })

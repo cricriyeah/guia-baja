@@ -6,15 +6,19 @@ import type { ReactNode } from 'react'
 import { esLocale, LOCALES } from '../../../dominio/idioma'
 import { guiaIndexable, sitioUrl } from '../../../sitio/entorno'
 import '../../../sitio/estilos/base.css'
+import { textos } from '../../../sitio/textos'
 
 const consola = localFont({ src: '../../../sitio/fuentes/ConsolaMono-Bold.woff2', weight: '700', display: 'swap', variable: '--fuente-titulo' })
 
 export const generateStaticParams = () => LOCALES.map((lang) => ({ lang }))
 
-export function generateMetadata(): Metadata {
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params
+  // Un idioma inválido cae al español; el layout de la página dará el 404.
+  const guia = textos(esLocale(lang) ? lang : 'es').guia
   return {
     metadataBase: new URL(sitioUrl()),
-    title: { template: '%s · Guía de la Baja', default: 'Guía de la Baja' },
+    title: { template: `%s · ${guia}`, default: guia },
     // Spec §9: con GUIA_INDEXABLE distinto de true, ninguna página se indexa (las páginas pueden endurecerlo, no aflojarlo).
     robots: guiaIndexable() ? undefined : { index: false, follow: true },
   }
