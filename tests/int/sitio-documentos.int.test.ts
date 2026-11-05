@@ -2,8 +2,9 @@ import type { Payload } from 'payload'
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 import type { Articulo } from '../../src/payload-types'
+import { eventosPublicados } from '../../src/sitio/datos/lecturas/eventos'
 import { articulosPublicados, fichaArticulo } from '../../src/sitio/datos/lecturas/articulos'
-import { lugaresPublicados } from '../../src/sitio/datos/lecturas/lugares'
+import { fichaLugar, lugaresPublicados } from '../../src/sitio/datos/lecturas/lugares'
 import { textoZonaCategoria } from '../../src/sitio/datos/lecturas/textos'
 import { crearCategoria, crearImagen, crearLugar, crearUsuario, crearZona, lexical, limpiar, obtenerPayload } from './utils'
 
@@ -40,6 +41,23 @@ describe('lecturas de documentos del sitio', () => {
     expect((await lugaresPublicados(payload, 'es')).map((l) => l.id)).toEqual([lugar.id])
     await payload.update({ collection: 'lugares', id: lugar.id, locale: 'es', data: { _status: 'draft' }, overrideAccess: true, context: { sinRedirecciones: true } })
     expect(await lugaresPublicados(payload, 'es')).toEqual([])
+  })
+
+  it('lugares y eventos de una zona inactiva no salen en las listas ni en la ficha', async () => {
+    const zona = await crearZona(payload, { activa: false })
+    const cat = await crearCategoria(payload)
+    const img = await crearImagen(payload)
+    const lugar = await crearLugar(payload, { zona: zona.id, categorias: [cat.id], foto: img.id, slugEs: 'en-zona-inactiva' })
+    await payload.create({
+      collection: 'eventos', locale: 'es', overrideAccess: true,
+      data: {
+        nombre: 'Evento en zona inactiva', zona: zona.id, categorias: [cat.id], direccionLibre: 'Malecón', fotos: [img.id],
+        inicio: '2030-11-14T18:00:00-07:00', inicio_tz: 'America/Mazatlan', resumen: 'r', cuerpo: lexical('c'), _status: 'published',
+      },
+    })
+    expect(await lugaresPublicados(payload, 'es')).toEqual([])
+    expect(await eventosPublicados(payload, 'es')).toEqual([])
+    expect(await fichaLugar(payload, lugar.id, 'es')).toBeNull()
   })
 
   it('fichaArticulo: cuerpo sin poblar, portada e imágenes del cuerpo resueltas', async () => {

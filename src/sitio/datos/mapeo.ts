@@ -89,7 +89,8 @@ const fotosDe = (fotos: unknown, lang: Locale, media?: Record<string, Imagen>): 
 export function lugarDe(doc: Lugare, lang: Locale): TarjetaLugar | null {
   if (!existeEnIdioma(doc as never, CAMPOS_IDIOMA.lugares)) return null
   const zonaId = idDe(doc.zona)
-  if (zonaId === null || !doc.slug) return null
+  // Una zona inactiva no se puebla (acceso público): el id suelto no trae slug y la URL daría 404.
+  if (zonaId === null || !slugDe(doc.zona) || !doc.slug) return null
   return {
     id: doc.id,
     slug: doc.slug,
@@ -135,7 +136,7 @@ export function eventoDe(doc: Evento, lang: Locale): TarjetaEvento | null {
   if (!existeEnIdioma(doc as never, CAMPOS_IDIOMA.eventos)) return null
   const zonaId = idDe(doc.zona)
   const inicio = iso(doc.inicio)
-  if (zonaId === null || !doc.slug || !inicio) return null
+  if (zonaId === null || !slugDe(doc.zona) || !doc.slug || !inicio) return null
   return {
     id: doc.id,
     slug: doc.slug,

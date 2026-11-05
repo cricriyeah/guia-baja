@@ -25,6 +25,15 @@ describe('mapeos de documentos (regla de idioma, spec §6)', () => {
     expect(idaYVuelta(t)).toEqual(t)
   })
 
+  it('con la zona sin poblar (id suelto: inactiva o sin acceso), lugar y evento no existen', () => {
+    expect(lugarDe({ ...lugar, zona: 2 } as never, 'es')).toBeNull()
+    expect(lugarDe({ ...lugar, zona: { id: 2 } } as never, 'es')).toBeNull()
+    const evento = { id: 7, nombre: 'Trova', slug: 'trova', resumen: 'r', cuerpo: lexical('c'), categorias: [3], fotos: [foto],
+      inicio: '2026-11-07T02:00:00.000Z', fin: null, patrocinio: {}, seo: {} }
+    expect(eventoDe({ ...evento, zona: 2 } as never, 'es')).toBeNull()
+    expect(eventoDe({ ...evento, zona: { id: 2, slug: 'la-paz' } } as never, 'es')).not.toBeNull()
+  })
+
   it('sin resumen o sin cuerpo en el idioma, el lugar no existe', () => {
     expect(lugarDe({ ...lugar, resumen: null } as never, 'en')).toBeNull()
     expect(lugarDe({ ...lugar, cuerpo: lexical(' ') } as never, 'en')).toBeNull()
