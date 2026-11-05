@@ -27,3 +27,11 @@ export const rutas = {
   privacidad: (l: Locale) => `${base(l)}/${SEGMENTOS[l].privacidad}`,
   buscar: (l: Locale) => `${base(l)}/${SEGMENTOS[l].buscar}`,
 }
+
+// Paginación y filtros (spec §7). La página 1 no lleva parámetro.
+export const conConsulta = (ruta: string, consulta: string): string => (consulta ? `${ruta}?${consulta}` : ruta)
+
+export function conPagina(ruta: string, n: number, consulta = ''): string {
+  const partes = [consulta, n > 1 ? `pagina=${n}` : ''].filter(Boolean)
+  return conConsulta(ruta, partes.join('&'))
+}

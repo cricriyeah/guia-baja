@@ -17,7 +17,7 @@ export const CAMPOS_LOCALIZADOS = {
   articulos: ['titulo', 'slug', 'resumen', 'cuerpo'],
 } as const
 
-function textoDeLexical(nodo: unknown): string {
+export function textoDeLexical(nodo: unknown): string {
   if (!nodo || typeof nodo !== 'object') return ''
   const n = nodo as { text?: unknown; children?: unknown; root?: unknown }
   if (n.root) return textoDeLexical(n.root)
