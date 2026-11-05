@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
 
+import { ZONA_HORARIA } from '../../../dominio/fechas-evento'
 import type { Locale } from '../../../dominio/idioma'
 import { rutas } from '../../../dominio/rutas'
 import type { CategoriaPublica, TarjetaArticulo as Articulo } from '../../datos/tipos'
@@ -9,7 +10,7 @@ import { textos } from '../../textos'
 import { Imagen } from '../Imagen'
 
 const fecha = (iso: string | null, lang: Locale) =>
-  iso ? new Intl.DateTimeFormat(lang === 'es' ? 'es-MX' : 'en-US', { timeZone: 'America/Mazatlan', day: 'numeric', month: 'short' }).format(new Date(iso)) : ''
+  iso ? new Intl.DateTimeFormat(lang === 'es' ? 'es-MX' : 'en-US', { timeZone: ZONA_HORARIA, day: 'numeric', month: 'short' }).format(new Date(iso)) : ''
 
 // Tarjeta de artículo (.nota). Los artículos no llevan color de grupo propio: toman el de su categoría.
 export function TarjetaArticulo(props: { lang: Locale; articulo: Articulo; categoria?: CategoriaPublica; retraso?: number }) {

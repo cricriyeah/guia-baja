@@ -24,13 +24,17 @@ export function Efectos() {
       }),
       { threshold: 0.25 },
     )
+    // Lo que esta ejecución marcó: el cleanup lo desmarca para que un segundo montaje (StrictMode en dev) lo vuelva a tomar.
+    const marcados: HTMLElement[] = []
     const tomar = () => {
       document.querySelectorAll<HTMLElement>('.entra:not([data-visto])').forEach((el) => {
         el.dataset.visto = '1'
+        marcados.push(el)
         entradas.observe(el)
       })
       document.querySelectorAll<HTMLVideoElement>('video[data-auto]:not([data-visto])').forEach((v) => {
         v.dataset.visto = '1'
+        marcados.push(v)
         videos.observe(v)
       })
     }
@@ -55,6 +59,7 @@ export function Efectos() {
       entradas.disconnect()
       videos.disconnect()
       cambios.disconnect()
+      marcados.forEach((el) => delete el.dataset.visto)
       document.removeEventListener('pointerdown', presionar)
     }
   }, [])
