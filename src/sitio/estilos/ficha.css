@@ -1,0 +1,112 @@
+/* Galería */
+.galeria { display: grid; gap: 6px; border-radius: var(--radio-card); overflow: hidden; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 1fr 1fr; aspect-ratio: 21 / 9; }
+.galeria button { position: relative; padding: 0; border: 0; cursor: zoom-in; overflow: hidden; background: var(--arena); }
+.galeria button:first-child { grid-row: span 2; }
+.galeria img { width: 100%; height: 100%; object-fit: cover; transition: transform 700ms var(--curva), filter 300ms; }
+.galeria button:hover img { transform: scale(1.04); }
+.galeria__mas { position: absolute; right: 12px; bottom: 12px; padding: 8px 14px; border-radius: 999px; background: rgb(255 255 255 / .92); color: var(--tinta); font-weight: 700; font-size: .875rem; box-shadow: 0 2px 8px rgb(31 26 20 / .2); }
+@media (max-width: 767px) {
+  .galeria { display: grid; grid-template-columns: none; grid-template-rows: none; grid-auto-flow: column; grid-auto-columns: 100%; aspect-ratio: 4 / 3; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; gap: 0; margin: 0 calc(-1 * var(--margen)); border-radius: 0; }
+  .galeria::-webkit-scrollbar { display: none; }
+  .galeria button { scroll-snap-align: start; grid-row: auto !important; }
+  .galeria__mas { display: none; }
+}
+.galeria-envoltura { position: relative; }
+.contador { position: absolute; right: 12px; bottom: 12px; padding: 4px 10px; border-radius: 999px; background: rgb(31 26 20 / .6); color: var(--blanco); font-size: .8125rem; font-weight: 700; font-variant-numeric: tabular-nums; display: none; }
+@media (max-width: 767px) {
+  .contador { display: block; }
+}
+/* Encabezado */
+.cabeza { padding: 20px 0 8px; display: grid; gap: 10px; }
+.cabeza__chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.cabeza__resumen { font-size: 1.125rem; color: var(--tinta-suave); max-width: 60ch; }
+.datos { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; font-size: .9375rem; color: var(--tinta-suave); }
+.datos span + span::before { content: "·"; margin-right: 18px; color: var(--borde-control); }
+.acciones { display: flex; gap: 8px; flex-wrap: wrap; padding-top: 6px; }
+.accion { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--borde); background: var(--blanco); font-weight: 600; font-size: .9375rem; cursor: pointer; }
+.accion:hover { border-color: var(--borde-control); }
+.accion svg { width: 18px; height: 18px; }
+/* Cuerpo en dos columnas */
+.pagina-ficha .cuerpo { display: grid; gap: 32px; padding-top: 24px; }
+@media (min-width: 1024px) {
+  .pagina-ficha .cuerpo { grid-template-columns: minmax(0, 1fr) 380px; gap: 48px; align-items: start; }
+}
+.bloque + .bloque { margin-top: 36px; }
+.bloque h2 { margin-bottom: 12px; }
+.texto p { font-size: 1.0625rem; line-height: 1.65; max-width: 68ch; }
+.texto p + p { margin-top: 14px; }
+.consejos { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 10px; }
+.consejos li { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start; padding: 12px 14px; border-radius: var(--radio-control); background: var(--arena); }
+.consejos b { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--azul-claro); color: var(--azul-profundo); font-size: .8125rem; }
+.horario { border-radius: var(--radio-control); box-shadow: 0 0 0 1px var(--borde); overflow: hidden; max-width: 520px; }
+.horario__fila { display: flex; justify-content: space-between; padding: 10px 14px; font-variant-numeric: tabular-nums; }
+.horario__fila + .horario__fila { border-top: 1px solid var(--borde); }
+.horario__fila.hoy span:first-child::after { content: " · hoy"; color: var(--apagado); font-weight: 600; }
+.nota-horario { margin-top: 10px; color: var(--apagado); font-size: .9375rem; }
+.pagina-ficha .mapa { border-radius: var(--radio-card); overflow: hidden; box-shadow: 0 0 0 1px var(--borde); aspect-ratio: 16 / 9; background: var(--arena); }
+.pagina-ficha .mapa iframe { width: 100%; height: 100%; border: 0; }
+.mapa__pie { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; }
+.mini-evento { display: grid; grid-template-columns: 64px 1fr auto; gap: 14px; align-items: center; padding: 12px 14px; border-radius: var(--radio-control); box-shadow: 0 0 0 1px var(--borde); }
+.mini-evento + .mini-evento { margin-top: 8px; }
+.mini-evento__fecha { display: grid; place-items: center; height: 64px; border-radius: var(--radio-sm); background: var(--arena); line-height: 1.05; text-align: center; }
+.mini-evento__fecha b { font: 700 1.5rem/1 var(--titulo); }
+.mini-evento__fecha small { font-size: .75rem; font-weight: 700; color: var(--apagado); text-transform: uppercase; }
+.articulo-ref { display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: center; padding: 10px; border-radius: var(--radio-card); background: var(--arena); }
+.articulo-ref .media { aspect-ratio: 4 / 3; border-radius: var(--radio-sm); }
+/* Lateral */
+.pagina-ficha .lateral { display: grid; gap: 16px; }
+@media (min-width: 1024px) {
+  .pagina-ficha .lateral { position: sticky; top: calc(var(--cabecera) + 16px); }
+}
+.ficha-datos { border-radius: var(--radio-card); box-shadow: 0 0 0 1px var(--borde); overflow: hidden; }
+.ficha-datos__fila { display: grid; grid-template-columns: 24px 1fr; gap: 12px; padding: 12px 16px; align-items: start; font-size: .9375rem; }
+.ficha-datos__fila + .ficha-datos__fila { border-top: 1px solid var(--borde); }
+.ficha-datos__fila svg { width: 20px; height: 20px; color: var(--apagado); margin-top: 2px; }
+.ficha-datos__fila a { color: var(--cafe); font-weight: 600; }
+.ficha-datos__botones { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 16px 16px; }
+.tours-zona { border-radius: var(--radio-card); background: var(--arena); padding: 16px; display: grid; gap: 10px; }
+.tours-zona h2 { font: 700 1.125rem/1.2 var(--titulo); text-transform: uppercase; }
+.tour-fila { display: grid; grid-template-columns: 76px 1fr; gap: 12px; align-items: center; padding: 8px; border-radius: var(--radio-control); background: var(--blanco); }
+.tour-fila .media { aspect-ratio: 1; border-radius: var(--radio-sm); }
+.tour-fila .titular { font-size: .9375rem; }
+.tours-zona > a:last-child { justify-self: start; font-weight: 600; color: var(--cafe); }
+/* Barra fija inferior en celular */
+.barra-inferior { position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; display: none; gap: 8px; padding: 10px var(--margen) calc(10px + env(safe-area-inset-bottom));
+  background: rgb(255 255 255 / .86); -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%); box-shadow: 0 -1px 0 var(--borde);
+  transform: translateY(0); transition: transform 300ms var(--curva); }
+.barra-inferior.oculta { transform: translateY(110%); }
+.barra-inferior .boton { flex: 1; }
+@media (max-width: 1023px) {
+  .barra-inferior { display: flex; }
+}
+/* Visor de fotos */
+.visor { position: fixed; inset: 0; z-index: 50; background: rgb(18 15 12 / .96); display: grid; grid-template-rows: auto 1fr auto; opacity: 0; visibility: hidden; transition: opacity 240ms var(--curva), visibility 0s 240ms; }
+.visor.mostrado { opacity: 1; visibility: visible; transition: opacity 240ms var(--curva); }
+.visor__cabeza { display: flex; justify-content: space-between; align-items: center; padding: 12px var(--margen); color: var(--blanco); font-weight: 600; font-variant-numeric: tabular-nums; }
+.visor__cerrar { width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgb(255 255 255 / .14); color: var(--blanco); cursor: pointer; font-size: 1.1rem; }
+.visor__pista { display: grid; grid-auto-flow: column; grid-auto-columns: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+.visor__pista::-webkit-scrollbar { display: none; }
+.visor__pista figure { margin: 0; scroll-snap-align: center; display: grid; place-items: center; padding: 0 var(--margen); transform: scale(.96); transition: transform 360ms var(--curva); }
+.visor.mostrado .visor__pista figure { transform: none; }
+.visor__pista img { max-height: calc(100svh - 200px); width: auto; max-width: 100%; border-radius: var(--radio-control); object-fit: contain; }
+.visor__pista figcaption { color: rgb(255 255 255 / .85); margin-top: 10px; font-size: .9375rem; }
+.visor__pie { display: flex; justify-content: center; gap: 6px; padding: 12px; overflow-x: auto; }
+.visor__mini { width: 56px; height: 40px; border-radius: 6px; border: 2px solid transparent; padding: 0; overflow: hidden; cursor: pointer; opacity: .55; transition: opacity 200ms, border-color 200ms; background: none; }
+.visor__mini img { width: 100%; height: 100%; object-fit: cover; }
+.visor__mini[aria-current="true"] { opacity: 1; border-color: var(--blanco); }
+.visor__flecha { position: absolute; top: 50%; width: 48px; height: 48px; border-radius: 50%; border: 0; background: rgb(255 255 255 / .14); color: var(--blanco); font-size: 1.4rem; cursor: pointer; }
+.visor__flecha--izq { left: 16px; }
+.visor__flecha--der { right: 16px; }
+@media (hover: none) {
+  .visor__flecha { display: none; }
+}
+.pagina-ficha .aviso { position: fixed; left: 50%; bottom: 96px; z-index: 60; transform: translate(-50%, 20px); opacity: 0; padding: 10px 16px; border-radius: 999px; background: var(--tinta); color: var(--blanco); font-weight: 600; font-size: .9375rem; transition: opacity 200ms, transform 300ms var(--curva); pointer-events: none; }
+.pagina-ficha .aviso.visible { opacity: 1; transform: translate(-50%, 0); }
+/* Ajustes de la implementación (no vienen de c-ficha.html): el diseño pinta el horario con filas <div> y el visor con
+   miniaturas en .visor__pie; aquí el horario es una <table> y .visor__pie lleva el crédito de la foto. */
+.horario { width: 100%; border-collapse: collapse; }
+.horario th, .horario td { padding: 10px 14px; font-weight: 400; text-align: left; }
+.horario td { text-align: right; }
+.horario tr + tr { border-top: 1px solid var(--borde); }
+.visor__pie { color: rgb(255 255 255 / .85); font-size: .9375rem; text-align: center; }
+.ficha-datos__fila { grid-template-columns: 1fr; }

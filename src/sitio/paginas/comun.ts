@@ -77,3 +77,10 @@ export async function versionesListado(e: {
   const v = versionesDe({ lang: e.lang, guiaIndexable: e.guiaIndexable, rutas, conteo, totalPaginas, pagina: filtros ? 1 : pagina, conFiltros: Boolean(filtros) })
   return { indexable: v.propia.indexable, canonica: filtros ? propia : v.propia.ruta, versiones: v.versiones }
 }
+
+// Ruta de un documento en cada idioma en que existe (para hreflang y canónica). `rutaEn` devuelve la ruta pública del
+// documento en ese idioma o undefined si no existe ahí (spec §6: un documento ausente en un idioma da 404 en él).
+export async function rutasPorIdioma(rutaEn: (l: Locale) => Promise<string | undefined>): Promise<Partial<Record<Locale, string>>> {
+  const pares = await Promise.all(LOCALES.map(async (l) => [l, await rutaEn(l)] as const))
+  return Object.fromEntries(pares.filter(([, r]) => r !== undefined))
+}
