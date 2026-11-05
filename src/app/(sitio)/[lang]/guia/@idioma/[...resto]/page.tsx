@@ -5,6 +5,10 @@ import { SelectorIdioma } from '../../../../../../sitio/ui/SelectorIdioma'
 
 // Mismo nombre de parámetro que el catch-all de children (validateAppPaths de Next 16). Next lo usa para toda ruta
 // de children sin página propia en el slot y le pasa `resto` con los segmentos internos (tras el rewrite del proxy).
+// Sin esto, toda ruta de children con segmento dinámico propio (p. ej. [zona]) hereda el parámetro `resto` de este slot
+// sin valor para prerenderizar y Next la deja dinámica (ƒ) en vez de ISR.
+export const generateStaticParams = () => []
+
 export default async function IdiomaResto({ params }: { params: Promise<{ lang: string; resto: string[] }> }) {
   const { lang, resto } = await params
   if (!esLocale(lang)) return null
