@@ -7,11 +7,12 @@ const cat = (id: number, slug: string) => ({ id, slug, nombre: slug, grupo: 'mar
 vi.mock('../../src/sitio/datos/cacheadas', () => ({
   zonasActivasCacheadas: async (lang: string) =>
     lang === 'es' ? [zona(1, 'la-paz', 'La Paz', 'la-paz'), zona(2, 'solo-es', 'Solo ES')] : [zona(1, 'la-paz', 'La Paz', 'la-paz')],
-  categoriasCacheadas: async (lang: string) => (lang === 'es' ? [cat(5, 'playas'), cat(6, 'solo-es')] : [cat(5, 'beaches')]),
+  categoriasCacheadas: async (lang: string) => (lang === 'es' ? [cat(5, 'playas'), cat(6, 'solo-es'), cat(7, 'cultura'), cat(8, 'comida')] : [cat(5, 'beaches'), cat(7, 'culture'), cat(8, 'food')]),
   lugaresCacheados: async (lang: string) =>
     lang === 'es'
-      ? [{ id: 1, slug: 'balandra', zonaId: 1, categoriaIds: [5] }, { id: 2, slug: 'solo-es', zonaId: 1, categoriaIds: [6] }]
-      : [{ id: 1, slug: 'balandra-beach', zonaId: 1, categoriaIds: [5] }],
+      ? [{ id: 1, slug: 'balandra', zonaId: 1, categoriaIds: [5] }, { id: 2, slug: 'solo-es', zonaId: 1, categoriaIds: [6] },
+          { id: 3, slug: 'museo', zonaId: 1, categoriaIds: [7] }, { id: 4, slug: 'cocina', zonaId: 1, categoriaIds: [8] }]
+      : [{ id: 1, slug: 'balandra-beach', zonaId: 1, categoriaIds: [5] }, { id: 5, slug: 'food-court', zonaId: 2, categoriaIds: [8] }],
   eventosCacheados: async (lang: string) => (lang === 'es' ? [{ id: 7, slug: 'trova', zonaId: 1 }] : [{ id: 7, slug: 'trova-night', zonaId: 1 }]),
   articulosCacheados: async (lang: string) => (lang === 'es' ? [{ id: 8, slug: 'siete', zonaIds: [1] }] : []),
 }))
@@ -54,5 +55,14 @@ describe('contextoDe (spec §7: cambio de idioma y puente)', () => {
     expect((await contextoDe('es', ['la-paz', 'playas'])).alterno).toBe('/en/guide/la-paz/beaches')
     // categoría 6 (solo-es) no tiene lugares en inglés ni slug en inglés: zona
     expect((await contextoDe('es', ['la-paz', 'solo-es'])).alterno).toBe('/en/guide/la-paz')
+    // categoría con slug en ambos idiomas, pero sin lugares en inglés para la combinación: zona
+    expect((await contextoDe('es', ['la-paz', 'cultura'])).alterno).toBe('/en/guide/la-paz')
+    // en inglés la categoría tiene lugares, pero en otra zona: la combinación sigue vacía
+    expect((await contextoDe('es', ['la-paz', 'comida'])).alterno).toBe('/en/guide/la-paz')
+  })
+
+  it('segmentos internos no cambian el resultado', async () => {
+    expect((await contextoDe('es', ['la-paz', 'playas', '--pagina', '2'])).alterno).toBe('/en/guide/la-paz/beaches')
+    expect(await contextoDe('es', ['lugares', '--'])).toEqual({ alterno: '/en/guide', zona: null })
   })
 })
