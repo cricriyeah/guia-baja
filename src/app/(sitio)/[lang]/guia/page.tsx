@@ -2,15 +2,25 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
-import { esLocale, LOCALES } from '../../../../dominio/idioma'
+import { esLocale, LOCALES, type Locale } from '../../../../dominio/idioma'
+import { patrocinioDeclarado } from '../../../../dominio/patrocinio'
 import { rutas } from '../../../../dominio/rutas'
-import { ajustesCacheados, categoriasCacheadas, zonasActivasCacheadas } from '../../../../sitio/datos/cacheadas'
+import {
+  ajustesCacheados, articulosCacheados, categoriasCacheadas, eventosCacheados, lugaresCacheados, zonasActivasCacheadas,
+} from '../../../../sitio/datos/cacheadas'
+import { categoriasConLugares, conteoCombinacion, destacados, eventosProximos, lugaresDe, porId, type ItemDestacado } from '../../../../sitio/datos/consultas'
+import type { CategoriaPublica } from '../../../../sitio/datos/tipos'
 import { guiaIndexable, sitioUrl } from '../../../../sitio/entorno'
 import '../../../../sitio/estilos/portada.css'
 import { migasLd } from '../../../../sitio/seo/jsonld'
 import { metadatos } from '../../../../sitio/seo/metadatos'
 import { textos } from '../../../../sitio/textos'
+import { Aparece } from '../../../../sitio/ui/Aparece'
+import { Patrocinado } from '../../../../sitio/ui/Etiquetas'
+import { Imagen } from '../../../../sitio/ui/Imagen'
 import { JsonLd } from '../../../../sitio/ui/JsonLd'
+import { FilaAgenda } from '../../../../sitio/ui/tarjetas/FilaAgenda'
+import { TarjetaArticulo } from '../../../../sitio/ui/tarjetas/TarjetaArticulo'
 
 export const revalidate = 3600
 
@@ -32,45 +42,108 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   })
 }
 
-// Portada mínima de F3a (zonas y categorías de c-portada.html). F3b agrega destacados, eventos y artículos.
+function Destacada({ lang, d, cats, primera }: { lang: Locale; d: ItemDestacado; cats: CategoriaPublica[]; primera: boolean }) {
+  const ruta = d.tipo === 'lugar' ? rutas.lugar(lang, d.item.slug) : d.tipo === 'evento' ? rutas.evento(lang, d.item.slug) : rutas.articulo(lang, d.item.slug)
+  const imagen = d.tipo === 'articulo' ? d.item.portada : d.item.foto
+  const titulo = d.tipo === 'articulo' ? d.item.titulo : d.item.nombre
+  const cat = cats.find((c) => c.id === d.item.categoriaIds[0])
+  // Spec §6: un lugar o evento destacado con patrocinio declarado lleva su etiqueta también aquí.
+  const declarado = d.tipo !== 'articulo' && patrocinioDeclarado(d.item.patrocinio)
+  return (
+    <Link className={`destacado tarjeta presionable ${cat?.claseGrupo ?? ''}`} href={ruta} rel={declarado ? 'sponsored' : undefined}>
+      <div className="media"><Imagen imagen={imagen} cargar={primera ? 'eager' : 'lazy'} sizes={primera ? '(min-width: 900px) 66vw, 100vw' : '(min-width: 900px) 33vw, 100vw'} alt="" /></div>
+      <div className="velo-texto">
+        {declarado && <><Patrocinado lang={lang} /> </>}
+        {cat && <span className="etiqueta">{cat.nombre}</span>}
+        <p className="titular">{titulo}</p>
+        <p className="meta">{d.item.resumen}</p>
+      </div>
+    </Link>
+  )
+}
+
+// Portada de c-portada.html: encabezado, destacados, zonas, próximos eventos, artículos, categorías y franja de negocios.
 export default async function Portada({ params }: Props) {
   const { lang } = await params
   if (!esLocale(lang)) notFound()
-  const [ajustes, zonas, cats] = await Promise.all([ajustesCacheados(lang), zonasActivasCacheadas(lang), categoriasCacheadas(lang)])
+  const [ajustes, zonas, cats, lugares, eventos, articulos] = await Promise.all([
+    ajustesCacheados(lang), zonasActivasCacheadas(lang), categoriasCacheadas(lang),
+    lugaresCacheados(lang), eventosCacheados(lang), articulosCacheados(lang),
+  ])
   const t = textos(lang)
+  const ahora = new Date().toISOString()
+  const proximos = eventosProximos(eventos, ahora, {})
+  const top = destacados({ lugares, eventos, articulos }, ahora).slice(0, 3)
+  const catDe = (ids: number[]) => cats.find((c) => c.id === ids[0])
   return (
     <div className="ancho">
       <section className="encabezado" aria-labelledby="titulo">
         <h1 id="titulo" className="t-pagina">{ajustes.portadaTitulo ?? t.portada.titulo}</h1>
         <p>{ajustes.portadaIntro ?? t.portada.intro}</p>
       </section>
+
+      {top.length > 0 && (
+        <section className="destacados" aria-label={t.secciones.destacados}>
+          {top.map((d, i) => <Destacada key={`${d.tipo}-${d.item.id}`} lang={lang} d={d} cats={cats} primera={i === 0} />)}
+        </section>
+      )}
+
       <section className="seccion" aria-labelledby="t-zonas">
         <div className="seccion__cabeza"><h2 id="t-zonas" className="t-seccion">{t.portada.zonas}</h2></div>
         <div className="zonas-rejilla">
           {zonas.map((z) => (
-            <Link key={z.id} className="zona-tarjeta tarjeta presionable" href={rutas.zona(lang, z.slug)}>
-              <div className="media">{z.foto && <img src={z.foto.src} srcSet={z.foto.srcset} sizes="(min-width: 720px) 33vw, 100vw" alt="" loading="lazy" />}</div>
+            <Link key={z.id} className="zona-tarjeta tarjeta presionable entra" href={rutas.zona(lang, z.slug)}>
+              <div className="media"><Imagen imagen={z.foto} sizes="(min-width: 720px) 33vw, 100vw" alt="" /></div>
               <span className="flecha" aria-hidden="true">→</span>
               <div className="velo-texto">
                 <h3>{z.nombre}</h3>
                 {z.descripcion && <p>{z.descripcion}</p>}
+                <div className="cifras">
+                  <span>{t.tarjetas.lugares(lugaresDe(lugares, { zonaId: z.id }).length)}</span>
+                  <span>{t.tarjetas.eventos(eventosProximos(eventos, ahora, { zonaId: z.id }).length)}</span>
+                </div>
               </div>
             </Link>
           ))}
         </div>
       </section>
+
+      {proximos.length > 0 && (
+        <section className="seccion" aria-labelledby="t-eventos">
+          <div className="seccion__cabeza">
+            <h2 id="t-eventos" className="t-seccion">{t.secciones.proximosEventos}</h2>
+            <Link href={rutas.eventos(lang)}>{t.secciones.todosLosEventos}</Link>
+          </div>
+          <div className="agenda">
+            {proximos.slice(0, 6).map((e) => (
+              <FilaAgenda key={e.id} lang={lang} evento={e} categoria={catDe(e.categoriaIds)} lugarNombre={porId(lugares, e.lugarId)?.nombre} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {articulos.length > 0 && (
+        <section className="seccion" aria-labelledby="t-articulos">
+          <div className="seccion__cabeza"><h2 id="t-articulos" className="t-seccion">{t.secciones.articulosRecientes}</h2></div>
+          <div className="articulos">
+            {articulos.slice(0, 3).map((a, i) => <TarjetaArticulo key={a.id} lang={lang} articulo={a} categoria={catDe(a.categoriaIds)} retraso={i * 80} />)}
+          </div>
+        </section>
+      )}
+
       <section className="seccion" aria-labelledby="t-cat">
         <div className="seccion__cabeza"><h2 id="t-cat" className="t-seccion">{t.portada.categorias}</h2></div>
         <div className="categorias">
-          {cats
-            .filter((c) => c.aplicaA !== 'evento')
-            .map((c) => (
-              <Link key={c.id} className={`cat ${c.claseGrupo} presionable`} href={rutas.categoria(lang, c.slug)}>
-                <strong>{c.nombre}</strong>
-              </Link>
-            ))}
+          {categoriasConLugares(lugares, cats).map((c) => (
+            <Link key={c.id} className={`cat ${c.claseGrupo} presionable`} href={rutas.categoria(lang, c.slug)}>
+              <strong>{c.nombre}</strong>
+              <span>{t.tarjetas.lugares(conteoCombinacion(lugares, null, c.id))}</span>
+            </Link>
+          ))}
         </div>
       </section>
+
+      <Aparece lang={lang} />
       <JsonLd datos={migasLd([{ nombre: t.migas.guia, ruta: rutas.portada(lang) }], sitioUrl())} />
     </div>
   )
