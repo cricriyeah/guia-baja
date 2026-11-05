@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Suspense } from 'react'
 
 import { kmEnLineaRecta } from '../../../../../dominio/distancia'
 import { esLocale, LOCALES, type Locale } from '../../../../../dominio/idioma'
@@ -19,7 +18,6 @@ import type {
 } from '../../../../../sitio/datos/tipos'
 import { guiaIndexable, sitioUrl } from '../../../../../sitio/entorno'
 import '../../../../../sitio/estilos/zona.css'
-import { noEncontrado } from '../../../../../sitio/redirigir'
 import { listaLd, migasLd } from '../../../../../sitio/seo/jsonld'
 import { metadatos } from '../../../../../sitio/seo/metadatos'
 import { versionesDe } from '../../../../../sitio/seo/versiones'
@@ -27,10 +25,11 @@ import { textos } from '../../../../../sitio/textos'
 import { Aparece } from '../../../../../sitio/ui/Aparece'
 import { BandaTours } from '../../../../../sitio/ui/BandaTours'
 import { Carrusel, type Diapositiva } from '../../../../../sitio/ui/Carrusel'
+import { Patrocinado } from '../../../../../sitio/ui/Etiquetas'
 import { Imagen } from '../../../../../sitio/ui/Imagen'
 import { JsonLd } from '../../../../../sitio/ui/JsonLd'
 import { Migas } from '../../../../../sitio/ui/Migas'
-import { NoEncontrado } from '../../../../../sitio/ui/NoEncontrado'
+import { NoEncontradoEnSuspense } from '../../../../../sitio/ui/NoEncontradoEnSuspense'
 import { Pildoras } from '../../../../../sitio/ui/Pildoras'
 import { PuestaDelSol } from '../../../../../sitio/ui/PuestaDelSol'
 import { Riel } from '../../../../../sitio/ui/Riel'
@@ -109,7 +108,7 @@ function Zona({ lang, zona, cats, lugares, eventos, articulos }: Datos & { lang:
             {proximos.slice(0, 1).map((e) => (
               <Link key={e.id} className={`lateral tarjeta presionable ${catDe(e.categoriaIds)?.claseGrupo ?? ''}`} href={rutas.evento(lang, e.slug)}>
                 <div className="media"><Imagen imagen={e.foto} sizes="(min-width: 900px) 33vw, 100vw" alt="" /></div>
-                <div className="velo-texto"><span className="etiqueta">{catDe(e.categoriaIds)?.nombre}</span><p className="titular">{e.nombre}</p></div>
+                <div className="velo-texto">{patrocinioDeclarado(e.patrocinio) && <><Patrocinado lang={lang} /> </>}<span className="etiqueta">{catDe(e.categoriaIds)?.nombre}</span><p className="titular">{e.nombre}</p></div>
               </Link>
             ))}
           </div>
@@ -170,10 +169,6 @@ function Zona({ lang, zona, cats, lugares, eventos, articulos }: Datos & { lang:
   )
 }
 
-async function Resolver({ lang, slug }: { lang: Locale; slug: string }) {
-  return noEncontrado(lang, [slug])
-}
-
 export default async function PaginaZona({ params }: Props) {
   const { lang, zona: slug } = await params
   if (!esLocale(lang)) notFound()
@@ -183,12 +178,6 @@ export default async function PaginaZona({ params }: Props) {
   const zona = porSlug(zonas, slug)
   // Zona inexistente o inactiva: redirección o 404 dentro de un Suspense (ver guia/[...resto]/page.tsx). La zona que
   // existe se pinta fuera de él: en el HTML del servidor el contenido va directo, no detrás del fallback del 404.
-  if (!zona) {
-    return (
-      <Suspense fallback={<NoEncontrado />}>
-        <Resolver lang={lang} slug={slug} />
-      </Suspense>
-    )
-  }
+  if (!zona) return <NoEncontradoEnSuspense lang={lang} segmentos={[slug]} />
   return <Zona lang={lang} zona={zona} cats={cats} lugares={lugares} eventos={eventos} articulos={articulos} />
 }
