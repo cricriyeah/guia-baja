@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto'
 
 import type { Payload } from 'payload'
 
-import type { Lugare } from '../payload-types'
+import type { Evento, Lugare, Media, Zona } from '../payload-types'
 
 import { imagenDePrueba } from './imagenes'
 import { vaciarColecciones } from './vaciar'
@@ -32,16 +32,16 @@ const CATEGORIAS = [
   { es: 'Cultura', en: 'Culture', tipo: 'TouristAttraction', aplica: 'ambos', grupo: 'lo-local' },
 ] as const
 
-// Nombres inventados: nunca datos reales (spec §5.5).
+// Nombres inventados: nunca datos reales (spec §5.5). Coordenadas cerca de La Paz.
 const LUGARES = [
-  { nombre: 'Cocina Marea Alta', cat: 0, en: true },
-  { nombre: 'Taquería El Faro Azul', cat: 0, en: true },
-  { nombre: 'Mesa del Desierto', cat: 0, en: true },
-  { nombre: 'Café Duna', cat: 1, en: true },
-  { nombre: 'Bar La Ballena Gris', cat: 1, en: false },
-  { nombre: 'Playa Arena Fina', cat: 3, en: true },
-  { nombre: 'Kayak Bahía Serena', cat: 2, en: true },
-  { nombre: 'Taller de Palma', cat: 4, en: true, patrocinado: true },
+  { nombre: 'Cocina Marea Alta', cat: 0, en: true, coord: [-110.3105, 24.1601], destacado: 1, carac: ['con-comida'] },
+  { nombre: 'Taquería El Faro Azul', cat: 0, en: true, coord: [-110.3152, 24.1588], carac: ['para-ninos', 'con-comida'] },
+  { nombre: 'Mesa del Desierto', cat: 0, en: true, coord: [-110.3001, 24.1405], carac: [] },
+  { nombre: 'Café Duna', cat: 1, en: true, coord: [-110.3121, 24.1633], carac: [], madrugada: true },
+  { nombre: 'Bar La Ballena Gris', cat: 1, en: false, coord: [-110.3135, 24.1622], carac: [], vencido: true },
+  { nombre: 'Playa Arena Fina', cat: 3, en: true, coord: [-110.3226, 24.3216], destacado: 2, carac: ['para-ninos'] },
+  { nombre: 'Kayak Bahía Serena', cat: 2, en: true, coord: [-110.2911, 24.2102], carac: ['solo-con-tour'], futuro: true },
+  { nombre: 'Taller de Palma', cat: 4, en: true, patrocinado: true, coord: [-110.3099, 24.1555], carac: [] },
 ] as const
 
 export async function sembrar(
@@ -64,7 +64,7 @@ export async function sembrar(
     context: ctx,
   })
 
-  const fotos = []
+  const fotos: Media[] = []
   for (const [i, color] of [{ r: 20, g: 110, b: 150 }, { r: 210, g: 160, b: 90 }, { r: 60, g: 140, b: 90 }].entries()) {
     const data = await imagenDePrueba({ color })
     fotos.push(
@@ -79,11 +79,11 @@ export async function sembrar(
     )
   }
 
-  const zonas = []
+  const zonas: Zona[] = []
   for (const z of [
-    { nombre: 'La Paz', slug: 'la-paz', activa: true, sedeSlug: 'la-paz', orden: 1 },
-    { nombre: 'La Ventana', slug: 'la-ventana', activa: true, sedeSlug: 'la-ventana', orden: 2 },
-    { nombre: 'Puerto Chale', slug: 'puerto-chale', activa: false, sedeSlug: 'puerto-chale', orden: 3 },
+    { nombre: 'La Paz', slug: 'la-paz', activa: true, sedeSlug: 'la-paz', orden: 1, coordenadas: [-110.3128, 24.1426] as [number, number] },
+    { nombre: 'La Ventana', slug: 'la-ventana', activa: true, sedeSlug: 'la-ventana', orden: 2, coordenadas: [-109.9906, 24.0469] as [number, number] },
+    { nombre: 'Puerto Chale', slug: 'puerto-chale', activa: false, sedeSlug: 'puerto-chale', orden: 3, coordenadas: [-111.0311, 24.4247] as [number, number] },
   ]) {
     const doc = await payload.create({
       collection: 'zonas', locale: 'es',
@@ -113,10 +113,30 @@ export async function sembrar(
         nombre: l.nombre, zona: zonas[0].id, categorias: [categorias[l.cat].id], fotos: [fotos[i % 3].id],
         resumen: `${l.nombre}: lugar inventado para pruebas en La Paz.`, cuerpo: parrafo(`Texto de prueba sobre ${l.nombre}.`),
         direccion: 'Calle Inventada 123, La Paz, BCS', telefono: '+52 612 000 0000', rangoPrecio: '$$',
-        horario: [{ dia: 'lunes', abre: '09:00', cierra: '18:00' }],
+        coordenadas: [...l.coord] as [number, number],
+        caracteristicas: [...l.carac],
+        destacadoEnPortada: 'destacado' in l,
+        ordenDestacado: 'destacado' in l ? l.destacado : 100,
+        horario: 'madrugada' in l
+          ? [{ dia: 'viernes', abre: '18:00', cierra: '02:00' }, { dia: 'sabado', abre: '18:00', cierra: '02:00' }]
+          : [
+              { dia: 'martes', abre: '12:00', cierra: '17:00' },
+              { dia: 'martes', abre: '19:00', cierra: '23:00' },
+              { dia: 'miercoles', abre: '09:00', cierra: '18:00' },
+              { dia: 'jueves', abre: '09:00', cierra: '18:00' },
+              { dia: 'viernes', abre: '09:00', cierra: '18:00' },
+              { dia: 'sabado', abre: '09:00', cierra: '18:00' },
+            ],
         patrocinio: 'patrocinado' in l
           ? { activo: true, desde: soloDia(ahora.getTime() - 5 * dia), hasta: soloDia(ahora.getTime() + 60 * dia), notaInterna: 'Prueba' }
-          : { activo: false },
+          : 'futuro' in l
+            ? { activo: true, desde: soloDia(ahora.getTime() + 10 * dia), hasta: soloDia(ahora.getTime() + 40 * dia), notaInterna: 'Declarado, aún no vigente' }
+            : 'vencido' in l
+              ? { activo: true, desde: soloDia(ahora.getTime() - 60 * dia), hasta: soloDia(ahora.getTime() - 5 * dia), notaInterna: 'Vencido' }
+              : { activo: false },
+        web: 'https://ejemplo.invalid',
+        instagram: '@ejemplo_guia',
+        whatsapp: '+52 612 000 0000',
         _status: 'published',
       },
       overrideAccess: true, context: ctx,
@@ -131,9 +151,10 @@ export async function sembrar(
     lugares.push(doc)
   }
 
+  const eventos: Evento[] = []
   for (const e of [
     { nombre: 'Feria de prueba (pasada)', dias: -10 },
-    { nombre: 'Concierto de prueba', dias: 7 },
+    { nombre: 'Concierto de prueba', dias: 7, conFin: true },
     { nombre: 'Festival inventado', dias: 20 },
   ]) {
     const inicio = new Date(ahora.getTime() + e.dias * dia).toISOString()
@@ -141,8 +162,19 @@ export async function sembrar(
       collection: 'eventos', locale: 'es',
       data: {
         nombre: e.nombre, zona: zonas[0].id, categorias: [categorias[6].id], lugar: lugares[0].id, inicio, inicio_tz: 'America/Mazatlan',
+        ...('conFin' in e
+          ? {
+              fin: new Date(new Date(inicio).getTime() + 3 * 60 * 60 * 1000).toISOString(),
+              fin_tz: 'America/Mazatlan' as const,
+              destacadoEnPortada: true,
+              ordenDestacado: 3,
+              gratis: false,
+              precio: '$150 MXN',
+              urlBoletos: 'https://ejemplo.invalid/boletos',
+            }
+          : { gratis: true }),
         fotos: [fotos[1].id], resumen: `${e.nombre} en La Paz.`, cuerpo: parrafo(`Detalle de ${e.nombre}.`),
-        gratis: true, _status: 'published',
+        _status: 'published',
       },
       overrideAccess: true, context: ctx,
     })
@@ -151,12 +183,28 @@ export async function sembrar(
       data: { nombre: `${e.nombre} (EN)`, resumen: `${e.nombre} in La Paz.`, cuerpo: parrafo(`Details of ${e.nombre}.`), _status: 'published' },
       overrideAccess: true, context: ctx,
     })
+    eventos.push(doc)
   }
 
   const cuerpoArticulo = (texto: string) => {
     const c = parrafo(texto)
+    const txt = (t: string) => ({ type: 'text', text: t, format: 0, style: '', mode: 'normal', detail: 0, version: 1 })
+    const h2 = (t: string) => ({ type: 'heading', tag: 'h2', version: 1, format: '', indent: 0, direction: 'ltr', children: [txt(t)] })
     ;(c.root.children as unknown[]).push(
+      h2('En el centro'),
+      {
+        type: 'paragraph', version: 1, format: '', indent: 0, direction: 'ltr', textFormat: 0,
+        children: [{
+          type: 'link', version: 3, format: '', indent: 0, direction: 'ltr',
+          fields: { linkType: 'internal', doc: { relationTo: 'lugares', value: lugares[1].id }, newTab: false },
+          children: [txt('la taquería del faro')],
+        }],
+      },
       { type: 'block', version: 2, format: '', fields: { id: 'tarjeta-1', blockName: '', blockType: 'tarjetaLugar', lugar: lugares[0].id } },
+      h2('Qué ver'),
+      { type: 'upload', version: 3, format: '', relationTo: 'media', value: fotos[0].id, fields: null },
+      { type: 'block', version: 2, format: '', fields: { id: 'evento-1', blockName: '', blockType: 'tarjetaEvento', evento: eventos[1].id } },
+      { type: 'block', version: 2, format: '', fields: { id: 'tours-1', blockName: '', blockType: 'toursZona', zona: zonas[0].id } },
       {
         type: 'block', version: 2, format: '',
         fields: { id: 'faq-1', blockName: '', blockType: 'preguntasFrecuentes', preguntas: [{ id: 'p1', pregunta: '¿Es de prueba?', respuesta: 'Sí.' }] },
@@ -164,15 +212,16 @@ export async function sembrar(
     )
     return c
   }
-  for (const a of [
+  for (const [i, a] of [
     { es: 'Qué hacer en La Paz (prueba)', en: 'What to do in La Paz (sample)' },
     { es: 'Dónde comer en La Paz (prueba)', en: 'Where to eat in La Paz (sample)' },
-  ]) {
+  ].entries()) {
     const doc = await payload.create({
       collection: 'articulos', locale: 'es',
       data: {
         titulo: a.es, zonas: [zonas[0].id], portada: fotos[2].id, autor: admin.id,
-        resumen: `${a.es}.`, cuerpo: cuerpoArticulo(`Respuesta directa: ${a.es}.`), _status: 'published',
+        resumen: `${a.es}.`, cuerpo: cuerpoArticulo(`Respuesta directa: ${a.es}.`),
+        destacadoEnPortada: i === 0, ordenDestacado: i === 0 ? 1 : 100, _status: 'published',
       },
       overrideAccess: true, context: ctx,
     })
@@ -183,15 +232,40 @@ export async function sembrar(
     })
   }
 
+  const texto = await payload.create({
+    collection: 'textos-zona-categoria', locale: 'es',
+    data: { zona: zonas[0].id, categoria: categorias[0].id, introduccion: 'Tres mesas inventadas para probar la página de Restaurantes en La Paz.' },
+    overrideAccess: true, context: ctx,
+  })
+  await payload.update({
+    collection: 'textos-zona-categoria', id: texto.id, locale: 'en',
+    data: { introduccion: 'Three made-up tables to test the Restaurants in La Paz page.' },
+    overrideAccess: true, context: ctx,
+  })
+
   await payload.updateGlobal({
     slug: 'ajustes-guia',
     locale: 'es',
     data: {
+      versionAviso: '2026-11',
+      avisoVigenteDesde: soloDia(ahora.getTime()),
+      avisoPrivacidad: parrafo('Aviso de privacidad de prueba. El texto legal lo entrega el dueño.'),
       correosAviso: [{ correo: 'avisos@guia.local' }],
       correoPrivacidad: 'privacidad@guia.local',
       formularioActivo: false,
       portadaTitulo: 'Guía de la Baja (datos de prueba)',
       portadaIntro: 'Contenido inventado para desarrollo.',
+    },
+    overrideAccess: true,
+    context: ctx,
+  })
+  await payload.updateGlobal({
+    slug: 'ajustes-guia',
+    locale: 'en',
+    data: {
+      avisoPrivacidad: parrafo('Sample privacy notice. The legal text is provided by the owner.'),
+      portadaTitulo: 'Baja Guide (sample data)',
+      portadaIntro: 'Made-up content for development.',
     },
     overrideAccess: true,
     context: ctx,

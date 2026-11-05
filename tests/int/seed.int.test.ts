@@ -38,7 +38,9 @@ describe('seed', () => {
   it('escribe el patrocinio como día completo (00:00Z), relativo a «ahora»', async () => {
     await sembrar(payload, { ahora: AHORA })
     const { docs } = await payload.find({
-      collection: 'lugares', where: { 'patrocinio.activo': { equals: true } }, overrideAccess: true,
+      collection: 'lugares',
+      where: { and: [{ 'patrocinio.activo': { equals: true } }, { nombre: { equals: 'Taller de Palma' } }] },
+      overrideAccess: true,
     })
     expect(docs).toHaveLength(1)
     const dia = (ms: number) => `${new Date(ms).toISOString().slice(0, 10)}T00:00:00.000Z`
