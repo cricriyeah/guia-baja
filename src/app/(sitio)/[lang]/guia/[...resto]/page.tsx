@@ -1,8 +1,14 @@
 import { notFound } from 'next/navigation'
 
+import { esLocale } from '../../../../../dominio/idioma'
+import { noEncontrado } from '../../../../../sitio/redirigir'
+
+// Toda ruta de la guía sin página propia. Dinámica: una URL inventada no crea entradas ISR; solo usa el mapa
+// de redirecciones ya cacheado.
 export const dynamic = 'force-dynamic'
 
-// Provisional (Task 9): hace que el catch-all del slot @idioma tenga una ruta completa de children. La Task 10 lo reemplaza.
-export default function Resto() {
-  notFound()
+export default async function Resto({ params }: { params: Promise<{ lang: string; resto: string[] }> }) {
+  const { lang, resto } = await params
+  if (!esLocale(lang)) notFound()
+  return noEncontrado(lang, resto)
 }

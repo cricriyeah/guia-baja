@@ -1,0 +1,15 @@
+.perdido { display: grid; gap: 28px; align-items: center; padding: 32px 0 8px; }
+@media (min-width: 960px) { .perdido { grid-template-columns: 1.1fr 1fr; gap: 56px; padding-top: 56px; } }
+.cifra404 { font: 700 clamp(6rem, 22vw, 15rem)/.9 var(--titulo); letter-spacing: -0.05em; color: var(--tinta); }
+.texto404 { display: grid; gap: 14px; }
+.texto404 h1 { font: 700 clamp(2rem, 4.4vw, 3.25rem)/1.04 var(--titulo); text-transform: uppercase; letter-spacing: -0.025em; text-wrap: balance; }
+.texto404 > p { font-size: 1.125rem; color: var(--tinta-suave); max-width: 46ch; }
+.busca-404 { display: flex; align-items: center; gap: 10px; height: 54px; padding: 0 8px 0 18px; border-radius: 999px; background: var(--gris); max-width: 520px; transition: background 150ms, box-shadow 200ms; }
+.busca-404:focus-within { background: var(--blanco); box-shadow: 0 0 0 1px var(--borde-control), 0 8px 24px rgb(31 26 20 / .1); }
+.busca-404 svg { width: 20px; height: 20px; color: var(--apagado); }
+.busca-404 input { flex: 1; border: 0; background: transparent; font: inherit; font-size: 1.0625rem; outline: none; min-width: 0; }
+.busca-404 button { height: 40px; padding: 0 16px; border-radius: 999px; border: 0; background: var(--tinta); color: var(--blanco); font-weight: 600; cursor: pointer; }
+.busca-404 button:hover { background: var(--cafe); }
+.salidas { display: grid; gap: 10px; }
+.salidas h2 { font: 700 .9375rem/1 var(--titulo); text-transform: uppercase; margin-top: 8px; }
+.salidas div { display: flex; flex-wrap: wrap; gap: 8px; }
