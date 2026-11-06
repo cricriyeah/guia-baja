@@ -53,6 +53,7 @@ export async function metadatosEventos(lang: Locale, v: Variante): Promise<Metad
     indexable: propia.indexable,
     versiones,
     imagenOg: rutaOg(lang, 'pagina', ['eventos']),
+    pagina: v.pagina,
   })
 }
 

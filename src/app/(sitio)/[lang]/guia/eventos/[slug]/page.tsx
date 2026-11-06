@@ -10,7 +10,7 @@ import { conConsulta, rutas } from '../../../../../../dominio/rutas'
 import {
   articulosCacheados, categoriasCacheadas, eventosCacheados, fichaEventoCacheada, lugaresCacheados, zonasActivasCacheadas,
 } from '../../../../../../sitio/datos/cacheadas'
-import { eventosProximos, porId, porSlug, resolutorDeCuerpo } from '../../../../../../sitio/datos/consultas'
+import { documentoPorSlug, eventosProximos, porId, resolutorDeCuerpo } from '../../../../../../sitio/datos/consultas'
 import { guiaIndexable, sitioUrl } from '../../../../../../sitio/entorno'
 import '../../../../../../sitio/estilos/evento.css'
 import { rutasPorIdioma } from '../../../../../../sitio/paginas/comun'
@@ -37,13 +37,7 @@ export const generateStaticParams = () => []
 type Props = { params: Promise<{ lang: string; slug: string }> }
 const SEMANA = 7 * 24 * 60 * 60 * 1000
 
-async function cargar(lang: Locale, slug: string) {
-  const eventos = await eventosCacheados(lang)
-  const tarjeta = porSlug(eventos, slug)
-  if (!tarjeta) return null
-  const ficha = await fichaEventoCacheada(tarjeta.id, lang)
-  return ficha ? { eventos, ficha } : null
-}
+const cargar = (lang: Locale, slug: string) => documentoPorSlug(eventosCacheados(lang), (id) => fichaEventoCacheada(id, lang), slug)
 
 // Nunca llama notFound() ni noEncontrado(): sin evento en el idioma devuelve metadatos mínimos y el 404 lo da la página.
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -87,7 +81,7 @@ export default async function PaginaEvento({ params }: Props) {
   const pasado = !esEventoProximo(e, ahora)
   const f = partesFecha(e.inicio, lang)
   const declarado = patrocinioDeclarado(e.patrocinio)
-  const tambien = eventosProximos(d.eventos, ahora.toISOString(), { zonaId: e.zonaId })
+  const tambien = eventosProximos(d.lista, ahora.toISOString(), { zonaId: e.zonaId })
     .filter((x) => x.id !== e.id && new Date(x.inicio).getTime() - ahora.getTime() < SEMANA)
     .slice(0, 3)
   const ruta = rutas.evento(lang, e.slug)
@@ -145,7 +139,7 @@ export default async function PaginaEvento({ params }: Props) {
         <article>
           <section className="bloque" aria-labelledby="t-que">
             <h2 id="t-que" className="t-seccion">{t.evento.deQueSeTrata}</h2>
-            <CuerpoRico lang={lang} cuerpo={e.cuerpo} resolutor={resolutorDeCuerpo({ lugares, eventos: d.eventos, articulos }, lang)} media={e.media} categorias={cats} patrocinado={declarado} />
+            <CuerpoRico lang={lang} cuerpo={e.cuerpo} resolutor={resolutorDeCuerpo({ lugares, eventos: d.lista, articulos }, lang)} media={e.media} categorias={cats} patrocinado={declarado} />
           </section>
           <section className="bloque" aria-labelledby="t-donde">
             <h2 id="t-donde" className="t-seccion">{t.evento.donde}</h2>

@@ -1,6 +1,9 @@
 export const LOCALES = ['es', 'en'] as const
 export type Locale = (typeof LOCALES)[number]
 
+// Código regional de Intl y de hreflang por idioma: única fuente (fechas, hreflang, JSON-LD).
+export const CODIGO_REGIONAL: Record<Locale, string> = { es: 'es-MX', en: 'en-US' }
+
 export const esLocale = (v: unknown): v is Locale => v === 'es' || v === 'en'
 export const otroIdioma = (l: Locale): Locale => (l === 'es' ? 'en' : 'es')
 

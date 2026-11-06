@@ -2,7 +2,8 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
-import { inicioDelDiaGuardado, ZONA_HORARIA } from '../../../../../dominio/fechas'
+import { inicioDelDiaGuardado } from '../../../../../dominio/fechas'
+import { fechaCompleta } from '../../../../../dominio/fechas-evento'
 import { esLocale, tieneValor, type Locale } from '../../../../../dominio/idioma'
 import { encabezadosDe } from '../../../../../dominio/lexical'
 import { rutas } from '../../../../../dominio/rutas'
@@ -45,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 // avisoVigenteDesde es de solo día: inicioDelDiaGuardado lo lleva a la medianoche de la Baja para que no caiga un día antes.
 const fechaVigente = (dia: string, lang: Locale) =>
-  new Intl.DateTimeFormat(lang === 'es' ? 'es-MX' : 'en-US', { timeZone: ZONA_HORARIA, dateStyle: 'long' }).format(inicioDelDiaGuardado(dia))
+  fechaCompleta(inicioDelDiaGuardado(dia), lang)
 
 export default async function Privacidad({ params }: Props) {
   const { lang } = await params

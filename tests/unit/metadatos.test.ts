@@ -24,6 +24,18 @@ describe('metadatos (spec §9)', () => {
     expect(m.robots).toEqual({ index: false, follow: true })
   })
 
+  it('página N ≥ 2: el título (y el de Open Graph) lleva el número, en cada idioma', () => {
+    const p2 = metadatos({ ...base, indexable: true, versiones, pagina: 2 })
+    expect(p2.title).toBe('La Paz — Página 2')
+    expect(p2.openGraph).toMatchObject({ title: 'La Paz — Página 2' })
+    expect(metadatos({ ...base, lang: 'en', indexable: true, versiones, pagina: 3 }).title).toBe('La Paz — Page 3')
+  })
+
+  it('página 1 o sin página: el título queda igual', () => {
+    expect(metadatos({ ...base, indexable: true, versiones }).title).toBe('La Paz')
+    expect(metadatos({ ...base, indexable: true, versiones, pagina: 1 }).title).toBe('La Paz')
+  })
+
   it('Open Graph con el idioma', () => {
     expect(metadatos({ ...base, lang: 'en', indexable: true, versiones }).openGraph).toMatchObject({ locale: 'en_US', title: 'La Paz' })
   })

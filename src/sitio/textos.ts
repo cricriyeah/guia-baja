@@ -236,7 +236,7 @@ const ES = {
     eventosIntro: 'Lo que viene en la Baja, por fecha.',
     todasLasZonas: 'Todas las zonas',
   },
-  paginacion: { etiqueta: 'Páginas', anterior: 'Anterior', siguiente: 'Siguiente', pagina: (n: number) => `Página ${n}` },
+  paginacion: { etiqueta: 'Páginas', anterior: 'Anterior', siguiente: 'Siguiente', pagina: (n: number) => `Página ${n}`, titulo: (base: string, n: number) => `${base} — Página ${n}` },
   sol: { hoy: (h: string) => `El sol se pone hoy a las ${h}.` },
   carrusel: { reproducir: 'Reanudar', pausar: 'Pausar' },
 }
@@ -477,7 +477,7 @@ const EN: Textos = {
     eventosIntro: "What's coming up in Baja, by date.",
     todasLasZonas: 'All areas',
   },
-  paginacion: { etiqueta: 'Pages', anterior: 'Previous', siguiente: 'Next', pagina: (n: number) => `Page ${n}` },
+  paginacion: { etiqueta: 'Pages', anterior: 'Previous', siguiente: 'Next', pagina: (n: number) => `Page ${n}`, titulo: (base: string, n: number) => `${base} — Page ${n}` },
   sol: { hoy: (h: string) => `Sunset today is at ${h}.` },
   carrusel: { reproducir: 'Play', pausar: 'Pause' },
 }

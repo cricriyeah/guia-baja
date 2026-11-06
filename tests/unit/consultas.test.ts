@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import {
-  articulosQueCitan, categoriasConLugares, conteoCombinacion, destacados, eventosProximos, lugaresDe, resolutorDeCuerpo,
+  articulosQueCitan, categoriasConLugares, conteoCombinacion, destacados, documentoPorSlug, eventosProximos, lugaresDe, resolutorDeCuerpo,
 } from '../../src/sitio/datos/consultas'
 
 const pat = { activo: false, desde: null, hasta: null }
@@ -57,3 +57,19 @@ describe('consultas sobre las listas (spec §7)', () => {
     expect(r.href('eventos', 9)).toBeNull()
   })
 })
+
+describe('documentoPorSlug', () => {
+  const lista = [{ id: 1, slug: 'a' }, { id: 2, slug: 'b' }]
+  it('devuelve la lista y la ficha de la tarjeta con ese slug', async () => {
+    const ficha = vi.fn(async (id: number) => ({ id, nombre: `Ficha ${id}` }))
+    expect(await documentoPorSlug(Promise.resolve(lista), ficha, 'b')).toEqual({ lista, ficha: { id: 2, nombre: 'Ficha 2' } })
+    expect(ficha).toHaveBeenCalledWith(2)
+  })
+  it('sin tarjeta con ese slug no pide la ficha; sin ficha en el idioma da null', async () => {
+    const ficha = vi.fn(async () => null)
+    expect(await documentoPorSlug(Promise.resolve(lista), ficha, 'zz')).toBeNull()
+    expect(ficha).not.toHaveBeenCalled()
+    expect(await documentoPorSlug(Promise.resolve(lista), ficha, 'a')).toBeNull()
+  })
+})
+

@@ -1,4 +1,4 @@
-import type { Locale } from '../../dominio/idioma'
+import { CODIGO_REGIONAL, type Locale } from '../../dominio/idioma'
 import type { FichaArticulo, FichaEvento, FichaLugar, Miga, TarjetaLugar } from '../datos/tipos'
 
 const absoluta = (ruta: string, base: string) => new URL(ruta, base).toString()
@@ -85,7 +85,7 @@ export function articuloLd(a: FichaArticulo, c: { url: string; lang: Locale; bas
     author: a.autorNombre ? { '@type': 'Person', name: a.autorNombre } : null,
     datePublished: a.publicadoEl,
     dateModified: a.actualizadoEl ?? a.publicadoEl,
-    inLanguage: c.lang === 'es' ? 'es-MX' : 'en-US',
+    inLanguage: CODIGO_REGIONAL[c.lang],
   })
 }
 

@@ -12,7 +12,7 @@ import { rutas } from '../../../../../../dominio/rutas'
 import {
   articulosCacheados, categoriasCacheadas, eventosCacheados, fichaLugarCacheada, lugaresCacheados, zonasActivasCacheadas,
 } from '../../../../../../sitio/datos/cacheadas'
-import { articulosQueCitan, eventosProximos, lugaresDe, porId, porSlug, resolutorDeCuerpo } from '../../../../../../sitio/datos/consultas'
+import { articulosQueCitan, documentoPorSlug, eventosProximos, lugaresDe, porId, resolutorDeCuerpo } from '../../../../../../sitio/datos/consultas'
 import { guiaIndexable, sitioUrl } from '../../../../../../sitio/entorno'
 import '../../../../../../sitio/estilos/ficha.css'
 import { rutasPorIdioma } from '../../../../../../sitio/paginas/comun'
@@ -44,13 +44,7 @@ export const generateStaticParams = () => []
 
 type Props = { params: Promise<{ lang: string; slug: string }> }
 
-async function cargar(lang: Locale, slug: string) {
-  const lugares = await lugaresCacheados(lang)
-  const tarjeta = porSlug(lugares, slug)
-  if (!tarjeta) return null
-  const ficha = await fichaLugarCacheada(tarjeta.id, lang)
-  return ficha ? { lugares, ficha } : null
-}
+const cargar = (lang: Locale, slug: string) => documentoPorSlug(lugaresCacheados(lang), (id) => fichaLugarCacheada(id, lang), slug)
 
 // Nunca llama notFound() ni noEncontrado(): sin lugar en el idioma devuelve metadatos mínimos y el 404 lo da la página.
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -83,7 +77,7 @@ export default async function FichaDeLugar({ params }: Props) {
   // Sin lugar en este idioma: redirección (308) o 404 dentro de un Suspense. El lugar que existe se pinta fuera de él,
   // para que el HTML del servidor traiga el contenido y no el fallback del 404.
   if (!d) return <NoEncontradoEnSuspense lang={lang} segmentos={['lugares', slug]} />
-  const { ficha: l, lugares } = d
+  const { ficha: l, lista: lugares } = d
   const [zonas, cats, eventos, articulos] = await Promise.all([
     zonasActivasCacheadas(lang), categoriasCacheadas(lang), eventosCacheados(lang), articulosCacheados(lang),
   ])

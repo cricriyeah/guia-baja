@@ -3,14 +3,14 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
-import { ZONA_HORARIA } from '../../../../../../dominio/fechas-evento'
+import { fechaLarga } from '../../../../../../dominio/fechas-evento'
 import { esLocale, type Locale } from '../../../../../../dominio/idioma'
 import { encabezadosDe, preguntasDe } from '../../../../../../dominio/lexical'
 import { rutas } from '../../../../../../dominio/rutas'
 import {
   articulosCacheados, categoriasCacheadas, eventosCacheados, fichaArticuloCacheada, lugaresCacheados, zonasActivasCacheadas,
 } from '../../../../../../sitio/datos/cacheadas'
-import { articulosDeZona, porId, porSlug, resolutorDeCuerpo } from '../../../../../../sitio/datos/consultas'
+import { articulosDeZona, documentoPorSlug, porId, resolutorDeCuerpo } from '../../../../../../sitio/datos/consultas'
 import { guiaIndexable, sitioUrl } from '../../../../../../sitio/entorno'
 import '../../../../../../sitio/estilos/articulo.css'
 import { rutasPorIdioma } from '../../../../../../sitio/paginas/comun'
@@ -33,13 +33,7 @@ export const generateStaticParams = () => []
 
 type Props = { params: Promise<{ lang: string; slug: string }> }
 
-async function cargar(lang: Locale, slug: string) {
-  const articulos = await articulosCacheados(lang)
-  const tarjeta = porSlug(articulos, slug)
-  if (!tarjeta) return null
-  const ficha = await fichaArticuloCacheada(tarjeta.id, lang)
-  return ficha ? { articulos, ficha } : null
-}
+const cargar = (lang: Locale, slug: string) => documentoPorSlug(articulosCacheados(lang), (id) => fichaArticuloCacheada(id, lang), slug)
 
 // Nunca llama notFound() ni noEncontrado(): sin artículo en el idioma devuelve metadatos mínimos y el 404 lo da la página.
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -63,9 +57,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   })
 }
 
-const fechaLarga = (iso: string, lang: Locale) =>
-  new Intl.DateTimeFormat(lang === 'es' ? 'es-MX' : 'en-US', { timeZone: ZONA_HORARIA, day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(iso))
-
 export default async function PaginaArticulo({ params }: Props) {
   const { lang, slug } = await params
   if (!esLocale(lang)) notFound()
@@ -82,8 +73,8 @@ export default async function PaginaArticulo({ params }: Props) {
   const zona = porId(zonas, a.zonaIds[0])
   const indice = encabezadosDe(a.cuerpo)
   const preguntas = preguntasDe(a.cuerpo)
-  const mismos = zona ? articulosDeZona(d.articulos, zona.id) : d.articulos
-  const mas = (mismos.length > 1 ? mismos : d.articulos).filter((x) => x.id !== a.id).slice(0, 3)
+  const mismos = zona ? articulosDeZona(d.lista, zona.id) : d.lista
+  const mas = (mismos.length > 1 ? mismos : d.lista).filter((x) => x.id !== a.id).slice(0, 3)
   const ruta = rutas.articulo(lang, a.slug)
   const migas = [
     { nombre: t.migas.guia, ruta: rutas.portada(lang) },
@@ -117,7 +108,7 @@ export default async function PaginaArticulo({ params }: Props) {
             <div>{indice.map((h) => <a key={h.id} href={`#${h.id}`}>{h.texto}</a>)}</div>
           </nav>
         )}
-        <CuerpoRico lang={lang} cuerpo={a.cuerpo} resolutor={resolutorDeCuerpo({ lugares, eventos, articulos: d.articulos }, lang)} media={a.media} categorias={cats} className="prosa" />
+        <CuerpoRico lang={lang} cuerpo={a.cuerpo} resolutor={resolutorDeCuerpo({ lugares, eventos, articulos: d.lista }, lang)} media={a.media} categorias={cats} className="prosa" />
       </div>
 
       {mas.length > 0 && (

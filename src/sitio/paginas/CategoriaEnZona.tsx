@@ -66,6 +66,7 @@ export async function metadatosCategoriaEnZona(lang: Locale, zonaSlug: string, c
     indexable: seo.indexable,
     versiones: seo.versiones,
     imagenOg: rutaOg(lang, 'categoria-zona', [d.zona.slug, d.cat.slug]),
+    pagina: v.pagina,
   })
 }
 

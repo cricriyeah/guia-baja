@@ -64,6 +64,7 @@ export async function metadatosCategoriaGlobal(lang: Locale, categoriaSlug: stri
     indexable: seo.indexable,
     versiones: seo.versiones,
     imagenOg: rutaOg(lang, 'categoria', [d.cat.slug]),
+    pagina: v.pagina,
   })
 }
 

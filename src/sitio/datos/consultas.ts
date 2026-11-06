@@ -6,6 +6,21 @@ import { UMBRAL_PAGINA } from '../../dominio/umbrales'
 import type { CategoriaPublica, TarjetaArticulo, TarjetaEvento, TarjetaLugar } from './tipos'
 
 export const porSlug = <T extends { slug: string }>(xs: T[], slug: string) => xs.find((x) => x.slug === slug)
+
+// Carga común de las fichas de lugar, evento y artículo: la tarjeta por slug en la lista del idioma y, si existe, su ficha.
+// Sin tarjeta o sin ficha en el idioma: null (la página decide entre redirección y 404).
+export async function documentoPorSlug<T extends { id: number; slug: string }, F>(
+  lista: Promise<T[]>,
+  ficha: (id: number) => Promise<F | null>,
+  slug: string,
+): Promise<{ lista: T[]; ficha: F } | null> {
+  const xs = await lista
+  const tarjeta = porSlug(xs, slug)
+  if (!tarjeta) return null
+  const f = await ficha(tarjeta.id)
+  return f ? { lista: xs, ficha: f } : null
+}
+
 export const porId = <T extends { id: number }>(xs: T[], id: number | null | undefined) => xs.find((x) => x.id === id)
 
 export function lugaresDe(ls: TarjetaLugar[], f: { zonaId?: number | null; categoriaId?: number }): TarjetaLugar[] {
