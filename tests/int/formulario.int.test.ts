@@ -3,14 +3,18 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { avisarSolicitud } from '../../src/formulario/avisar'
 import { enviarSolicitud } from '../../src/formulario/enviar'
-import { limpiar, obtenerPayload } from './utils'
+import { lexical, limpiar, obtenerPayload } from './utils'
 
 let payload: Payload
 const form = (extra = {}) => ({ negocio: 'Café Duna', correo: 'hola@ejemplo.invalid', aceptoPrivacidad: 'on', 'cf-turnstile-response': 'tok', ...extra })
 const publico = (ip: string | null) => ({ tipo: 'publico' as const, ip })
 const deps = (extra = {}) => ({ verificarTurnstile: vi.fn(async () => true), avisar: vi.fn(async () => undefined), sal: 'sal-prueba', ...extra })
 
+// Encender el formulario exige el aviso en los dos idiomas (spec §12); los Globals no se limpian entre archivos,
+// así que cada llamada deja el aviso puesto en es y en antes de tocar formularioActivo.
 async function ajustes(formularioActivo: boolean) {
+  await payload.updateGlobal({ slug: 'ajustes-guia', locale: 'es', data: { avisoPrivacidad: lexical('Aviso de prueba.') }, overrideAccess: true })
+  await payload.updateGlobal({ slug: 'ajustes-guia', locale: 'en', data: { avisoPrivacidad: lexical('Test notice.') }, overrideAccess: true })
   await payload.updateGlobal({
     slug: 'ajustes-guia', overrideAccess: true,
     data: { formularioActivo, versionAviso: '2026-11', correosAviso: [{ correo: 'equipo@prueba.test' }] },

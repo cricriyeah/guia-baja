@@ -118,6 +118,36 @@ describe('Artículos, Solicitudes y Ajustes', () => {
     ).rejects.toThrow()
   })
 
+  it('formularioActivo no se enciende sin aviso de privacidad en es y en, y se enciende con los dos', async () => {
+    const ajustes = (data: Record<string, unknown>, locale: 'es' | 'en' = 'es') =>
+      payload.updateGlobal({ slug: 'ajustes-guia', data, locale, overrideAccess: true })
+    // Los Globals no se limpian entre pruebas: se parte de apagado y sin aviso en ningún idioma.
+    await ajustes({ formularioActivo: false, avisoPrivacidad: null }, 'es')
+    await ajustes({ avisoPrivacidad: null }, 'en')
+
+    const sinAviso = await ajustes({ formularioActivo: true }).catch((e) => e)
+    expect(sinAviso).toMatchObject({
+      data: { errors: [expect.objectContaining({ path: 'formularioActivo', message: expect.stringMatching(/falta el aviso de privacidad en español y inglés/) })] },
+    })
+
+    await ajustes({ avisoPrivacidad: lexical('Aviso de prueba.') }, 'es')
+    // Solo en español: falta el inglés, aunque se envíe el aviso del idioma que sí existe junto con la activación.
+    const soloEs = await ajustes({ formularioActivo: true }).catch((e) => e)
+    expect(soloEs).toMatchObject({ data: { errors: [expect.objectContaining({ message: expect.stringMatching(/en inglés\. Publica/) })] } })
+    expect((await payload.findGlobal({ slug: 'ajustes-guia', overrideAccess: true })).formularioActivo).toBe(false)
+
+    await ajustes({ avisoPrivacidad: lexical('Test notice.') }, 'en')
+    expect((await ajustes({ formularioActivo: true })).formularioActivo).toBe(true)
+    // Ya activo: seguir editando otros campos no falla.
+    await expect(ajustes({ portadaTitulo: 'Hola' })).resolves.toBeTruthy()
+    // Y vaciar un aviso con el formulario encendido tampoco se permite.
+    await expect(ajustes({ avisoPrivacidad: null }, 'en')).rejects.toMatchObject({
+      data: { errors: [expect.objectContaining({ path: 'formularioActivo' })] },
+    })
+    // Con el aviso intacto se puede apagar; queda apagado para las demás pruebas.
+    await ajustes({ formularioActivo: false })
+  })
+
   it('estadoCambiadoEl se fija al crear y solo cambia si cambia el estado', async () => {
     const s = await payload.create({ collection: 'solicitudes', data: { negocio: 'N', aceptoPrivacidad: true }, overrideAccess: true })
     expect(s.estadoCambiadoEl).toBeTruthy()
