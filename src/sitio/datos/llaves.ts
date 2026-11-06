@@ -16,10 +16,5 @@ export const LLAVES = {
   fichaLugar: (id: number, lang: Locale): Llave => ({ llave: ['fichaLugar', String(id), lang], etiquetas: [etiqueta.categorias, etiqueta.lugar(id), etiqueta.media, etiqueta.zonas] }),
   fichaEvento: (id: number, lang: Locale): Llave => ({ llave: ['fichaEvento', String(id), lang], etiquetas: [etiqueta.categorias, etiqueta.evento(id), etiqueta.media, etiqueta.zonas] }),
   fichaArticulo: (id: number, lang: Locale): Llave => ({ llave: ['fichaArticulo', String(id), lang], etiquetas: [etiqueta.articulo(id), etiqueta.categorias, etiqueta.media, etiqueta.zonas] }),
-  // Sin hora ni página: el orden con patrocinios y el corte de eventos pasados se hacen fuera de la caché.
-  coincidencias: (q: string, lang: Locale, tipo: string | null, zonaId: number | null): Llave => ({
-    llave: ['coincidencias', q, lang, tipo ?? '', zonaId ? String(zonaId) : ''],
-    etiquetas: [etiqueta.categorias, etiqueta.listados, etiqueta.zonas],
-  }),
   texto: (zonaId: number, categoriaId: number, lang: Locale): Llave => ({ llave: ['texto', String(zonaId), String(categoriaId), lang], etiquetas: [etiqueta.textos(zonaId, categoriaId)] }),
 }

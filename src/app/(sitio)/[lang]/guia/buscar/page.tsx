@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 
+import { coincidencias } from '../../../../../busqueda/consulta'
 import { leerConsultaBusqueda, ordenarGrupo, partesResaltadas, TIPOS_BUSQUEDA, type FilaResultado } from '../../../../../dominio/busqueda'
 import { esEventoProximo } from '../../../../../dominio/eventos'
 import { esLocale, type Locale } from '../../../../../dominio/idioma'
@@ -9,9 +10,10 @@ import { paginar } from '../../../../../dominio/paginacion'
 import { patrocinioDeclarado } from '../../../../../dominio/patrocinio'
 import { conConsulta, rutas } from '../../../../../dominio/rutas'
 import {
-  articulosCacheados, categoriasCacheadas, coincidenciasCacheadas, eventosCacheados, lugaresCacheados, zonasActivasCacheadas,
+  articulosCacheados, categoriasCacheadas, eventosCacheados, lugaresCacheados, zonasActivasCacheadas,
 } from '../../../../../sitio/datos/cacheadas'
 import { categoriasConLugares, porSlug } from '../../../../../sitio/datos/consultas'
+import { obtenerPayload } from '../../../../../sitio/datos/payload'
 import '../../../../../sitio/estilos/busqueda.css'
 import { paramsDe, type SearchParams } from '../../../../../sitio/paginas/comun'
 import { textos } from '../../../../../sitio/textos'
@@ -73,8 +75,12 @@ export default async function Buscar({ params, searchParams }: Props) {
   // Una zona que no existe se ignora, también en los links de los chips.
   const zona = consulta.zona ? porSlug(zonas, consulta.zona) : undefined
   const ahora = new Date()
+  // Las coincidencias van sin unstable_cache: el término lo escribe el visitante y no debe volverse llave de la
+  // Data Cache (como las sugerencias). Las listas de visibilidad sí van cacheadas.
   const [todas, lugares, eventos, articulos, cats] = await Promise.all([
-    consulta.q ? coincidenciasCacheadas(consulta.q, lang, consulta.tipo, zona?.id ?? null) : Promise.resolve([]),
+    consulta.q
+      ? obtenerPayload().then((payload) => coincidencias(payload, { q: consulta.q, lang, tipo: consulta.tipo, zonaId: zona?.id ?? null }))
+      : Promise.resolve([]),
     lugaresCacheados(lang), eventosCacheados(lang), articulosCacheados(lang), categoriasCacheadas(lang),
   ])
   // Solo lo que el público puede abrir: lo que está en las listas del idioma (F3b). Una categoría sin lugares o un
