@@ -1,6 +1,7 @@
 import type { CollectionConfig, TextField } from 'payload'
 
 import { lecturaPublicaPublicada, soloPersonal } from '../acceso/reglas'
+import { hooksDeIndice } from '../busqueda/hooks'
 import { camposDestacado } from '../campos/destacado'
 import { grupoPatrocinio } from '../campos/patrocinio'
 import { camposSeo } from '../campos/seo'
@@ -15,6 +16,7 @@ export const CAMPOS_IDIOMA_LUGAR = CAMPOS_IDIOMA.lugares
 export const CAMPOS_LOCALIZADOS_LUGAR = CAMPOS_LOCALIZADOS.lugares
 
 const revalidacion = hooksDeRevalidacion('lugares')
+const indice = hooksDeIndice('lugar')
 
 const redireccion = hooksDeRedireccion({
   coleccion: 'lugares',
@@ -56,9 +58,9 @@ export const Lugares: CollectionConfig = {
   },
   hooks: {
     beforeChange: [redireccion.beforeChange],
-    afterChange: [redireccion.afterChange, revalidacion.afterChange],
+    afterChange: [redireccion.afterChange, revalidacion.afterChange, indice.afterChange],
     beforeDelete: [redireccion.beforeDelete],
-    afterDelete: [redireccion.afterDelete, revalidacion.afterDelete],
+    afterDelete: [redireccion.afterDelete, revalidacion.afterDelete, indice.afterDelete],
   },
   defaultSort: 'orden',
   fields: [

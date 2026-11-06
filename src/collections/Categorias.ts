@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { lecturaPublica, soloPersonal } from '../acceso/reglas'
+import { hooksDeIndice } from '../busqueda/hooks'
 import { campoSlug } from '../campos/slug'
 import { GRUPOS } from '../dominio/grupos'
 import { hooksDeCategoria } from '../redirecciones/hooks'
@@ -12,6 +13,7 @@ export const TIPOS_SCHEMA = [
 
 const redireccionCategoria = hooksDeCategoria()
 const revalidacion = hooksDeRevalidacion('categorias')
+const indice = hooksDeIndice('categoria')
 
 export const Categorias: CollectionConfig = {
   slug: 'categorias',
@@ -19,8 +21,8 @@ export const Categorias: CollectionConfig = {
   access: { read: lecturaPublica, create: soloPersonal, update: soloPersonal, delete: soloPersonal },
   hooks: {
     beforeChange: [redireccionCategoria.beforeChange],
-    afterChange: [redireccionCategoria.afterChange, revalidacion.afterChange],
-    afterDelete: [revalidacion.afterDelete],
+    afterChange: [redireccionCategoria.afterChange, revalidacion.afterChange, indice.afterChange],
+    afterDelete: [revalidacion.afterDelete, indice.afterDelete],
   },
   defaultSort: 'orden',
   fields: [

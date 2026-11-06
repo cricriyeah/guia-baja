@@ -15,6 +15,7 @@
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
     "migracion:regenerar": "node scripts/regenerar-migracion.mjs",
+    "busqueda:reindexar": "cross-env NODE_OPTIONS=--no-deprecation payload run src/busqueda/reindexar.ts",
     "seed": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/index.ts",
     "test:unit": "vitest run --project unit",
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --project int"

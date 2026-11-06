@@ -3,6 +3,7 @@ import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
 
 import { lecturaPublicaPublicada, soloPersonal } from '../acceso/reglas'
 import { bloquesArticulo } from '../bloques/articulo'
+import { hooksDeIndice } from '../busqueda/hooks'
 import { camposDestacado } from '../campos/destacado'
 import { camposSeo } from '../campos/seo'
 import { campoSlug } from '../campos/slug'
@@ -16,6 +17,7 @@ export const CAMPOS_IDIOMA_ARTICULO = CAMPOS_IDIOMA.articulos
 export const CAMPOS_LOCALIZADOS_ARTICULO = CAMPOS_LOCALIZADOS.articulos
 
 const revalidacion = hooksDeRevalidacion('articulos')
+const indice = hooksDeIndice('articulo')
 
 const redireccion = hooksDeRedireccion({
   coleccion: 'articulos',
@@ -52,9 +54,9 @@ export const Articulos: CollectionConfig = {
   },
   hooks: {
     beforeChange: [copiarNombreAutor, fechasDePublicacion, llenarLugaresCitados, redireccion.beforeChange],
-    afterChange: [redireccion.afterChange, revalidacion.afterChange],
+    afterChange: [redireccion.afterChange, revalidacion.afterChange, indice.afterChange],
     beforeDelete: [redireccion.beforeDelete],
-    afterDelete: [redireccion.afterDelete, revalidacion.afterDelete],
+    afterDelete: [redireccion.afterDelete, revalidacion.afterDelete, indice.afterDelete],
   },
   defaultSort: '-publicadoEl',
   fields: [

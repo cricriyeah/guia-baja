@@ -10,6 +10,7 @@ import { Articulos } from './collections/Articulos'
 import { Categorias } from './collections/Categorias'
 import { Eventos } from './collections/Eventos'
 import { FotosTours } from './collections/FotosTours'
+import { IndiceBusqueda } from './collections/IndiceBusqueda'
 import { Lugares } from './collections/Lugares'
 import { Media } from './collections/Media'
 import { Solicitudes } from './collections/Solicitudes'
@@ -31,7 +32,7 @@ export default buildConfig({
       defaultTimezone: 'America/Mazatlan',
     },
   },
-  collections: [Users, Media, Zonas, Categorias, Lugares, Eventos, Articulos, Solicitudes, TextosZonaCategoria, FotosTours],
+  collections: [Users, Media, Zonas, Categorias, Lugares, Eventos, Articulos, Solicitudes, TextosZonaCategoria, FotosTours, IndiceBusqueda],
   globals: [AjustesGuia],
   localization: {
     locales: [

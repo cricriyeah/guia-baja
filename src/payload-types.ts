@@ -30,6 +30,7 @@ export interface Config {
     solicitudes: Solicitude;
     'textos-zona-categoria': TextosZonaCategoria;
     'fotos-tours': FotosTour;
+    'indice-busqueda': IndiceBusqueda;
     redirects: Redirect;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -48,6 +49,7 @@ export interface Config {
     solicitudes: SolicitudesSelect<false> | SolicitudesSelect<true>;
     'textos-zona-categoria': TextosZonaCategoriaSelect<false> | TextosZonaCategoriaSelect<true>;
     'fotos-tours': FotosToursSelect<false> | FotosToursSelect<true>;
+    'indice-busqueda': IndiceBusquedaSelect<false> | IndiceBusquedaSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -497,6 +499,44 @@ export interface FotosTour {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "indice-busqueda".
+ */
+export interface IndiceBusqueda {
+  id: number;
+  tipo: 'lugar' | 'evento' | 'articulo' | 'zona' | 'categoria';
+  docId: number;
+  idioma: 'es' | 'en';
+  slug: string;
+  titulo: string;
+  texto?: string | null;
+  zonaIds?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  categoriaIds?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  inicio?: string | null;
+  fin?: string | null;
+  patrocinioActivo?: boolean | null;
+  patrocinioDesde?: string | null;
+  patrocinioHasta?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -586,6 +626,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'fotos-tours';
         value: number | FotosTour;
+      } | null)
+    | ({
+        relationTo: 'indice-busqueda';
+        value: number | IndiceBusqueda;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -926,6 +970,27 @@ export interface FotosToursSelect<T extends boolean = true> {
   slug?: T;
   foto?: T;
   temporada?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "indice-busqueda_select".
+ */
+export interface IndiceBusquedaSelect<T extends boolean = true> {
+  tipo?: T;
+  docId?: T;
+  idioma?: T;
+  slug?: T;
+  titulo?: T;
+  texto?: T;
+  zonaIds?: T;
+  categoriaIds?: T;
+  inicio?: T;
+  fin?: T;
+  patrocinioActivo?: T;
+  patrocinioDesde?: T;
+  patrocinioHasta?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -5911,6 +5911,178 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.indice_busqueda": {
+      "name": "indice_busqueda",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "enum_indice_busqueda_tipo",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "doc_id": {
+          "name": "doc_id",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "idioma": {
+          "name": "idioma",
+          "type": "enum_indice_busqueda_idioma",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titulo": {
+          "name": "titulo",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "texto": {
+          "name": "texto",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "zona_ids": {
+          "name": "zona_ids",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "categoria_ids": {
+          "name": "categoria_ids",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "inicio": {
+          "name": "inicio",
+          "type": "timestamp(3) with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fin": {
+          "name": "fin",
+          "type": "timestamp(3) with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "patrocinio_activo": {
+          "name": "patrocinio_activo",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "patrocinio_desde": {
+          "name": "patrocinio_desde",
+          "type": "timestamp(3) with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "patrocinio_hasta": {
+          "name": "patrocinio_hasta",
+          "type": "timestamp(3) with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp(3) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp(3) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "indice_busqueda_updated_at_idx": {
+          "name": "indice_busqueda_updated_at_idx",
+          "columns": [
+            {
+              "expression": "updated_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "indice_busqueda_created_at_idx": {
+          "name": "indice_busqueda_created_at_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "tipo_docId_idioma_idx": {
+          "name": "tipo_docId_idioma_idx",
+          "columns": [
+            {
+              "expression": "tipo",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "doc_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "idioma",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.redirects": {
       "name": "redirects",
       "schema": "",
@@ -6436,6 +6608,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "indice_busqueda_id": {
+          "name": "indice_busqueda_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "redirects_id": {
           "name": "redirects_id",
           "type": "integer",
@@ -6639,6 +6817,21 @@
           "method": "btree",
           "with": {}
         },
+        "payload_locked_documents_rels_indice_busqueda_id_idx": {
+          "name": "payload_locked_documents_rels_indice_busqueda_id_idx",
+          "columns": [
+            {
+              "expression": "indice_busqueda_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
         "payload_locked_documents_rels_redirects_id_idx": {
           "name": "payload_locked_documents_rels_redirects_id_idx",
           "columns": [
@@ -6792,6 +6985,19 @@
           "tableTo": "fotos_tours",
           "columnsFrom": [
             "fotos_tours_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "payload_locked_documents_rels_indice_busqueda_fk": {
+          "name": "payload_locked_documents_rels_indice_busqueda_fk",
+          "tableFrom": "payload_locked_documents_rels",
+          "tableTo": "indice_busqueda",
+          "columnsFrom": [
+            "indice_busqueda_id"
           ],
           "columnsTo": [
             "id"
@@ -7588,6 +7794,25 @@
         "paquete"
       ]
     },
+    "public.enum_indice_busqueda_tipo": {
+      "name": "enum_indice_busqueda_tipo",
+      "schema": "public",
+      "values": [
+        "lugar",
+        "evento",
+        "articulo",
+        "zona",
+        "categoria"
+      ]
+    },
+    "public.enum_indice_busqueda_idioma": {
+      "name": "enum_indice_busqueda_idioma",
+      "schema": "public",
+      "values": [
+        "es",
+        "en"
+      ]
+    },
     "public.enum_redirects_to_type": {
       "name": "enum_redirects_to_type",
       "schema": "public",
@@ -7614,6 +7839,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "d2afbdff-698f-46dc-9e8a-e06af671afd4",
+  "id": "1bf83374-4123-47d5-8dcd-6247bda2dc79",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

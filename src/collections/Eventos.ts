@@ -1,6 +1,7 @@
 import type { CollectionConfig, DateField, TextField } from 'payload'
 
 import { lecturaPublicaPublicada, soloPersonal } from '../acceso/reglas'
+import { hooksDeIndice } from '../busqueda/hooks'
 import { camposDestacado } from '../campos/destacado'
 import { grupoPatrocinio } from '../campos/patrocinio'
 import { camposSeo } from '../campos/seo'
@@ -14,6 +15,7 @@ export const CAMPOS_IDIOMA_EVENTO = CAMPOS_IDIOMA.eventos
 export const CAMPOS_LOCALIZADOS_EVENTO = CAMPOS_LOCALIZADOS.eventos
 
 const revalidacion = hooksDeRevalidacion('eventos')
+const indice = hooksDeIndice('evento')
 
 const redireccion = hooksDeRedireccion({
   coleccion: 'eventos',
@@ -38,9 +40,9 @@ export const Eventos: CollectionConfig = {
   },
   hooks: {
     beforeChange: [redireccion.beforeChange],
-    afterChange: [redireccion.afterChange, revalidacion.afterChange],
+    afterChange: [redireccion.afterChange, revalidacion.afterChange, indice.afterChange],
     beforeDelete: [redireccion.beforeDelete],
-    afterDelete: [redireccion.afterDelete, revalidacion.afterDelete],
+    afterDelete: [redireccion.afterDelete, revalidacion.afterDelete, indice.afterDelete],
   },
   defaultSort: 'inicio',
   fields: [

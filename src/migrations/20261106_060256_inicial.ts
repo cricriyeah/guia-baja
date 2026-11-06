@@ -28,6 +28,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TYPE "public"."enum__articulos_v_published_locale" AS ENUM('es', 'en');
   CREATE TYPE "public"."enum_solicitudes_estado" AS ENUM('nueva', 'en-contacto', 'aceptada', 'rechazada');
   CREATE TYPE "public"."enum_fotos_tours_tipo" AS ENUM('servicio', 'paquete');
+  CREATE TYPE "public"."enum_indice_busqueda_tipo" AS ENUM('lugar', 'evento', 'articulo', 'zona', 'categoria');
+  CREATE TYPE "public"."enum_indice_busqueda_idioma" AS ENUM('es', 'en');
   CREATE TYPE "public"."enum_redirects_to_type" AS ENUM('reference', 'custom');
   CREATE TYPE "public"."enum_redirects_type" AS ENUM('308');
   CREATE TABLE "users_sessions" (
@@ -495,6 +497,25 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_parent_id" integer NOT NULL
   );
   
+  CREATE TABLE "indice_busqueda" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"tipo" "enum_indice_busqueda_tipo" NOT NULL,
+  	"doc_id" numeric NOT NULL,
+  	"idioma" "enum_indice_busqueda_idioma" NOT NULL,
+  	"slug" varchar NOT NULL,
+  	"titulo" varchar NOT NULL,
+  	"texto" varchar,
+  	"zona_ids" jsonb,
+  	"categoria_ids" jsonb,
+  	"inicio" timestamp(3) with time zone,
+  	"fin" timestamp(3) with time zone,
+  	"patrocinio_activo" boolean DEFAULT false,
+  	"patrocinio_desde" timestamp(3) with time zone,
+  	"patrocinio_hasta" timestamp(3) with time zone,
+  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+  );
+  
   CREATE TABLE "redirects" (
   	"id" serial PRIMARY KEY NOT NULL,
   	"from" varchar NOT NULL,
@@ -543,6 +564,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"solicitudes_id" integer,
   	"textos_zona_categoria_id" integer,
   	"fotos_tours_id" integer,
+  	"indice_busqueda_id" integer,
   	"redirects_id" integer
   );
   
@@ -665,6 +687,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_solicitudes_fk" FOREIGN KEY ("solicitudes_id") REFERENCES "public"."solicitudes"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_textos_zona_categoria_fk" FOREIGN KEY ("textos_zona_categoria_id") REFERENCES "public"."textos_zona_categoria"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_fotos_tours_fk" FOREIGN KEY ("fotos_tours_id") REFERENCES "public"."fotos_tours"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_indice_busqueda_fk" FOREIGN KEY ("indice_busqueda_id") REFERENCES "public"."indice_busqueda"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_redirects_fk" FOREIGN KEY ("redirects_id") REFERENCES "public"."redirects"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_preferences_rels" ADD CONSTRAINT "payload_preferences_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."payload_preferences"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_preferences_rels" ADD CONSTRAINT "payload_preferences_rels_users_fk" FOREIGN KEY ("users_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
@@ -823,6 +846,9 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE UNIQUE INDEX "sedeSlug_tipo_slug_idx" ON "fotos_tours" USING btree ("sede_slug","tipo","slug");
   CREATE UNIQUE INDEX "fotos_tours_locales_locale_parent_id_unique" ON "fotos_tours_locales" USING btree ("_locale","_parent_id");
   CREATE INDEX "fotos_tours_locales_parent_id_idx" ON "fotos_tours_locales" USING btree ("_parent_id");
+  CREATE INDEX "indice_busqueda_updated_at_idx" ON "indice_busqueda" USING btree ("updated_at");
+  CREATE INDEX "indice_busqueda_created_at_idx" ON "indice_busqueda" USING btree ("created_at");
+  CREATE UNIQUE INDEX "tipo_docId_idioma_idx" ON "indice_busqueda" USING btree ("tipo","doc_id","idioma");
   CREATE UNIQUE INDEX "redirects_from_idx" ON "redirects" USING btree ("from");
   CREATE INDEX "redirects_updated_at_idx" ON "redirects" USING btree ("updated_at");
   CREATE INDEX "redirects_created_at_idx" ON "redirects" USING btree ("created_at");
@@ -849,6 +875,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "payload_locked_documents_rels_solicitudes_id_idx" ON "payload_locked_documents_rels" USING btree ("solicitudes_id");
   CREATE INDEX "payload_locked_documents_rels_textos_zona_categoria_id_idx" ON "payload_locked_documents_rels" USING btree ("textos_zona_categoria_id");
   CREATE INDEX "payload_locked_documents_rels_fotos_tours_id_idx" ON "payload_locked_documents_rels" USING btree ("fotos_tours_id");
+  CREATE INDEX "payload_locked_documents_rels_indice_busqueda_id_idx" ON "payload_locked_documents_rels" USING btree ("indice_busqueda_id");
   CREATE INDEX "payload_locked_documents_rels_redirects_id_idx" ON "payload_locked_documents_rels" USING btree ("redirects_id");
   CREATE INDEX "payload_preferences_key_idx" ON "payload_preferences" USING btree ("key");
   CREATE INDEX "payload_preferences_updated_at_idx" ON "payload_preferences" USING btree ("updated_at");
@@ -901,6 +928,7 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "textos_zona_categoria_locales" CASCADE;
   DROP TABLE "fotos_tours" CASCADE;
   DROP TABLE "fotos_tours_locales" CASCADE;
+  DROP TABLE "indice_busqueda" CASCADE;
   DROP TABLE "redirects" CASCADE;
   DROP TABLE "redirects_rels" CASCADE;
   DROP TABLE "payload_kv" CASCADE;
@@ -938,6 +966,8 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TYPE "public"."enum__articulos_v_published_locale";
   DROP TYPE "public"."enum_solicitudes_estado";
   DROP TYPE "public"."enum_fotos_tours_tipo";
+  DROP TYPE "public"."enum_indice_busqueda_tipo";
+  DROP TYPE "public"."enum_indice_busqueda_idioma";
   DROP TYPE "public"."enum_redirects_to_type";
   DROP TYPE "public"."enum_redirects_type";`)
 }

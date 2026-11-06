@@ -1,6 +1,7 @@
 import type { CollectionConfig, FieldHook } from 'payload'
 
 import { soloPersonal, zonasPublicas } from '../acceso/reglas'
+import { hooksDeIndice } from '../busqueda/hooks'
 import { campoSlug } from '../campos/slug'
 import { esSlugReservadoZona, esSlugValido } from '../dominio/slugs'
 import { hooksDeZona } from '../redirecciones/hooks'
@@ -14,12 +15,16 @@ export const normalizarSedeSlug: FieldHook = ({ value }) => {
 }
 
 const revalidacion = hooksDeRevalidacion('zonas')
+const indice = hooksDeIndice('zona')
 
 export const Zonas: CollectionConfig = {
   slug: 'zonas',
   admin: { useAsTitle: 'nombre', defaultColumns: ['nombre', 'slug', 'activa', 'orden'] },
   access: { read: zonasPublicas, create: soloPersonal, update: soloPersonal, delete: soloPersonal },
-  hooks: { afterChange: [hooksDeZona().afterChange, revalidacion.afterChange], afterDelete: [revalidacion.afterDelete] },
+  hooks: {
+    afterChange: [hooksDeZona().afterChange, revalidacion.afterChange, indice.afterChange],
+    afterDelete: [revalidacion.afterDelete, indice.afterDelete],
+  },
   defaultSort: 'orden',
   fields: [
     { name: 'nombre', type: 'text', localized: true, required: true },
