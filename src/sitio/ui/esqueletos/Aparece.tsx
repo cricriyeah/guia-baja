@@ -1,4 +1,3 @@
-import '../../estilos/aparece.css'
 import { Linea, Marco, Migas, Parrafo, veces } from './Primitivas'
 
 const Campo = ({ alto = false }: { alto?: boolean }) => <span className={`esq esq-campo${alto ? ' esq-campo--alto' : ''}`} />

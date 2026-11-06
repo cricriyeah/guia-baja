@@ -5,7 +5,7 @@ import type { ReactNode } from 'react'
 
 import { esLocale, LOCALES } from '../../../dominio/idioma'
 import { guiaIndexable, sitioUrl } from '../../../sitio/entorno'
-import '../../../sitio/estilos/base.css'
+import '../../../sitio/estilos/guia.css'
 import { textos } from '../../../sitio/textos'
 
 const consola = localFont({ src: '../../../sitio/fuentes/ConsolaMono-Bold.woff2', weight: '700', display: 'swap', variable: '--fuente-titulo' })

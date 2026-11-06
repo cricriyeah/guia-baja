@@ -1,4 +1,3 @@
-import '../../estilos/zona.css'
 import { CabezaSeccion, Chips, Linea, Marco, Migas, Parrafo, Pastilla, Tarjeta, veces } from './Primitivas'
 
 function TarjetaEvento() {

@@ -1,4 +1,3 @@
-import '../../estilos/evento.css'
 import { Linea, Marco, Migas, Parrafo, Pastilla, veces } from './Primitivas'
 
 export function EsqueletoEvento() {

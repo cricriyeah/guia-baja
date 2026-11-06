@@ -1,4 +1,3 @@
-import '../../estilos/categoria.css'
 import { Chips, Linea, Marco, Migas, Tarjeta, veces } from './Primitivas'
 
 // Solo los resultados: lo usa también TransicionFiltros mientras llega la variante con filtros.

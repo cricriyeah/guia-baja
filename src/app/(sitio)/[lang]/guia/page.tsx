@@ -11,7 +11,6 @@ import {
 import { categoriasConLugares, conteoCombinacion, destacados, eventosProximos, lugaresDe, porId, type ItemDestacado } from '../../../../sitio/datos/consultas'
 import type { CategoriaPublica } from '../../../../sitio/datos/tipos'
 import { guiaIndexable, sitioUrl } from '../../../../sitio/entorno'
-import '../../../../sitio/estilos/portada.css'
 import { migasLd } from '../../../../sitio/seo/jsonld'
 import { metadatos } from '../../../../sitio/seo/metadatos'
 import { textos } from '../../../../sitio/textos'

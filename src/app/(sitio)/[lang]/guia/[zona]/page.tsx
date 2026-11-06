@@ -17,7 +17,6 @@ import type {
   CategoriaPublica, TarjetaArticulo as TarjetaArticuloT, TarjetaEvento as TarjetaEventoT, TarjetaLugar as TarjetaLugarT, ZonaPublica,
 } from '../../../../../sitio/datos/tipos'
 import { guiaIndexable, sitioUrl } from '../../../../../sitio/entorno'
-import '../../../../../sitio/estilos/zona.css'
 import { listaLd, migasLd } from '../../../../../sitio/seo/jsonld'
 import { metadatos } from '../../../../../sitio/seo/metadatos'
 import { versionesDe } from '../../../../../sitio/seo/versiones'

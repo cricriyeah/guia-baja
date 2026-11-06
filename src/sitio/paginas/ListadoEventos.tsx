@@ -7,7 +7,6 @@ import { conConsulta, rutas } from '../../dominio/rutas'
 import { categoriasCacheadas, eventosCacheados, lugaresCacheados, zonasActivasCacheadas } from '../datos/cacheadas'
 import { eventosProximos, porId } from '../datos/consultas'
 import { guiaIndexable, sitioUrl } from '../entorno'
-import '../estilos/portada.css' // .encabezado, .agenda y .fecha de FilaAgenda
 import { listaLd, migasLd } from '../seo/jsonld'
 import { metadatos } from '../seo/metadatos'
 import { versionesDe } from '../seo/versiones'

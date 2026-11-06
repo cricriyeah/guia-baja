@@ -1,0 +1,15 @@
+/*
+ * Único CSS de la guía que se importa (src/app/(sitio)/[lang]/layout.tsx), para que el HTML bloquee con un solo archivo
+ * (spec §11: LCP < 2.5 s). Con un archivo por página eran 11 peticiones antes de pintar.
+ * El orden es la cascada: no cambiarlo sin revisar las páginas. La búsqueda y MapLibre van aparte, solo donde se usan.
+ */
+@import './base.css';
+@import './aparece.css';
+@import './articulo.css';
+@import './categoria.css';
+@import './evento.css';
+@import './ficha.css';
+@import './portada.css';
+@import './privacidad.css';
+@import './zona.css';
+@import './no-encontrado.css';

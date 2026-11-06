@@ -9,7 +9,6 @@ import { categoriasCacheadas, lugaresCacheados, zonasActivasCacheadas } from '..
 import { lugaresDe, porId, porSlug } from '../datos/consultas'
 import type { TarjetaLugar as Lugar, ZonaPublica } from '../datos/tipos'
 import { guiaIndexable, sitioUrl } from '../entorno'
-import '../estilos/categoria.css'
 import { listaLd, migasLd } from '../seo/jsonld'
 import { metadatos } from '../seo/metadatos'
 import { textos } from '../textos'

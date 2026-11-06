@@ -12,7 +12,6 @@ import {
 } from '../../../../../../sitio/datos/cacheadas'
 import { documentoPorSlug, eventosProximos, porId, resolutorDeCuerpo } from '../../../../../../sitio/datos/consultas'
 import { guiaIndexable, sitioUrl } from '../../../../../../sitio/entorno'
-import '../../../../../../sitio/estilos/evento.css'
 import { rutasPorIdioma } from '../../../../../../sitio/paginas/comun'
 import { eventoLd, migasLd } from '../../../../../../sitio/seo/jsonld'
 import { metadatos } from '../../../../../../sitio/seo/metadatos'

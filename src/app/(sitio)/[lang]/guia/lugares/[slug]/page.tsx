@@ -14,7 +14,6 @@ import {
 } from '../../../../../../sitio/datos/cacheadas'
 import { articulosQueCitan, documentoPorSlug, eventosProximos, lugaresDe, porId, resolutorDeCuerpo } from '../../../../../../sitio/datos/consultas'
 import { guiaIndexable, sitioUrl } from '../../../../../../sitio/entorno'
-import '../../../../../../sitio/estilos/ficha.css'
 import { rutasPorIdioma } from '../../../../../../sitio/paginas/comun'
 import { lugarLd, migasLd } from '../../../../../../sitio/seo/jsonld'
 import { metadatos } from '../../../../../../sitio/seo/metadatos'

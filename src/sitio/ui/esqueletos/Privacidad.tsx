@@ -1,4 +1,3 @@
-import '../../estilos/privacidad.css'
 import { Linea, Marco, Migas, Parrafo, veces } from './Primitivas'
 
 export function EsqueletoPrivacidad() {

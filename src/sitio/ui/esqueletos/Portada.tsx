@@ -1,4 +1,3 @@
-import '../../estilos/portada.css'
 import { CabezaSeccion, Chips, Linea, Marco, Migas, Parrafo, Pastilla, Tarjeta, veces } from './Primitivas'
 
 function FilaAgenda() {

@@ -4,7 +4,6 @@ import { usePathname } from 'next/navigation'
 
 import { esLocale } from '../../dominio/idioma'
 import { rutas } from '../../dominio/rutas'
-import '../estilos/no-encontrado.css'
 import { textos } from '../textos'
 
 // Sin datos: si falló la base, esto todavía se pinta.

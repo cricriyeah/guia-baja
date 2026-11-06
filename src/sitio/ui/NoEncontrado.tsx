@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation'
 
 import { esLocale } from '../../dominio/idioma'
 import { rutas } from '../../dominio/rutas'
-import '../estilos/no-encontrado.css'
 import { textos } from '../textos'
 
 // not-found no recibe props: el idioma sale de split('/')[1] (en el servidor la ruta es la interna; el idioma es el mismo).
