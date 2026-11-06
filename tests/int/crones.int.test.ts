@@ -6,6 +6,15 @@ import { correrHora } from '../../src/cron/hora'
 import { anonimizarSolicitud } from '../../src/solicitudes/anonimizar'
 import { crearCategoria, crearImagen, crearLugar, crearZona, limpiar, obtenerPayload } from './utils'
 
+// Registra las etiquetas que revalidan los hooks de las colecciones (fuera de Next, revalidateTag lanza).
+const etiquetasDeHooks = vi.hoisted(() => [] as string[])
+vi.mock('next/cache', async (original) => ({
+  ...(await original<typeof import('next/cache')>()),
+  revalidateTag: (etiqueta: string) => {
+    etiquetasDeHooks.push(etiqueta)
+  },
+}))
+
 let payload: Payload
 
 describe('crones (spec §10, §12)', () => {
@@ -33,6 +42,29 @@ describe('crones (spec §10, §12)', () => {
     expect(r.ipBorrados).toBe(1)
     expect((await payload.findByID({ collection: 'solicitudes', id: vieja.id, overrideAccess: true })).ipHash ?? null).toBeNull()
     expect((await payload.findByID({ collection: 'solicitudes', id: nueva.id, overrideAccess: true })).ipHash).toBe('b'.repeat(64))
+  })
+
+  it('hora: corre la publicación programada (schedulePublish) de punta a punta', async () => {
+    const zona = await crearZona(payload)
+    const cat = await crearCategoria(payload)
+    const img = await crearImagen(payload)
+    const l = await crearLugar(payload, { zona: zona.id, categorias: [cat.id], foto: img.id, slugEs: 'programado-x', publicado: false })
+    const indice = () =>
+      payload.find({ collection: 'indice-busqueda', overrideAccess: true, pagination: false, where: { and: [{ tipo: { equals: 'lugar' } }, { docId: { equals: l.id } }] } })
+    expect((await indice()).docs).toEqual([])
+    // Como lo encola el admin al programar (Payload 3.92.1, versions/schedule): doc.value siempre es string.
+    await payload.jobs.queue({
+      task: 'schedulePublish',
+      waitUntil: new Date(Date.now() - 60_000),
+      input: { type: 'publish', doc: { relationTo: 'lugares', value: String(l.id) } },
+    })
+    etiquetasDeHooks.length = 0
+    const revalidar = vi.fn()
+    const r = await correrHora(payload, new Date(), revalidar)
+    expect(r.fallos).toEqual([])
+    expect((await payload.findByID({ collection: 'lugares', id: l.id, overrideAccess: true, draft: false }))._status).toBe('published')
+    expect((await indice()).docs.map((f) => f.idioma)).toEqual(['es'])
+    expect(etiquetasDeHooks).toEqual(expect.arrayContaining([`lugar:${l.id}`, 'listados']))
   })
 
   it('hora: sin cambios en la ventana no revalida', async () => {
