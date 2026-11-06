@@ -76,6 +76,9 @@
 .reproducir { position: absolute; left: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: rgb(31 26 20 / .6); color: var(--blanco); font-size: .75rem; font-weight: 700; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
 /* Esqueleto mientras «carga» */
 @keyframes brillo { to { background-position: -200% 0; } }
+.pagina-zona .feed-grupo { padding-top: 28px; }
+.pagina-zona .feed-grupo + .feed-grupo { margin-top: 20px; border-top: 1px solid var(--borde); }
+.pagina-zona .feed-grupo__titulo { font: 700 1.25rem/1.15 var(--titulo); text-transform: uppercase; letter-spacing: -0.015em; margin-bottom: 14px; }
 .pagina-zona .mas { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding: 20px 0 0; }
 /* Banda de tours con video */
 .pagina-zona .tours { margin-top: 40px; position: relative; border-radius: var(--radio-card); overflow: hidden; min-height: 420px; display: grid; align-items: end; color: var(--blanco); background: var(--tinta); }

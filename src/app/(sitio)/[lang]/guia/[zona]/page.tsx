@@ -149,6 +149,7 @@ function Zona({ lang, zona, cats, lugares, eventos, articulos }: Datos & { lang:
         <div className="seccion__cabeza"><h2 id="t-feed" className="t-seccion">{t.secciones.descubre(zona.nombre)}</h2></div>
         {catsZona.map((c) => (
           <div key={c.id} className="feed-grupo">
+            <h3 className="feed-grupo__titulo">{c.nombre}</h3>
             <div className="feed">
               {lugaresDe(lugaresZona, { categoriaId: c.id }).slice(0, 4).map((l, i) => (
                 <TarjetaLugar key={l.id} lang={lang} lugar={l} categoria={c} zonaNombre={zona.nombre} km={km(l.coordenadas)} retraso={i * 70} />
