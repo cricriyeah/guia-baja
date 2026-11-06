@@ -1,4 +1,8 @@
 {
   "buildCommand": "npm run build:vercel",
-  "regions": ["iad1"]
+  "regions": ["iad1"],
+  "crons": [
+    { "path": "/api/cron/hora", "schedule": "5 * * * *" },
+    { "path": "/api/cron/diario", "schedule": "15 9 * * *" }
+  ]
 }

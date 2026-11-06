@@ -48,7 +48,7 @@ const hora = (name: string): TextField =>
 export const Lugares: CollectionConfig = {
   slug: 'lugares',
   admin: { useAsTitle: 'nombre', defaultColumns: ['nombre', 'zona', '_status', 'updatedAt'] },
-  versions: { drafts: true, maxPerDoc: 50 },
+  versions: { drafts: { schedulePublish: true }, maxPerDoc: 50 },
   access: {
     read: lecturaPublicaPublicada,
     readVersions: soloPersonal,

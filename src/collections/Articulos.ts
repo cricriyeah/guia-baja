@@ -44,7 +44,7 @@ const copiarNombreAutor: CollectionBeforeChangeHook = async ({ data, req }) => {
 export const Articulos: CollectionConfig = {
   slug: 'articulos',
   admin: { useAsTitle: 'titulo', defaultColumns: ['titulo', 'autorNombre', '_status', 'publicadoEl'] },
-  versions: { drafts: true, maxPerDoc: 50 },
+  versions: { drafts: { schedulePublish: true }, maxPerDoc: 50 },
   access: {
     read: lecturaPublicaPublicada,
     readVersions: soloPersonal,

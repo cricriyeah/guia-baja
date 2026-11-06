@@ -2,6 +2,7 @@ import type { CollectionSlug, Payload } from 'payload'
 
 // Orden: primero lo que referencia a otros.
 const ORDEN = [
+  'payload-jobs',
   'indice-busqueda',
   'redirects',
   'solicitudes',

@@ -30,7 +30,7 @@ const fechaHora: DateField['admin'] = { date: { pickerAppearance: 'dayAndTime' }
 export const Eventos: CollectionConfig = {
   slug: 'eventos',
   admin: { useAsTitle: 'nombre', defaultColumns: ['nombre', 'inicio', 'zona', '_status'] },
-  versions: { drafts: true, maxPerDoc: 50 },
+  versions: { drafts: { schedulePublish: true }, maxPerDoc: 50 },
   access: {
     read: lecturaPublicaPublicada,
     readVersions: soloPersonal,
