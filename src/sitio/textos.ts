@@ -3,6 +3,7 @@ import type { Locale } from '../dominio/idioma'
 // Textos de la interfaz. Sin imports de servidor: lo usan componentes de servidor y de cliente.
 const ES = {
   guia: 'Guía de la Baja',
+  cargando: 'Cargando…',
   cabecera: {
     sello: 'Guía de la Baja, de Sun Baja',
     zonas: 'Zonas',
@@ -174,6 +175,7 @@ type Textos = typeof ES
 
 const EN: Textos = {
   guia: 'Baja Guide',
+  cargando: 'Loading…',
   cabecera: {
     sello: 'Baja Guide, by Sun Baja',
     zonas: 'Areas',

@@ -8,7 +8,7 @@ import { useAhora } from './useAhora'
 // Decisión 10: sin fin solo «Empieza en…»; «En curso · termina en…» solo si hay fin. Se calcula en el navegador.
 export function CuentaRegresiva({ lang, inicio, fin }: { lang: Locale; inicio: string; fin: string | null }) {
   const fecha = useAhora()
-  if (!fecha) return null
+  if (!fecha) return <span className="esq esq--pastilla esq--vivo" aria-hidden="true" />
   const ahora = fecha.getTime()
   const t = textos(lang)
   const a = new Date(inicio).getTime()

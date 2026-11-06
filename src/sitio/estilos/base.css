@@ -122,11 +122,32 @@ h1, h2, h3 { margin: 0; }
 
 /* Esqueleto */
 .esqueleto { border-radius: var(--radio-card); overflow: hidden; box-shadow: 0 0 0 1px var(--borde); }
-.esqueleto i { display: block; background: linear-gradient(90deg, var(--gris) 0%, #FAF8F5 40%, var(--gris) 80%); background-size: 200% 100%; animation: brillo 1.1s linear infinite; }
+.esqueleto i { display: block; background: linear-gradient(90deg, var(--borde) 0%, var(--gris) 40%, var(--borde) 80%); background-size: 200% 100%; animation: brillo 1.1s linear infinite; }
 .esqueleto i:first-child { aspect-ratio: 16 / 10; }
 .esqueleto i + i { height: 14px; margin: 12px 14px 0; border-radius: 6px; }
 .esqueleto i:last-child { width: 60%; margin-bottom: 16px; }
 @keyframes brillo { to { background-position: -200% 0; } }
+/* Piezas de los esqueletos de carga (src/sitio/ui/esqueletos). Doble clase: el fondo gana al de la pieza que imitan.
+   Las fotos brillan hasta que Efectos marca data-lista; sin JS no hay quien las marque, por eso van bajo .js. */
+.esq.esq, .js img[data-img]:not([data-lista]) { background: linear-gradient(90deg, var(--borde) 0%, var(--gris) 40%, var(--borde) 80%); background-size: 200% 100%; animation: brillo 1.1s linear infinite; }
+.esq.esq { border-color: transparent; }
+.esq--texto { display: block; max-width: 100%; height: 1em; margin-block: calc((1lh - 1em) / 2); border-radius: 6px; }
+.esq--pastilla { display: inline-block; width: 64px; height: 20px; border-radius: 999px; vertical-align: middle; }
+html:not(.js) .esq--vivo { display: none; }
+.contenidos { display: contents; }
+.mapa { position: relative; }
+.mapa__carga { position: absolute; inset: 0; z-index: 1; pointer-events: none; transition: opacity 180ms ease-out; }
+.mapa__carga.lista.lista { opacity: 0; animation: none; }
+/* Fade in muy corto de lo que aparece. Solo opacidad y sin fill: al terminar no queda contexto de apilamiento que
+   afecte a lo sticky. <main> vive en el layout: su animación corre una vez, en la carga directa; al navegar la lanza
+   NavegacionConEsqueleto (ui/navegacion/aparecer.ts, misma duración). */
+@keyframes aparecer { from { opacity: 0; } }
+#contenido, .ancho[aria-busy="true"], .resultados-entran > *, .js .abierto, .js .cuenta, .js .seccion__nota { animation: aparecer 180ms ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .esq.esq, .js img[data-img]:not([data-lista]) { animation: none; }
+  #contenido, .ancho[aria-busy="true"], .resultados-entran > *, .js .abierto, .js .cuenta, .js .seccion__nota { animation: none; }
+  .mapa__carga { transition: none; }
+}
 
 /* Entradas */
 .js .entra { opacity: 0; transform: translateY(18px); transition: opacity 600ms var(--curva), transform 600ms var(--curva); transition-delay: var(--retraso, 0ms); }

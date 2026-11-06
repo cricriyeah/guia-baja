@@ -110,3 +110,7 @@
 .horario tr + tr { border-top: 1px solid var(--borde); }
 .visor__pie { color: rgb(255 255 255 / .85); font-size: .9375rem; text-align: center; }
 .ficha-datos__fila { grid-template-columns: 1fr; }
+/* Esqueleto de la galería: la misma rejilla, sin los <button> de las fotos */
+@media (min-width: 768px) {
+  .galeria > .esq:first-child { grid-row: span 2; }
+}

@@ -15,6 +15,7 @@ import { listaLd, migasLd } from '../seo/jsonld'
 import { metadatos } from '../seo/metadatos'
 import { textos } from '../textos'
 import { Aparece } from '../ui/Aparece'
+import { EsqueletoResultados } from '../ui/esqueletos/Categoria'
 import { Imagen } from '../ui/Imagen'
 import { JsonLd } from '../ui/JsonLd'
 import { Mapa } from '../ui/Mapa'
@@ -24,6 +25,7 @@ import { Paginacion } from '../ui/Paginacion'
 import { Pildoras } from '../ui/Pildoras'
 import { TarjetaArticulo } from '../ui/tarjetas/TarjetaArticulo'
 import { TarjetaLugar } from '../ui/tarjetas/TarjetaLugar'
+import { TransicionFiltros } from '../ui/TransicionFiltros'
 import { desviar, hrefAlternando, recortarListado, versionesListado, type Variante } from './comun'
 
 async function datos(lang: Locale, zonaSlug: string, categoriaSlug: string) {
@@ -124,34 +126,41 @@ export async function CategoriaEnZona({ lang, zonaSlug, categoriaSlug, variante 
         </div>
       </section>
 
-      <Pildoras
-        etiqueta={t.portada.categorias}
-        items={categoriasConLugares(lugares, cats, zona.id).map((c) => ({ nombre: c.nombre, ruta: rutas.categoriaEnZona(lang, zona.slug, c.slug), actual: c.id === cat.id }))}
-      />
-      <ChipsFiltros lang={lang} ruta={ruta} filtros={variante.filtros ?? {}} precios={precios} />
-
-      <p className="contador-res" aria-live="polite">{t.listado.resultados(pag.total)}</p>
-      {pag.items.length === 0 ? (
-        <p>{t.listado.ninguno}</p>
-      ) : (
-        <div className="explorar" data-vista="lista">
-          <div className="lista">
-            {pag.items.map((l, i) => (
-              <TarjetaLugar key={l.id} lang={lang} lugar={l} categoria={cat} zonaNombre={zona.nombre} km={l.coordenadas && zona.coordenadas ? kmEnLineaRecta(l.coordenadas, zona.coordenadas) : null} retraso={(i % 6) * 60} />
-            ))}
-          </div>
-          {conCoordenadas.length > 0 && (
-            <div className="mapa-cat">
-              <Mapa
-                lang={lang}
-                titulo={t.ficha.mapa(t.listado.titulo(cat.nombre, zona.nombre))}
-                puntos={conCoordenadas.map((l) => ({ lng: l.coordenadas![0], lat: l.coordenadas![1], nombre: l.nombre, ruta: rutas.lugar(lang, l.slug) }))}
-              />
+      <TransicionFiltros
+        esqueleto={<EsqueletoResultados conMapa={conCoordenadas.length > 0} />}
+        controles={
+          <>
+            <Pildoras
+              etiqueta={t.portada.categorias}
+              items={categoriasConLugares(lugares, cats, zona.id).map((c) => ({ nombre: c.nombre, ruta: rutas.categoriaEnZona(lang, zona.slug, c.slug), actual: c.id === cat.id }))}
+            />
+            <ChipsFiltros lang={lang} ruta={ruta} filtros={variante.filtros ?? {}} precios={precios} />
+          </>
+        }
+      >
+        <p className="contador-res" aria-live="polite">{t.listado.resultados(pag.total)}</p>
+        {pag.items.length === 0 ? (
+          <p>{t.listado.ninguno}</p>
+        ) : (
+          <div className="explorar" data-vista="lista">
+            <div className="lista">
+              {pag.items.map((l, i) => (
+                <TarjetaLugar key={l.id} lang={lang} lugar={l} categoria={cat} zonaNombre={zona.nombre} km={l.coordenadas && zona.coordenadas ? kmEnLineaRecta(l.coordenadas, zona.coordenadas) : null} retraso={(i % 6) * 60} />
+              ))}
             </div>
-          )}
-        </div>
-      )}
-      <Paginacion lang={lang} ruta={ruta} pagina={pag.pagina} totalPaginas={pag.totalPaginas} consulta={variante.filtros ? consultaDeFiltros(variante.filtros) : ''} />
+            {conCoordenadas.length > 0 && (
+              <div className="mapa-cat">
+                <Mapa
+                  lang={lang}
+                  titulo={t.ficha.mapa(t.listado.titulo(cat.nombre, zona.nombre))}
+                  puntos={conCoordenadas.map((l) => ({ lng: l.coordenadas![0], lat: l.coordenadas![1], nombre: l.nombre, ruta: rutas.lugar(lang, l.slug) }))}
+                />
+              </div>
+            )}
+          </div>
+        )}
+        <Paginacion lang={lang} ruta={ruta} pagina={pag.pagina} totalPaginas={pag.totalPaginas} consulta={variante.filtros ? consultaDeFiltros(variante.filtros) : ''} />
+      </TransicionFiltros>
 
       {lecturas.length > 0 && (
         <section className="seccion" aria-labelledby="t-leer">

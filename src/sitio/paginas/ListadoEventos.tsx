@@ -13,12 +13,14 @@ import { metadatos } from '../seo/metadatos'
 import { versionesDe } from '../seo/versiones'
 import { textos } from '../textos'
 import { Aparece } from '../ui/Aparece'
+import { EsqueletoAgenda } from '../ui/esqueletos/Portada'
 import { JsonLd } from '../ui/JsonLd'
 import { Migas } from '../ui/Migas'
 import { NoEncontradoEnSuspense } from '../ui/NoEncontradoEnSuspense'
 import { Paginacion } from '../ui/Paginacion'
 import { Pildoras } from '../ui/Pildoras'
 import { FilaAgenda } from '../ui/tarjetas/FilaAgenda'
+import { TransicionFiltros } from '../ui/TransicionFiltros'
 import { desviar, totalPaginasDe, type Variante } from './comun'
 
 // Spec §7: los próximos ya vienen ordenados (patrocinios arriba, luego por inicio) desde `eventosProximos`.
@@ -78,27 +80,33 @@ export async function ListadoEventos({ lang, variante }: { lang: Locale; variant
         <h1 id="titulo" className="t-pagina">{t.listado.eventosTitulo}</h1>
         <p>{t.listado.eventosIntro}</p>
       </section>
-      <Pildoras
-        etiqueta={t.cabecera.zonas}
-        items={[
-          { nombre: t.listado.todasLasZonas, ruta, actual: !filtros.zona },
-          ...zonasConEventos.map((z) => ({
-            nombre: z.nombre,
-            ruta: conConsulta(ruta, consultaDeFiltros({ ...filtros, zona: z.slug })),
-            actual: filtros.zona === z.slug,
-          })),
-        ]}
-      />
-      {pag.items.length ? (
-        <div className="agenda">
-          {pag.items.map((e) => (
-            <FilaAgenda key={e.id} lang={lang} evento={e} categoria={porId(cats, e.categoriaIds[0])} lugarNombre={porId(lugares, e.lugarId)?.nombre} />
-          ))}
-        </div>
-      ) : (
-        <p>{t.secciones.sinEventos}</p>
-      )}
-      <Paginacion lang={lang} ruta={ruta} pagina={pag.pagina} totalPaginas={pag.totalPaginas} consulta={variante.filtros ? consultaDeFiltros(variante.filtros) : ''} />
+      <TransicionFiltros
+        esqueleto={<EsqueletoAgenda />}
+        controles={
+          <Pildoras
+            etiqueta={t.cabecera.zonas}
+            items={[
+              { nombre: t.listado.todasLasZonas, ruta, actual: !filtros.zona },
+              ...zonasConEventos.map((z) => ({
+                nombre: z.nombre,
+                ruta: conConsulta(ruta, consultaDeFiltros({ ...filtros, zona: z.slug })),
+                actual: filtros.zona === z.slug,
+              })),
+            ]}
+          />
+        }
+      >
+        {pag.items.length ? (
+          <div className="agenda">
+            {pag.items.map((e) => (
+              <FilaAgenda key={e.id} lang={lang} evento={e} categoria={porId(cats, e.categoriaIds[0])} lugarNombre={porId(lugares, e.lugarId)?.nombre} />
+            ))}
+          </div>
+        ) : (
+          <p>{t.secciones.sinEventos}</p>
+        )}
+        <Paginacion lang={lang} ruta={ruta} pagina={pag.pagina} totalPaginas={pag.totalPaginas} consulta={variante.filtros ? consultaDeFiltros(variante.filtros) : ''} />
+      </TransicionFiltros>
       <Aparece lang={lang} />
       <JsonLd datos={migasLd(migas, sitioUrl())} />
       <JsonLd datos={listaLd(pag.items.map((e) => ({ nombre: e.nombre, ruta: rutas.evento(lang, e.slug) })), sitioUrl())} />

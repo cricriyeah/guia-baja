@@ -3,6 +3,8 @@
 
 import { useEffect } from 'react'
 
+import { aparecer } from './navegacion/aparecer'
+
 // Comportamientos generales de c-base.js: entradas escalonadas, videos que se reproducen solo al verse y presión
 // inmediata. Un MutationObserver toma lo que trae cada navegación con <Link> (el layout no se vuelve a montar).
 export function Efectos() {
@@ -37,7 +39,19 @@ export function Efectos() {
         marcados.push(v)
         videos.observe(v)
       })
+      // La foto que ya estaba lista antes de este efecto (o salió de la caché) no va a disparar `load`.
+      document.querySelectorAll<HTMLImageElement>('img[data-img]:not([data-lista])').forEach((img) => {
+        if (img.complete) img.dataset.lista = '1'
+      })
     }
+    // Esqueleto de las fotos (base.css): se quita al cargar o al fallar. `load` y `error` no burbujean: va en captura.
+    const fotoLista = (e: Event) => {
+      if (!(e.target instanceof HTMLImageElement) || !('img' in e.target.dataset)) return
+      e.target.dataset.lista = '1'
+      if (e.type === 'load') aparecer(e.target)
+    }
+    document.addEventListener('load', fotoLista, true)
+    document.addEventListener('error', fotoLista, true)
     tomar()
     const cambios = new MutationObserver(tomar)
     cambios.observe(document.body, { childList: true, subtree: true })
@@ -60,6 +74,8 @@ export function Efectos() {
       videos.disconnect()
       cambios.disconnect()
       marcados.forEach((el) => delete el.dataset.visto)
+      document.removeEventListener('load', fotoLista, true)
+      document.removeEventListener('error', fotoLista, true)
       document.removeEventListener('pointerdown', presionar)
     }
   }, [])

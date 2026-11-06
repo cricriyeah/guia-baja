@@ -7,10 +7,11 @@ import { textos } from '../textos'
 import { useAhora } from './useAhora'
 
 // «Abierto ahora» se calcula en el navegador: la página se cachea hasta una hora (decisiones, ajustes del frontend).
-// Sin horario no se muestra nada.
+// Sin horario no se muestra nada; con horario, un esqueleto reserva su lugar hasta tener la hora.
 export function HorarioEnVivo({ lang, horario, corto = false }: { lang: Locale; horario: FilaHorario[]; corto?: boolean }) {
   const ahora = useAhora()
-  if (!ahora) return null
+  if (!horario?.length) return null
+  if (!ahora) return <span className="esq esq--pastilla esq--vivo" aria-hidden="true" />
   const e = estadoHorario(horario, ahora)
   if (!e) return null
   const t = textos(lang)

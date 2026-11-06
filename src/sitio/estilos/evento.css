@@ -23,11 +23,15 @@
 .reloj b.cambia { animation: cambio 400ms var(--curva); }
 @keyframes cambio { from { transform: translateY(-30%); opacity: 0; } }
 .boleto__estado { font-weight: 700; color: var(--cafe-claro); }
+/* .cuenta de portada.css también llega aquí: sobre el boleto, la cuenta toma el color y tamaño de su renglón */
+.boleto__estado .cuenta { font-size: inherit; color: inherit; }
 .boleto__acciones { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .boleto .boton--secundario { background: transparent; color: var(--blanco); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .5); }
 .boleto .boton--secundario:hover { background: rgb(255 255 255 / .08); }
 .boleto__precio { display: flex; justify-content: space-between; align-items: baseline; padding-top: 12px; border-top: 1px solid rgb(255 255 255 / .15); }
 .boleto__precio b { font-size: 1.25rem; }
+/* Esqueletos sobre el fondo oscuro del boleto */
+.boleto .esq.esq { background: linear-gradient(90deg, rgb(255 255 255 / .1) 0%, rgb(255 255 255 / .2) 40%, rgb(255 255 255 / .1) 80%); background-size: 200% 100%; }
 .pagina-evento .cuerpo { display: grid; gap: 32px; padding-top: 28px; }
 @media (min-width: 1024px) {
   .pagina-evento .cuerpo { grid-template-columns: minmax(0, 1fr) 380px; gap: 48px; align-items: start; }

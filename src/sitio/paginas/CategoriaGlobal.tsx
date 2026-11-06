@@ -14,12 +14,14 @@ import { listaLd, migasLd } from '../seo/jsonld'
 import { metadatos } from '../seo/metadatos'
 import { textos } from '../textos'
 import { Aparece } from '../ui/Aparece'
+import { EsqueletoResultados } from '../ui/esqueletos/Categoria'
 import { JsonLd } from '../ui/JsonLd'
 import { Migas } from '../ui/Migas'
 import { NoEncontradoEnSuspense } from '../ui/NoEncontradoEnSuspense'
 import { Paginacion } from '../ui/Paginacion'
 import { Pildoras } from '../ui/Pildoras'
 import { TarjetaLugar } from '../ui/tarjetas/TarjetaLugar'
+import { TransicionFiltros } from '../ui/TransicionFiltros'
 import { desviar, hrefAlternando, recortarListado, versionesListado, type Variante } from './comun'
 
 // Solo lugares de zonas activas: los demás no se pintan, así que tampoco cuentan para umbrales ni paginación.
@@ -90,29 +92,37 @@ export async function CategoriaGlobal({ lang, categoriaSlug, variante }: { lang:
           <p>{t.listado.introTodas(d.base.length, d.cat.nombre)}</p>
         </div>
       </section>
-      <Pildoras etiqueta={t.cabecera.zonas} items={zonasConLugares.map((z) => ({ nombre: z.nombre, ruta: rutas.categoriaEnZona(lang, z.slug, d.cat.slug) }))} />
-      <div className="herramientas" aria-label={t.listado.filtros}>
-        <Link className="chip" href={ruta} aria-current={consultaDeFiltros(filtros) === '' ? 'page' : undefined}>{t.listado.todasLasZonas}</Link>
-        {zonasConLugares.map((z) => (
-          <Link key={z.id} className="chip" href={hrefAlternando(ruta, filtros, 'zona', z.slug)} aria-current={filtros.zona === z.slug ? 'page' : undefined}>
-            {z.nombre}
-          </Link>
-        ))}
-      </div>
-      <p className="contador-res" aria-live="polite">{t.listado.resultados(pag.total)}</p>
-      {pag.items.length === 0 && <p>{t.listado.ninguno}</p>}
-      {/* Spec §7: los lugares de la página agrupados por zona, en el orden de las zonas activas. */}
-      {zonasConLugares.map((z) => {
-        const deZona = pag.items.filter((l) => l.zonaId === z.id)
-        if (!deZona.length) return null
-        return (
-          <section key={z.id} className="seccion" aria-labelledby={`z-${z.id}`}>
-            <div className="seccion__cabeza"><h2 id={`z-${z.id}`} className="t-seccion">{z.nombre}</h2></div>
-            <div className="lista">{deZona.map((l) => <TarjetaLugar key={l.id} lang={lang} lugar={l} categoria={d.cat} zonaNombre={z.nombre} />)}</div>
-          </section>
-        )
-      })}
-      <Paginacion lang={lang} ruta={ruta} pagina={pag.pagina} totalPaginas={pag.totalPaginas} consulta={variante.filtros ? consultaDeFiltros(variante.filtros) : ''} />
+      <TransicionFiltros
+        esqueleto={<EsqueletoResultados conMapa={false} />}
+        controles={
+          <>
+            <Pildoras etiqueta={t.cabecera.zonas} items={zonasConLugares.map((z) => ({ nombre: z.nombre, ruta: rutas.categoriaEnZona(lang, z.slug, d.cat.slug) }))} />
+            <div className="herramientas" aria-label={t.listado.filtros}>
+              <Link className="chip" href={ruta} aria-current={consultaDeFiltros(filtros) === '' ? 'page' : undefined}>{t.listado.todasLasZonas}</Link>
+              {zonasConLugares.map((z) => (
+                <Link key={z.id} className="chip" href={hrefAlternando(ruta, filtros, 'zona', z.slug)} aria-current={filtros.zona === z.slug ? 'page' : undefined}>
+                  {z.nombre}
+                </Link>
+              ))}
+            </div>
+          </>
+        }
+      >
+        <p className="contador-res" aria-live="polite">{t.listado.resultados(pag.total)}</p>
+        {pag.items.length === 0 && <p>{t.listado.ninguno}</p>}
+        {/* Spec §7: los lugares de la página agrupados por zona, en el orden de las zonas activas. */}
+        {zonasConLugares.map((z) => {
+          const deZona = pag.items.filter((l) => l.zonaId === z.id)
+          if (!deZona.length) return null
+          return (
+            <section key={z.id} className="seccion" aria-labelledby={`z-${z.id}`}>
+              <div className="seccion__cabeza"><h2 id={`z-${z.id}`} className="t-seccion">{z.nombre}</h2></div>
+              <div className="lista">{deZona.map((l) => <TarjetaLugar key={l.id} lang={lang} lugar={l} categoria={d.cat} zonaNombre={z.nombre} />)}</div>
+            </section>
+          )
+        })}
+        <Paginacion lang={lang} ruta={ruta} pagina={pag.pagina} totalPaginas={pag.totalPaginas} consulta={variante.filtros ? consultaDeFiltros(variante.filtros) : ''} />
+      </TransicionFiltros>
       <Aparece lang={lang} />
       <JsonLd datos={migasLd(migas, sitioUrl())} />
       <JsonLd datos={listaLd(pag.items.map((l) => ({ nombre: l.nombre, ruta: rutas.lugar(lang, l.slug) })), sitioUrl())} />
