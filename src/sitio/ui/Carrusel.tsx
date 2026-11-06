@@ -40,7 +40,7 @@ export function Carrusel({ lang, diapositivas }: { lang: Locale; diapositivas: D
       )}
       {diapositivas.map((d, n) => (
         <article key={d.id} className={`diapo${n === i ? ' activa' : ''}`} aria-roledescription="diapositiva" aria-hidden={n !== i}>
-          <Imagen imagen={d.imagen} cargar={n === 0 ? 'eager' : 'lazy'} sizes="(min-width: 900px) 66vw, 100vw" />
+          <Imagen imagen={d.imagen} cargar={n === 0 ? 'eager' : 'lazy'} prioridad={n === 0} sizes="(min-width: 900px) 66vw, 100vw" />
           <Link className="velo-texto" href={d.ruta} rel={d.patrocinado ? 'sponsored' : undefined} tabIndex={n === i ? undefined : -1}>
             {d.patrocinado && <><span className="patrocinado">{t.tarjetas.patrocinado}</span> </>}
             {d.etiqueta && <span className={`etiqueta ${d.etiqueta.clase}`}>{d.etiqueta.nombre}</span>}

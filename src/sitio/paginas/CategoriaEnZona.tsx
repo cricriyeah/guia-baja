@@ -124,7 +124,7 @@ export async function CategoriaEnZona({ lang, zonaSlug, categoriaSlug, variante 
           <div className="portada-cat__cifras"><span><b>{d.base.length}</b>{t.listado.lugaresSinNumero(d.base.length)}</span></div>
         </div>
         <div className="portada-cat__fotos" aria-hidden="true">
-          <Imagen className="activa" imagen={fotoPortada} cargar="eager" sizes="(min-width: 900px) 50vw, 100vw" alt="" />
+          <Imagen className="activa" imagen={fotoPortada} prioridad sizes="(min-width: 900px) 50vw, 100vw" alt="" />
         </div>
       </section>
 

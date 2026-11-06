@@ -35,7 +35,7 @@ export function Galeria({ lang, nombre, fotos }: { lang: Locale; nombre: string;
         <div className="galeria">
           {fotos.slice(0, VISIBLES).map((f, i) => (
             <button key={f.src} type="button" aria-label={t.foto(i + 1, fotos.length)} onClick={() => setAbierta(i)}>
-              <Imagen imagen={f} cargar={i < 3 ? 'eager' : 'lazy'} sizes={i === 0 ? '(min-width: 900px) 60vw, 100vw' : '(min-width: 900px) 20vw, 50vw'} />
+              <Imagen imagen={f} cargar={i < 3 ? 'eager' : 'lazy'} prioridad={i === 0} sizes={i === 0 ? '(min-width: 900px) 60vw, 100vw' : '(min-width: 900px) 20vw, 50vw'} />
               {i === VISIBLES - 1 && fotos.length > VISIBLES && <span className="galeria__mas">{t.verFotos(fotos.length)}</span>}
             </button>
           ))}

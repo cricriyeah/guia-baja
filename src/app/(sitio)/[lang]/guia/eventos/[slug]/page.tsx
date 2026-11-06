@@ -107,7 +107,7 @@ export default async function PaginaEvento({ params }: Props) {
         </p>
       )}
       <section className="evento-cabeza" aria-labelledby="titulo">
-        <div className="evento-foto"><Imagen imagen={e.foto} cargar="eager" sizes="(min-width: 900px) 55vw, 100vw" /></div>
+        <div className="evento-foto"><Imagen imagen={e.foto} prioridad sizes="(min-width: 900px) 55vw, 100vw" /></div>
         <div className="boleto">
           <span>
             {declarado && <><Patrocinado lang={lang} /> </>}

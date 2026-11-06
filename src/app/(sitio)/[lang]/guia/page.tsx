@@ -52,7 +52,7 @@ function Destacada({ lang, d, cats, primera }: { lang: Locale; d: ItemDestacado;
   const declarado = d.tipo !== 'articulo' && patrocinioDeclarado(d.item.patrocinio)
   return (
     <Link className={`destacado tarjeta presionable ${cat?.claseGrupo ?? ''}`} href={ruta} rel={declarado ? 'sponsored' : undefined}>
-      <div className="media"><Imagen imagen={imagen} cargar={primera ? 'eager' : 'lazy'} sizes={primera ? '(min-width: 900px) 66vw, 100vw' : '(min-width: 900px) 33vw, 100vw'} alt="" /></div>
+      <div className="media"><Imagen imagen={imagen} prioridad={primera} sizes={primera ? '(min-width: 900px) 66vw, 100vw' : '(min-width: 900px) 33vw, 100vw'} alt="" /></div>
       <div className="velo-texto">
         {declarado && <><Patrocinado lang={lang} /> </>}
         {cat && <span className="etiqueta">{cat.nombre}</span>}
