@@ -56,11 +56,24 @@ describe('envío del formulario (spec §11, §12)', () => {
     expect((await enviarSolicitud(payload, form({ correo: 'otra@ejemplo.invalid' }), publico(null), deps())).ok).toBe(true)
   })
 
-  it('sin sal con IP, falla en voz alta: no guarda la Solicitud ni avisa', async () => {
-    const d = deps({ sal: '' })
-    await expect(enviarSolicitud(payload, form(), publico('1.2.3.4'), d)).rejects.toThrow(/sal/)
+  it.each([['con IP', '1.2.3.4'], ['sin IP', null]])('sin sal (%s), falla en voz alta: no guarda la Solicitud, no avisa ni registra la IP', async (_c, ip) => {
+    const espias = (['error', 'warn', 'info', 'debug'] as const).map((n) => vi.spyOn(payload.logger, n))
+    for (const sal of ['', '   ']) {
+      const d = deps({ sal })
+      await expect(enviarSolicitud(payload, form(), publico(ip), d)).rejects.toThrow(/sal/)
+      expect(d.verificarTurnstile).not.toHaveBeenCalled()
+      expect(d.avisar).not.toHaveBeenCalled()
+    }
     expect((await payload.count({ collection: 'solicitudes', overrideAccess: true })).totalDocs).toBe(0)
-    expect(d.avisar).not.toHaveBeenCalled()
+    expect(JSON.stringify(espias.map((e) => e.mock.calls))).not.toContain('1.2.3.4')
+    espias.forEach((e) => e.mockRestore())
+  })
+
+  it('una Solicitud de hace más de una hora no cuenta para el límite', async () => {
+    const ahora = new Date()
+    for (let i = 0; i < 5; i++) expect((await enviarSolicitud(payload, form(), publico('7.7.7.7'), deps({ ahora: () => ahora }))).ok).toBe(true)
+    expect(await enviarSolicitud(payload, form(), publico('7.7.7.7'), deps({ ahora: () => new Date(ahora.getTime() + 59 * 60 * 1000) }))).toMatchObject({ ok: false, motivo: 'limite' })
+    expect((await enviarSolicitud(payload, form(), publico('7.7.7.7'), deps({ ahora: () => new Date(ahora.getTime() + 61 * 60 * 1000) }))).ok).toBe(true)
   })
 
   it('si el correo de aviso falla, la Solicitud queda y el log no lleva direcciones', async () => {

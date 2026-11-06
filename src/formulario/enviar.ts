@@ -17,8 +17,10 @@ export type ResultadoEnvio =
 const HORA = 60 * 60 * 1000
 
 // El caso de uso completo del formulario (spec §11). Sin Next: la Server Action solo le pasa origen y dependencias.
-// Una sal vacía es una configuración rota del servidor: ipHash lanza y no se guarda nada.
+// Una sal vacía es una configuración rota del servidor: se lanza antes de guardar nada.
 export async function enviarSolicitud(payload: Payload, form: Record<string, string | undefined>, origen: Origen, deps: DepsEnvio): Promise<ResultadoEnvio> {
+  // Antes de tocar nada: sin sal, ipHash fallaría solo cuando haya IP y el límite por correo quedaría sin avisar.
+  if (!deps.sal.trim()) throw new Error('enviarSolicitud necesita una sal no vacía (IP_HASH_SALT)')
   const ajustes = await payload.findGlobal({ slug: 'ajustes-guia', overrideAccess: true, depth: 0 })
   if (!ajustes.formularioActivo) return { ok: false, motivo: 'cerrado' }
   const v = validarSolicitud(form)
