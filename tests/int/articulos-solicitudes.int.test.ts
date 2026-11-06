@@ -127,4 +127,16 @@ describe('Artículos, Solicitudes y Ajustes', () => {
     const cambio = await payload.update({ collection: 'solicitudes', id: s.id, data: { estado: 'en-contacto' }, overrideAccess: true })
     expect(new Date(cambio.estadoCambiadoEl as string).getTime()).toBeGreaterThan(new Date(s.estadoCambiadoEl as string).getTime())
   })
+
+  it('estadoCambiadoEl no se puede fijar desde fuera: sin cambio de estado, el valor guardado no cambia', async () => {
+    const s = await payload.create({ collection: 'solicitudes', data: { negocio: 'N', aceptoPrivacidad: true }, overrideAccess: true })
+    await payload.update({
+      collection: 'solicitudes',
+      id: s.id,
+      data: { estadoCambiadoEl: '2020-01-01T00:00:00.000Z' },
+      overrideAccess: true,
+    })
+    const guardada = await payload.findByID({ collection: 'solicitudes', id: s.id, overrideAccess: true })
+    expect(guardada.estadoCambiadoEl).toBe(s.estadoCambiadoEl)
+  })
 })

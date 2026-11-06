@@ -14,7 +14,9 @@ export type DatosSolicitud = {
 export type CodigoError = 'requerido' | 'largo' | 'formato' | 'contacto' | 'acepto'
 
 const MAX: Record<string, number> = { negocio: 120, giro: 80, zonaTexto: 80, contactoNombre: 80, correo: 160, telefono: 30, webOInstagram: 160, mensaje: 2000 }
-const CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+// Igual que el campo `email` de Payload (node_modules/payload/dist/fields/validations.js, emailRegex):
+// si la regla de aquí fuera más laxa, un correo válido aquí fallaría al crear la Solicitud.
+const CORREO = /^(?!.*\.\.)[\w!#$%&'*+/=?^`{|}~-](?:[\w!#$%&'*+/=?^`{|}~.-]*[\w!#$%&'*+/=?^`{|}~-])?@[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)*\.[a-z]{2,}$/i
 const texto = (v: string | undefined) => {
   const t = (v ?? '').trim()
   return t === '' ? null : t
@@ -33,12 +35,15 @@ export function validarSolicitud(form: Record<string, string | undefined>) {
     errores.telefono = 'contacto'
   }
   if (form.aceptoPrivacidad !== 'on') errores.aceptoPrivacidad = 'acepto'
-  if (Object.keys(errores).length) return { ok: false as const, errores }
+  // El id de zona es un int4 positivo; con hasta 9 dígitos siempre cabe.
   const zona = texto(form.zona)
+  if (zona && zona !== 'otra' && !(/^\d{1,9}$/.test(zona) && Number(zona) > 0)) errores.zona = 'formato'
+  if (zona === 'otra' && !v.zonaTexto) errores.zonaTexto = 'requerido'
+  if (Object.keys(errores).length) return { ok: false as const, errores }
   const datos: DatosSolicitud = {
     negocio: v.negocio!,
     giro: v.giro,
-    zonaId: zona && /^\d+$/.test(zona) ? Number(zona) : null,
+    zonaId: zona && zona !== 'otra' ? Number(zona) : null,
     zonaTexto: zona === 'otra' ? v.zonaTexto : null,
     contactoNombre: v.contactoNombre,
     correo: v.correo,

@@ -3,11 +3,12 @@ import type { CheckboxField, CollectionBeforeChangeHook, CollectionConfig } from
 import { campoSoloAdmin, nadie, soloPersonal } from '../acceso/reglas'
 
 // Spec §12: «sin cambio de estado en 12 meses» se mide desde aquí; una nota interna no reinicia el plazo.
+// En un update sin cambio de estado se conserva el valor guardado: así un cliente de la API no puede
+// reiniciar el reloj de 12 meses enviando una fecha propia.
 const marcarCambioDeEstado: CollectionBeforeChangeHook = ({ data, operation, originalDoc }) => {
-  if (operation === 'create' || (data.estado !== undefined && data.estado !== originalDoc?.estado)) {
-    return { ...data, estadoCambiadoEl: new Date().toISOString() }
-  }
-  return data
+  if (operation === 'create') return { ...data, estadoCambiadoEl: new Date().toISOString() }
+  const cambioDeEstado = data.estado !== undefined && data.estado !== originalDoc?.estado
+  return { ...data, estadoCambiadoEl: cambioDeEstado ? new Date().toISOString() : originalDoc?.estadoCambiadoEl }
 }
 
 // Solo se crean desde la Server Action de F3 (overrideAccess). El público nunca las lee (spec §6, §11).

@@ -29,4 +29,23 @@ describe('validarSolicitud (spec §11, decisiones F1)', () => {
     const o = validarSolicitud({ ...base, zona: 'otra', zonaTexto: 'Todos Santos' })
     expect(o.ok && [o.datos.zonaId, o.datos.zonaTexto]).toEqual([null, 'Todos Santos'])
   })
+
+  it('correo: acepta una dirección normal y rechaza lo que el campo email de Payload rechaza', () => {
+    expect(validarSolicitud({ ...base, correo: 'hola.dueno+duna@sub-dominio.ejemplo.mx' }).ok).toBe(true)
+    for (const correo of ['a@b..mx', 'a@b.mx.', 'a@-b.mx', 'a@b.c1', 'a@café.mx']) {
+      expect(validarSolicitud({ ...base, correo })).toEqual({ ok: false, errores: { correo: 'formato' } })
+    }
+  })
+
+  it('zona numérica: más de 9 dígitos o cero es formato; zona fuera de la lista es formato', () => {
+    expect(validarSolicitud({ ...base, zona: '1234567890' })).toEqual({ ok: false, errores: { zona: 'formato' } })
+    expect(validarSolicitud({ ...base, zona: '0' })).toEqual({ ok: false, errores: { zona: 'formato' } })
+    expect(validarSolicitud({ ...base, zona: 'Loreto' })).toEqual({ ok: false, errores: { zona: 'formato' } })
+    const r = validarSolicitud({ ...base, zona: '999999999' })
+    expect(r.ok && r.datos.zonaId).toBe(999999999)
+  })
+
+  it('zona «otra» exige texto en zonaTexto', () => {
+    expect(validarSolicitud({ ...base, zona: 'otra', zonaTexto: '  ' })).toEqual({ ok: false, errores: { zonaTexto: 'requerido' } })
+  })
 })

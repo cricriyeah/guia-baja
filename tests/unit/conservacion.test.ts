@@ -20,4 +20,9 @@ describe('conservación de Solicitudes (spec §12)', () => {
     expect(ipHashVencido('2026-11-09T11:59:00Z', ahora)).toBe(true)
     expect(ipHashVencido('2026-11-09T12:01:00Z', ahora)).toBe(false)
   })
+  it('una fecha ilegible cuenta como vencida (no falla abierto)', () => {
+    expect(debeAnonimizar(s('en-contacto', 'no-es-fecha'), ahora)).toBe(true)
+    expect(debeAnonimizar({ estado: 'nueva', estadoCambiadoEl: null, createdAt: 'basura', anonimizadaEl: null }, ahora)).toBe(true)
+    expect(ipHashVencido('no-es-fecha', ahora)).toBe(true)
+  })
 })
