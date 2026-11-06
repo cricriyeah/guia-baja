@@ -33,6 +33,24 @@ describe('correrHora: aislamiento de fallos (spec §12)', () => {
     expect(JSON.stringify(logger.error.mock.calls)).not.toContain('correo@x.test')
   })
 
+  it('un job que no termina en success cuenta como fallo por id (jobs.run no lanza)', async () => {
+    const { payload, update, logger } = falso({
+      jobs: async () => ({
+        jobStatus: { 11: { status: 'success' }, 12: { status: 'error' }, 13: { status: 'error-reached-max-retries' } },
+        remainingJobsFromQueried: 1,
+      }),
+    })
+    const r = await correrHora(payload, AHORA, vi.fn())
+    expect(r.fallos).toEqual(['job:12', 'job:13'])
+    expect(update).toHaveBeenCalledOnce()
+    expect(logger.error).toHaveBeenCalledOnce()
+  })
+
+  it('sin jobs en la cola no hay fallo', async () => {
+    const { payload } = falso({ jobs: async () => ({ noJobsRemaining: true, remainingJobsFromQueried: 0 }) })
+    expect((await correrHora(payload, AHORA, vi.fn())).fallos).toEqual([])
+  })
+
   it('ids de la purga que fallaron salen en el resultado y cuentan como fallo', async () => {
     const { payload, logger } = falso({ errores: [{ id: 7, message: 'dato con correo@x.test' }] })
     const r = await correrHora(payload, AHORA, vi.fn())

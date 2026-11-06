@@ -13,7 +13,10 @@ export async function correrHora(payload: Payload, ahora: Date, revalidar: (etiq
   const fallos: string[] = []
 
   try {
-    await payload.jobs.run({ limit: 100 }) // por defecto corre 10: no dejar publicaciones para la hora siguiente
+    // Por defecto corre 10: no dejar publicaciones para la hora siguiente.
+    const { jobStatus } = await payload.jobs.run({ limit: 100 })
+    // jobs.run no lanza si un job falla: lo devuelve en su estado.
+    for (const [id, { status }] of Object.entries(jobStatus ?? {})) if (status !== 'success') fallos.push(`job:${id}`)
   } catch {
     fallos.push('jobs')
   }
