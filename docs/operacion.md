@@ -26,6 +26,9 @@ Diseño de referencia: `docs/specs/2026-10-30-guia-baja-design.md` (§4.2, §5.3
   al conectarse (`createExtensions()`, `CREATE EXTENSION IF NOT EXISTS "postgis"`); si el rol de la conexión no
   puede crearla, el build falla con un error de `geometry`. En ese caso, crearla una vez a mano en el editor SQL de
   Neon (`CREATE EXTENSION IF NOT EXISTS postgis;`) en la base de producción y en la de `preview`.
+- `unaccent` (búsqueda): a diferencia de PostGIS, la crea la migración `busqueda`
+  (`CREATE EXTENSION IF NOT EXISTS unaccent`). Neon la permite; si el rol no pudiera, el build falla en esa migración
+  y se crea una vez a mano igual que PostGIS (`CREATE EXTENSION IF NOT EXISTS unaccent;`) en producción y en `preview`.
 - Node: `engines` fija `^24.22.1`; en Vercel (Settings > Build and Deployment > Node.js Version) dejar **24.x**.
   Subir a otra versión mayor es una decisión explícita (PR que cambie `engines`, `.nvmrc` y AGENTS.md).
 - Variables de Preview a mano (spec §5.3 y §5.5): `DATABASE_URL` y `DATABASE_URL_UNPOOLED` de la base `preview`, bucket
@@ -33,12 +36,53 @@ Diseño de referencia: `docs/specs/2026-10-30-guia-baja-design.md` (§4.2, §5.3
 - Antes de autorizar el preview de un PR externo: leer el diff completo.
 - Base `preview` rota: borrarla, crearla vacía en Neon y correr
   `SEED_PERMITIDO=true SEED_CONTRASENA_ADMIN='<12+ caracteres>' npm run seed` con sus variables.
-- **Correo de restablecer contraseña:** no sale ningún correo hasta que llegue Resend (F3). El adaptador de correo
-  (`src/correo/silencioso.ts`) descarta los mensajes y solo registra el asunto, nunca direcciones. Mientras tanto,
-  quien olvide su contraseña se la pide a un admin, que la cambia desde `/admin` > Usuarios (o la desbloquea si
-  la cuenta se bloqueó).
+- **Correo:** con `RESEND_API_KEY` definida salen por Resend los avisos de Solicitudes **y** los de restablecer
+  contraseña del admin (`/admin` > «¿Olvidaste tu contraseña?»). Sin la llave (local, CI) el adaptador
+  `src/correo/silencioso.ts` descarta los mensajes y solo registra el asunto, nunca direcciones; entonces quien olvide
+  su contraseña se la pide a un admin, que la cambia desde `/admin` > Usuarios (o la desbloquea si se bloqueó).
 - Desde el primer deploy a producción: **prohibido** `npm run migracion:regenerar`; toda migración nueva con
   `npm run payload migrate:create <nombre>` (AGENTS.md).
+
+## Variables de F3c (formulario, correo y crones)
+
+Se ponen en Vercel > Settings > Environment Variables, una vez para **Production** y otra para **Preview**, con
+valores distintos. Cambiar una variable no toca los deploys ya hechos: hace falta un redeploy.
+
+- `IP_HASH_SALT`: cadena larga al azar (por ejemplo `openssl rand -hex 32`); otra en Preview. **Vacía, cada envío del
+  formulario falla** con el error genérico («no se pudo enviar») antes de guardar nada. No se cambia sin motivo: con
+  otra sal, los envíos de la última hora dejan de contar para el límite de 5 por IP.
+- `CRON_SECRET`: cadena larga al azar (16+ caracteres). Al definirla, Vercel la manda sola a cada cron como
+  `Authorization: Bearer …`. **Sin ella, cada cron responde 401**: no corren la publicación programada, la purga del
+  `ipHash` a las 24 h ni la anonimización diaria (spec §12). En Preview, otro valor (los crones no corren ahí, pero
+  así se puede llamar a mano).
+- `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY`: en Cloudflare > Turnstile, un widget con los hostnames
+  `www.salysoltours.com` y `sunbaja-guia.vercel.app`. En Preview, las llaves de prueba (`1x00000000000000000000AA` y
+  `1x0000000000000000000000000000000AA`). La site key queda dentro del HTML de la página del formulario, que es ISR:
+  cambiar las llaves exige un redeploy, y hasta entonces el HTML guardado trae la site key vieja y el widget falla la
+  verificación. Cambiar las dos juntas.
+- `RESEND_API_KEY` / `CORREO_REMITENTE`: llave de Resend de esta app y un remitente de un dominio **verificado** en
+  Resend (registros SPF y DKIM del dominio en su DNS; si no, Resend rechaza o el correo cae en spam). Sin
+  `CORREO_REMITENTE` se usa `guia@salysoltours.com`. Desde que existe la llave también salen los correos de
+  restablecer contraseña. En Preview, una llave de previews (o vacía: entonces no sale ningún correo).
+- `GUIA_PROXY_SECRET`: el mismo valor que en el sitio de reservas (spec §4.1); otro en Preview. El rewrite del sitio de
+  reservas debe seguir mandando `x-guia-proxy` (y `x-guia-ip`). El `proxy.ts` de la Guía la cambia por la cabecera
+  interna `x-guia-sello` (HMAC del secreto, nunca el secreto); la Server Action del formulario solo cree el origen y
+  la IP reenviados si traen ese sello. No hay nada que configurar para el sello: sale del mismo secreto. Sin sello
+  válido la petición se trata como directa y su IP es el `x-real-ip` que pone Vercel.
+
+## Crones (Vercel Cron, `vercel.json`)
+
+- `/api/cron/hora` a las `5 * * * *` (minuto 5 de cada hora, UTC): corre la cola de Payload (publicaciones
+  programadas), revalida lo que cambió por fechas y borra los `ipHash` de más de 24 h. `/api/cron/diario` a las
+  `15 9 * * *` (09:15 UTC, 02:15 en BCS): anonimiza Solicitudes (spec §12).
+- El cron de cada hora necesita **Vercel Pro** (Hobby solo permite uno al día). Los crones corren **solo en el deploy
+  de producción**, nunca en previews.
+- Una publicación programada sale en la siguiente corrida del minuto 5: hasta unos **65 minutos** después de la hora
+  elegida en el admin. Para publicar al momento, publicar a mano.
+- Revisar que corren: Vercel > proyecto > Settings > Cron Jobs (lista, último resultado y botón «Run» para correrlo a
+  mano) y Logs filtrando por la ruta `/api/cron/hora` o `/api/cron/diario`. Responden 200 con un JSON de conteos; 500
+  si algún paso falló (el JSON trae `fallos` con el nombre del paso o `job:<id>`, nunca datos personales); 401 si falta
+  o no coincide `CRON_SECRET`.
 
 ## Búsqueda
 
