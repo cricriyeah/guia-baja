@@ -7,6 +7,7 @@ import { EsqueletoCategoria } from '../esqueletos/Categoria'
 import { EsqueletoEvento } from '../esqueletos/Evento'
 import { EsqueletoFicha } from '../esqueletos/Ficha'
 import { EsqueletoEventos, EsqueletoPortada } from '../esqueletos/Portada'
+import { EsqueletoPrivacidad } from '../esqueletos/Privacidad'
 import { EsqueletoZona } from '../esqueletos/Zona'
 import { aparecer } from './aparecer'
 import { destinoDe, linkDeClic, type Destino } from './destino'
@@ -21,6 +22,7 @@ const ESQUELETOS: Record<Destino, ReactNode> = {
   evento: <EsqueletoEvento />,
   lugar: <EsqueletoFicha />,
   articulo: <EsqueletoArticulo />,
+  privacidad: <EsqueletoPrivacidad />,
 }
 
 // Esqueleto de la página destino al navegar dentro de la Guía, por transición. No puede ser un loading.tsx: es un

@@ -162,6 +162,15 @@ const ES = {
     actualizado: (f: string) => `Actualizado el ${f}`,
     preguntas: 'Preguntas frecuentes',
   },
+  privacidad: {
+    titulo: 'Aviso de privacidad de la Guía',
+    version: (v: string) => `Versión ${v}`,
+    vigente: (f: string) => `Vigente desde el ${f}`,
+    enEste: 'En este aviso',
+    correo: 'Escríbenos para ejercer tus derechos ARCO:',
+    copiar: 'Copiar correo',
+    copiado: 'Correo copiado',
+  },
   listado: {
     titulo: (cat: string, z: string) => `${cat} en ${z}`,
     enTodas: (cat: string) => `${cat} en Baja California Sur`,
@@ -344,6 +353,15 @@ const EN: Textos = {
     publicado: (f: string) => `Published ${f}`,
     actualizado: (f: string) => `Updated ${f}`,
     preguntas: 'Frequently asked questions',
+  },
+  privacidad: {
+    titulo: 'Guide privacy notice',
+    version: (v: string) => `Version ${v}`,
+    vigente: (f: string) => `In effect since ${f}`,
+    enEste: 'In this notice',
+    correo: 'Write to us to exercise your ARCO rights:',
+    copiar: 'Copy email',
+    copiado: 'Email copied',
   },
   listado: {
     titulo: (cat: string, z: string) => `${cat} in ${z}`,

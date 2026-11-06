@@ -83,6 +83,7 @@ describe('destinoDe', () => {
     ['/es/guia/eventos/festival', 'evento'],
     ['/es/guia/lugares/cocina', 'lugar'],
     ['/es/guia/articulos/que-hacer', 'articulo'],
+    ['/es/guia/privacidad', 'privacidad'],
   ])('%s lleva el esqueleto de %s', (href, destino) => {
     expect(destinoDe(href, actual)).toBe(destino)
   })
@@ -94,13 +95,15 @@ describe('destinoDe', () => {
     expect(destinoDe('/en/guide/events', en)).toBe('eventos')
     expect(destinoDe('/en/guide/articles/x', en)).toBe('articulo')
     expect(destinoDe('/en/guide/category/playas', en)).toBe('categoria')
+    expect(destinoDe('/en/guide/privacy', en)).toBe('privacidad')
   })
 
   it.each([
     ['otro sitio', 'https://otro.test/es/guia'],
     ['el sitio de reservas, en el mismo dominio', '/es/sede/la-paz'],
     ['otro idioma, que recarga', '/en/guide'],
-    ['una página sin esqueleto', '/es/guia/privacidad'],
+    ['una página sin esqueleto', '/es/guia/buscar'],
+    ['una ruta bajo privacidad que no existe', '/es/guia/privacidad/otra'],
     ['la misma página con otra consulta', '/es/guia/la-paz?abierto=1'],
     ['un ancla de la misma página', '#seccion'],
   ])('no aplica a %s', (_, href) => {
