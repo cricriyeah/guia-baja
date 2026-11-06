@@ -84,6 +84,16 @@ describe('consultas de búsqueda', () => {
     }
   })
 
+  it('una sugerencia con acentos encuentra el documento sin acentos', async () => {
+    const zona = await crearZona(payload, { slug: 'la-paz', nombre: 'La Paz' })
+    const cat = await crearCategoria(payload)
+    const img = await crearImagen(payload)
+    await crearLugar(payload, { zona: zona.id, categorias: [cat.id], foto: img.id, slugEs: 'cafe-duna' })
+    for (const q of ['café', 'cafés', 'CAFÉ-d']) {
+      expect((await sugerencias(payload, { q, lang: 'es' })).map((s) => s.slug)).toContain('cafe-duna')
+    }
+  })
+
   it('un idioma fuera del mapa cerrado no consulta nada', async () => {
     const lang = "es' OR '1'='1" as never
     expect(await coincidencias(payload, { q: 'cafe', lang })).toEqual([])
