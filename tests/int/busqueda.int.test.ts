@@ -1,6 +1,7 @@
 import type { Payload, Where } from 'payload'
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
+import { coincidencias, sugerencias } from '../../src/busqueda/consulta'
 import { crearCategoria, crearImagen, crearLugar, crearZona, limpiar, obtenerPayload } from './utils'
 
 let payload: Payload
@@ -39,5 +40,35 @@ describe('índice de búsqueda', () => {
     })
     expect(actualizada.orden).toBe(7)
     expect((await payload.findByID({ collection: 'categorias', id: cat.id, overrideAccess: true })).orden).toBe(7)
+  })
+})
+
+describe('consultas de búsqueda', () => {
+  beforeEach(async () => {
+    await limpiar(payload)
+  })
+
+  it('encuentra sin acentos, con plurales, por idioma; el patrocinio va como dato', async () => {
+    const zona = await crearZona(payload, { slug: 'la-paz', nombre: 'La Paz' })
+    const cat = await crearCategoria(payload)
+    const img = await crearImagen(payload)
+    await crearLugar(payload, { zona: zona.id, categorias: [cat.id], foto: img.id, slugEs: 'cafe-duna' })
+    const r = await coincidencias(payload, { q: 'cafes', lang: 'es' })
+    expect(r.map((x) => x.slug)).toContain('cafe-duna')
+    expect(await coincidencias(payload, { q: 'cafes', lang: 'en' })).toEqual([])
+    expect(r[0]).toMatchObject({ tipo: 'lugar', zonaIds: [zona.id], patrocinio: { activo: false } })
+    expect(JSON.parse(JSON.stringify(r))).toEqual(r)
+  })
+
+  it('filtra por tipo y zona; sugiere por prefijo y aguanta entradas hostiles', async () => {
+    const zona = await crearZona(payload, { slug: 'la-paz', nombre: 'La Paz' })
+    const otra = await crearZona(payload, { slug: 'otra', nombre: 'Otra' })
+    const cat = await crearCategoria(payload)
+    const img = await crearImagen(payload)
+    await crearLugar(payload, { zona: zona.id, categorias: [cat.id], foto: img.id, slugEs: 'cafe-duna' })
+    expect(await coincidencias(payload, { q: 'cafe', lang: 'es', zonaId: otra.id })).toEqual([])
+    expect((await coincidencias(payload, { q: 'cafe', lang: 'es', tipo: 'zona' })).length).toBe(0)
+    expect((await sugerencias(payload, { q: 'caf', lang: 'es' })).map((s) => s.slug)).toContain('cafe-duna')
+    await expect(sugerencias(payload, { q: 'a) & !', lang: 'es' })).resolves.toBeInstanceOf(Array)
   })
 })

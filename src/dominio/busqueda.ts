@@ -22,7 +22,16 @@ export type FilaResultado = {
 
 // Llave de caché y texto que se busca: el término llega de la URL y se muestra siempre como texto (spec §7).
 export function limpiarTermino(q: string | null): string {
-  return (q ?? '').toLowerCase().replace(/\s+/g, ' ').trim().slice(0, 100)
+  // NFC primero (el resaltado compara posiciones); los controles (NUL incluido, que Postgres rechaza) cuentan como
+  // espacio; se recorta otra vez tras el corte para no terminar en espacio.
+  return (q ?? '')
+    .normalize('NFC')
+    .toLowerCase()
+    .replace(/[\u0000-\u001f\u007f-\u009f]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 100)
+    .trim()
 }
 
 // Sugerencias por prefijo: solo letras y números del visitante; nunca su sintaxis de tsquery.

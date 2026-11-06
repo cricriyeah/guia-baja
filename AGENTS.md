@@ -23,7 +23,7 @@ Todos funcionan igual en Git Bash y en shells POSIX.
 - `npm run typecheck`, `npm run lint`.
 - `npm run generate:types`, `npm run generate:importmap` — después de cambiar el esquema.
 - `npm run payload migrate:create <nombre>` — nueva migración (expandir y luego contraer).
-- `npm run migracion:regenerar -- --no-hay-deploy` — rehace la única migración `inicial`; solo antes del primer deploy a producción (ver Reglas).
+- `npm run migracion:regenerar -- --no-hay-deploy` — rehace las dos migraciones previas al deploy (`inicial` y `busqueda`); solo antes del primer deploy a producción (ver Reglas).
 - Seed (datos inventados, borra todo):
   `SEED_PERMITIDO=true SEED_CONTRASENA_ADMIN='<12+ caracteres>' npm run seed`.
   Exige `SEED_PERMITIDO=true` **y** `SEED_CONTRASENA_ADMIN` de 12 caracteres o más, y solo corre contra `localhost`, `127.0.0.1` o una base llamada `preview`.
@@ -37,8 +37,8 @@ Un PR no se mezcla con el CI en rojo.
 ## Reglas
 
 - **Contrato `v1`** (`src/app/api/publico/v1/**`, cuando exista): su forma no cambia nunca. Un cambio incompatible es `v2`.
-- **Migraciones ya aplicadas no se editan.** Hasta el primer deploy a producción hay **una sola** migración, `inicial`
-  (se rehace con `npm run migracion:regenerar -- --no-hay-deploy`). Desde el primer deploy a producción
+- **Migraciones ya aplicadas no se editan.** Hasta el primer deploy a producción hay **dos** migraciones: `inicial` y `busqueda` (escrita a mano desde
+  `scripts/migraciones/busqueda.ts.txt`). `npm run migracion:regenerar -- --no-hay-deploy` rehace las dos. Desde el primer deploy a producción
   `migracion:regenerar` está **prohibido**: todo cambio de esquema es una migración nueva con `npm run payload migrate:create <nombre>`.
   Toda migración debe funcionar con el código anterior: primero se agrega; se borra o renombra en un PR posterior.
 - El CI falla si el esquema cambia sin migración correspondiente en `src/migrations/`.

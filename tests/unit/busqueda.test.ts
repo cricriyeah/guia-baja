@@ -9,6 +9,13 @@ describe('reglas de la búsqueda (spec §7)', () => {
     expect(limpiarTermino(null)).toBe('')
   })
 
+  it('limpiarTermino quita controles, normaliza a NFC y no termina en espacio', () => {
+    expect(limpiarTermino('caf\u0000e\u0007 duna')).toBe('caf e duna')
+    expect(limpiarTermino('a\u0085b')).toBe('a b')
+    expect(limpiarTermino('café')).toBe('café')
+    expect(limpiarTermino('x'.repeat(99) + ' y')).toBe('x'.repeat(99))
+  })
+
   it('consultaPrefijo nunca deja sintaxis del visitante', () => {
     expect(consultaPrefijo('play')).toBe('play:*')
     expect(consultaPrefijo('tacos de pesc')).toBe('tacos & de & pesc:*')

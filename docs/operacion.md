@@ -40,6 +40,14 @@ Diseño de referencia: `docs/specs/2026-10-30-guia-baja-design.md` (§4.2, §5.3
 - Desde el primer deploy a producción: **prohibido** `npm run migracion:regenerar`; toda migración nueva con
   `npm run payload migrate:create <nombre>` (AGENTS.md).
 
+## Búsqueda
+
+- `npm run busqueda:reindexar` vuelve a llenar el índice de búsqueda. Se corre después de restaurar un respaldo o de cambiar `src/busqueda/filas.ts`.
+
+## Base `preview`
+
+- Cuando un PR rehace `inicial`, se borra la base `preview` (`npx payload migrate:fresh` con su `DATABASE_URL`) y se corre el seed antes de autorizar el preview.
+
 ## Seguridad del primer deploy a producción
 
 Hacer estos dos pasos el mismo día del primer deploy, antes de compartir ninguna URL.
