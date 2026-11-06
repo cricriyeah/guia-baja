@@ -20,6 +20,11 @@ Todos funcionan igual en Git Bash y en shells POSIX.
 - `docker compose up -d` — Postgres local con PostGIS (imagen `postgis/postgis:17-3.5`), puerto **5433** del equipo; bases `guia` y `guia_test`.
 - `npm run dev` — app en http://localhost:3000 (admin en `/admin`).
 - `npm run test:unit` / `npm run test:int` — Vitest. La integración corre contra el Postgres real de `.env.test` (`guia_test`, puerto 5433) y antes rehace la base con `payload migrate:fresh`.
+- `npm run test:e2e` — E2E con Playwright en dos modos (`GUIA_INDEXABLE` false y true). Necesita Docker arriba;
+  corre el seed (datos inventados, borra todo), prepara datos de prueba, **borra `.next`** y construye dos veces.
+  En Windows, detén antes cualquier `next dev`/`next start` (si no, borrar `.next` falla con EBUSY).
+  `E2E_SOLO=indexable` corre un solo modo.
+- `npm run lighthouse` — Lighthouse CI (mediana de 3 corridas, móvil) sobre el build indexable; si `.next` no lo es, lo rehace.
 - `npm run typecheck`, `npm run lint`.
 - `npm run generate:types`, `npm run generate:importmap` — después de cambiar el esquema.
 - `npm run payload migrate:create <nombre>` — nueva migración (expandir y luego contraer).
@@ -32,6 +37,7 @@ Todos funcionan igual en Git Bash y en shells POSIX.
 
 `.github/workflows/ci.yml` corre en cada PR y en `main`: tipos e importMap al día, `typecheck`, `lint`, unitarias,
 comprobación de que el esquema no tiene cambios sin migración, integración contra Postgres/PostGIS y `build`.
+Job `e2e` aparte: E2E (paso 4) y Lighthouse (paso 5).
 Un PR no se mezcla con el CI en rojo.
 
 ## Reglas

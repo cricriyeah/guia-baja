@@ -75,3 +75,47 @@ jobs:
       - run: npm run test:int
 
       - run: npm run build
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: guia
+        ports: ['5433:5432']
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -U postgres -d guia"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      # El seed solo corre contra localhost (src/seed/guardia.ts).
+      DATABASE_URL: postgres://postgres:postgres@localhost:5433/guia
+      DATABASE_URL_UNPOOLED: postgres://postgres:postgres@localhost:5433/guia
+      PAYLOAD_SECRET: secreto-solo-para-ci
+      NODE_OPTIONS: --no-deprecation
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Migrar la base
+        run: npx payload migrate
+      - run: npx playwright install --with-deps chromium
+      # Paso 4 del spec §11: E2E en los dos modos (seed, preparar y build propios).
+      - run: npm run test:e2e
+      # Paso 5: Lighthouse sobre el build indexable que dejó el paso anterior.
+      - run: npm run lighthouse
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reportes-e2e
+          include-hidden-files: true # .lighthouseci/ es una carpeta oculta
+          path: |
+            playwright-report/
+            test-results/
+            .lighthouseci/
