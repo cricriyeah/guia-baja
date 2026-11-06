@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { origenDePeticion, origenReenviado } from '../../src/dominio/origen'
+import { origenDePeticion, origenReenviado, selloDelProxy } from '../../src/dominio/origen'
 
 const h = (o: Record<string, string>) => new Headers(o)
 
@@ -49,12 +49,52 @@ describe('origenDePeticion (spec §4.1)', () => {
   })
 })
 
-describe('origenReenviado', () => {
-  it('lee lo que dejó el proxy', () => {
-    expect(origenReenviado(h({ 'x-guia-origen': 'publico', 'x-guia-ip': '1.2.3.4' }))).toEqual({ tipo: 'publico', ip: '1.2.3.4' })
+describe('selloDelProxy', () => {
+  it('sale del secreto, es estable y nunca es el secreto', () => {
+    expect(selloDelProxy('s3cr3t')).toBe(selloDelProxy('s3cr3t'))
+    expect(selloDelProxy('s3cr3t')).not.toBe(selloDelProxy('otro'))
+    expect(selloDelProxy('s3cr3t')).not.toContain('s3cr3t')
+    expect(selloDelProxy('s3cr3t')).toMatch(/^[0-9a-f]{64}$/)
+  })
+})
+
+describe('origenReenviado (solo con el sello del proxy)', () => {
+  const sello = selloDelProxy('s3cr3t')
+
+  it('con el sello correcto lee lo que dejó el proxy', () => {
+    expect(origenReenviado(h({ 'x-guia-sello': sello, 'x-guia-origen': 'publico', 'x-guia-ip': '1.2.3.4', 'x-real-ip': '9.9.9.9' }), 's3cr3t')).toEqual({
+      tipo: 'publico',
+      ip: '1.2.3.4',
+    })
   })
 
-  it('cualquier otro valor es directo', () => {
-    expect(origenReenviado(h({ 'x-guia-origen': 'raro' })).tipo).toBe('directo')
+  it('con el sello correcto, cualquier otro origen es directo', () => {
+    expect(origenReenviado(h({ 'x-guia-sello': sello, 'x-guia-origen': 'raro' }), 's3cr3t').tipo).toBe('directo')
+  })
+
+  it('cabeceras falsificadas sin sello: directo y la IP de x-real-ip (la pone la plataforma)', () => {
+    expect(origenReenviado(h({ 'x-guia-origen': 'publico', 'x-guia-ip': '6.6.6.6', 'x-real-ip': '9.9.9.9' }), 's3cr3t')).toEqual({
+      tipo: 'directo',
+      ip: '9.9.9.9',
+    })
+  })
+
+  it('sello equivocado (o el secreto crudo): directo y x-real-ip', () => {
+    for (const falso of [selloDelProxy('otro'), 's3cr3t', '', sello.slice(0, -1) + (sello.endsWith('0') ? '1' : '0')]) {
+      expect(origenReenviado(h({ 'x-guia-sello': falso, 'x-guia-origen': 'publico', 'x-guia-ip': '6.6.6.6', 'x-real-ip': '9.9.9.9' }), 's3cr3t')).toEqual({
+        tipo: 'directo',
+        ip: '9.9.9.9',
+      })
+    }
+  })
+
+  it('sin secreto configurado nunca confía en lo reenviado: directo y x-real-ip, como el proxy', () => {
+    for (const secreto of [undefined, '']) {
+      expect(origenReenviado(h({ 'x-guia-sello': sello, 'x-guia-origen': 'publico', 'x-guia-ip': '6.6.6.6', 'x-real-ip': '9.9.9.9' }), secreto)).toEqual({
+        tipo: 'directo',
+        ip: '9.9.9.9',
+      })
+    }
+    expect(origenReenviado(h({}), undefined)).toEqual({ tipo: 'directo', ip: null })
   })
 })

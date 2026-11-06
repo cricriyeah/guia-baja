@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
+import { selloDelProxy } from '../../src/dominio/origen'
 import { proxy } from '../../src/proxy'
 
 const pedir = (ruta: string, headers: Record<string, string> = {}) => proxy(new NextRequest(`https://guia.test${ruta}`, { headers }))
@@ -60,6 +61,23 @@ describe('proxy de la Guía (spec §4.1)', () => {
     expect(reenviada(res, 'x-guia-proxy')).toBeNull()
     expect(res.headers.get('x-middleware-override-headers') ?? '').not.toContain('x-guia-proxy')
     expect(res.headers.get('x-guia-proxy')).toBeNull()
+  })
+
+  it('pone el sello derivado del secreto y pisa el que mande el cliente', () => {
+    const res = pedir('/es/guia', { 'x-guia-sello': 'falso', 'x-guia-origen': 'publico', 'x-guia-ip': '6.6.6.6' })
+    expect(reenviada(res, 'x-guia-sello')).toBe(selloDelProxy('s3cr3t'))
+    expect(res.headers.get('x-guia-sello')).toBeNull()
+  })
+
+  it('también sella las reescrituras', () => {
+    expect(reenviada(pedir('/en/guide/places/balandra'), 'x-guia-sello')).toBe(selloDelProxy('s3cr3t'))
+  })
+
+  it('sin secreto configurado no sella y borra el sello que mande el cliente', () => {
+    delete process.env.GUIA_PROXY_SECRET
+    const res = pedir('/es/guia', { 'x-guia-sello': selloDelProxy('s3cr3t') })
+    expect(reenviada(res, 'x-guia-sello')).toBeNull()
+    expect(res.headers.get('x-middleware-override-headers') ?? '').not.toContain('x-guia-sello')
   })
 
   it('reescribe el inglés al árbol en español', () => {

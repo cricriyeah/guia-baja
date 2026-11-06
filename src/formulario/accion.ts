@@ -10,12 +10,12 @@ import { verificarTurnstile } from './turnstile'
 
 export type EstadoFormulario = { estado: 'inicial' | 'ok' | 'error'; motivo?: string; errores?: Record<string, string> }
 
-// Server Action del formulario (spec §4, §11). La IP sale de lo que reenvió el proxy (F3a); nunca de headers crudos.
+// Server Action del formulario (spec §4, §11). La IP sale de lo que reenvió el proxy (F3a), solo si trae su sello.
 export async function enviarFormulario(_previo: EstadoFormulario, fd: FormData): Promise<EstadoFormulario> {
   const form: Record<string, string> = {}
   for (const [k, v] of fd.entries()) if (typeof v === 'string') form[k] = v
   try {
-    const r = await enviarSolicitud(await obtenerPayload(), form, origenReenviado(await headers()), {
+    const r = await enviarSolicitud(await obtenerPayload(), form, origenReenviado(await headers(), process.env.GUIA_PROXY_SECRET), {
       verificarTurnstile: (token, ip) => verificarTurnstile(token, ip, process.env.TURNSTILE_SECRET_KEY),
       avisar: avisarSolicitud,
       sal: process.env.IP_HASH_SALT ?? '',

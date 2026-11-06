@@ -1,15 +1,19 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
-import { origenDePeticion } from './dominio/origen'
+import { origenDePeticion, selloDelProxy } from './dominio/origen'
 import { resolverRutaPublica, SEGMENTO_NO_ENCONTRADO } from './dominio/rutas-publicas'
 
 // Spec §4 y §4.1. Corre en cada petición de la guía, antes de la caché: el origen solo toca cabeceras.
 export function proxy(request: NextRequest): NextResponse {
-  const origen = origenDePeticion(request.headers, process.env.GUIA_PROXY_SECRET)
+  const secreto = process.env.GUIA_PROXY_SECRET
+  const origen = origenDePeticion(request.headers, secreto)
 
   // Lo que sigue (páginas, Server Action) recibe el origen ya decidido; lo que mande el cliente se pisa.
   const headers = new Headers(request.headers)
   headers.delete('x-guia-proxy')
+  // El sello dice a la Server Action que estas cabeceras son del proxy (origenReenviado); el del cliente nunca pasa.
+  headers.delete('x-guia-sello')
+  if (secreto) headers.set('x-guia-sello', selloDelProxy(secreto))
   headers.set('x-guia-origen', origen.tipo)
   if (origen.ip) headers.set('x-guia-ip', origen.ip)
   else headers.delete('x-guia-ip')
