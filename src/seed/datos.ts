@@ -135,7 +135,7 @@ export async function sembrar(
               ? { activo: true, desde: soloDia(ahora.getTime() - 60 * dia), hasta: soloDia(ahora.getTime() - 5 * dia), notaInterna: 'Vencido' }
               : { activo: false },
         web: 'https://ejemplo.invalid',
-        instagram: '@ejemplo_guia',
+        instagram: '@guia_ficticia_0000',
         whatsapp: '+52 612 000 0000',
         _status: 'published',
       },
