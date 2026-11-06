@@ -31,6 +31,9 @@ const eslintConfig = [
   {
     ignores: [
       '.next/',
+      'playwright-report/',
+      'test-results/',
+      '.lighthouseci/',
       'src/payload-types.ts',
       'src/payload-generated-schema.ts',
       'src/migrations/',
