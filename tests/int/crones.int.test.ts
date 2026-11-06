@@ -52,11 +52,12 @@ describe('crones (spec §10, §12)', () => {
     const indice = () =>
       payload.find({ collection: 'indice-busqueda', overrideAccess: true, pagination: false, where: { and: [{ tipo: { equals: 'lugar' } }, { docId: { equals: l.id } }] } })
     expect((await indice()).docs).toEqual([])
-    // Como lo encola el admin al programar (Payload 3.92.1, versions/schedule): doc.value siempre es string.
+    // Como lo encola el admin al programar (Payload 3.92.1, ui/PublishButton/ScheduleDrawer): doc.value va como
+    // string aunque el tipo generado diga number; el handler lo convierte de vuelta.
     await payload.jobs.queue({
       task: 'schedulePublish',
       waitUntil: new Date(Date.now() - 60_000),
-      input: { type: 'publish', doc: { relationTo: 'lugares', value: String(l.id) } },
+      input: { type: 'publish', doc: { relationTo: 'lugares', value: String(l.id) as unknown as number } },
     })
     etiquetasDeHooks.length = 0
     const revalidar = vi.fn()
