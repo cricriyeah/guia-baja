@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { hrefAlternando, paramsDe, recortarListado, totalPaginasDe, varianteDeConsulta, versionesListado } from '../../src/sitio/paginas/comun'
+import { destinoCodificado, hrefAlternando, paramsDe, recortarListado, totalPaginasDe, varianteDeConsulta, versionesListado } from '../../src/sitio/paginas/comun'
 import type { TarjetaLugar } from '../../src/sitio/datos/tipos'
 
 const lugar = (n: number, extra: Partial<TarjetaLugar> = {}): TarjetaLugar => ({
@@ -8,6 +8,16 @@ const lugar = (n: number, extra: Partial<TarjetaLugar> = {}): TarjetaLugar => ({
   categoriaIds: [1], foto: null, rangoPrecio: null, horario: [], caracteristicas: [], coordenadas: null,
   patrocinio: { activo: false, desde: null, hasta: null }, orden: 100, destacado: { activo: false, orden: 0 }, noIndexar: false,
   ...extra,
+})
+
+describe('destinoCodificado', () => {
+  it('slugs válidos y consulta pasan sin cambios', () => {
+    expect(destinoCodificado('/es/guia/la-paz/playas?abierto=1&precio=%24')).toBe('/es/guia/la-paz/playas?abierto=1&precio=%24')
+  })
+  it('codifica cada segmento de la ruta, sin tocar las diagonales ni la consulta', () => {
+    expect(destinoCodificado('/es/guia/a b/ñandú\r\nX: 1?x=1')).toBe('/es/guia/a%20b/%C3%B1and%C3%BA%0D%0AX%3A%201?x=1')
+    expect(destinoCodificado('/es/guia/%2e%2e')).toBe('/es/guia/%252e%252e')
+  })
 })
 
 describe('paramsDe', () => {

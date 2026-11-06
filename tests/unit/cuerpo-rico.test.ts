@@ -81,6 +81,26 @@ describe('CuerpoRico: links externos', () => {
   it('los esquemas http, mailto y tel se pintan como link', () => {
     for (const url of ['http://a.test', 'mailto:a@a.test', 'tel:+526120000000']) expect(pintar(url)).toContain(`href="${url}"`)
   })
+  it('rutas propias y anclas se pintan como link, sin sponsored aunque el cuerpo sea patrocinado', () => {
+    for (const url of ['/es/guia/lugares/balandra', '/', '#preguntas']) {
+      const html = pintar(url, true)
+      expect(html).toContain(`href="${url}"`)
+      expect(html).toContain('rel="noopener"')
+      expect(html).not.toContain('sponsored')
+    }
+  })
+  it('protocolo relativo y sus variantes dejan solo el texto', () => {
+    for (const url of ['//malo.test', '/\\malo.test', '/\t/malo.test', '/\n/malo.test', '\t//malo.test']) {
+      const html = pintar(url)
+      expect(html, JSON.stringify(url)).not.toContain('<a')
+      expect(html).toContain('sitio')
+    }
+  })
+  it('www.x sin esquema sigue como texto: no hay normalización clara (http o https)', () => {
+    const html = pintar('www.ejemplo.test')
+    expect(html).not.toContain('<a')
+    expect(html).toContain('sitio')
+  })
   it('javascript: no da <a> y deja el texto', () => {
     const html = pintar('javascript:alert(1)')
     expect(html).not.toContain('<a')

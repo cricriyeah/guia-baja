@@ -22,6 +22,31 @@ describe('proxy de la Guía (spec §4.1)', () => {
     expect(reenviada(res, 'x-guia-ip')).toBe('1.2.3.4')
   })
 
+  it('secreto equivocado del mismo largo: directa, con noindex y sin confiar en x-guia-ip', () => {
+    const res = pedir('/es/guia', { 'x-guia-proxy': 's3cr3X', 'x-guia-ip': '6.6.6.6', 'x-real-ip': '9.9.9.9' })
+    expect(res.headers.get('x-guia-origen')).toBe('directo')
+    expect(res.headers.get('X-Robots-Tag')).toBe('noindex')
+    expect(reenviada(res, 'x-guia-ip')).toBe('9.9.9.9')
+  })
+
+  it('cabecera de secreto vacía: directa', () => {
+    const res = pedir('/es/guia', { 'x-guia-proxy': '' })
+    expect(res.headers.get('x-guia-origen')).toBe('directo')
+    expect(res.headers.get('X-Robots-Tag')).toBe('noindex')
+  })
+
+  it('con el secreto vacío en el entorno, ni siquiera una cabecera vacía da pública', () => {
+    process.env.GUIA_PROXY_SECRET = ''
+    const res = pedir('/es/guia', { 'x-guia-proxy': '' })
+    expect(res.headers.get('x-guia-origen')).toBe('directo')
+  })
+
+  it('pública sin x-guia-ip: no reenvía ninguna IP, aunque el cliente mande x-real-ip', () => {
+    const res = pedir('/es/guia', { 'x-guia-proxy': 's3cr3t', 'x-real-ip': '9.9.9.9' })
+    expect(res.headers.get('x-guia-origen')).toBe('publico')
+    expect(reenviada(res, 'x-guia-ip')).toBeNull()
+  })
+
   it('sin el secreto: directa con noindex, y sobrescribe la x-guia-ip que mandó el cliente', () => {
     const res = pedir('/es/guia', { 'x-guia-ip': '6.6.6.6', 'x-real-ip': '9.9.9.9' })
     expect(res.headers.get('x-guia-origen')).toBe('directo')
@@ -50,5 +75,13 @@ describe('proxy de la Guía (spec §4.1)', () => {
     const res = pedir('/es/guia/eventos?pagina=1')
     expect(res.status).toBe(308)
     expect(new URL(res.headers.get('location') ?? '', 'https://guia.test').pathname).toBe('/es/guia/eventos')
+  })
+
+  it('?precio…&pagina=1 redirige 308 a la misma consulta sin pagina (no 200)', () => {
+    const res = pedir('/es/guia/eventos?zona=la-paz&pagina=1')
+    expect(res.status).toBe(308)
+    const destino = new URL(res.headers.get('location') ?? '', 'https://guia.test')
+    expect(destino.pathname).toBe('/es/guia/eventos')
+    expect(destino.search).toBe('?zona=la-paz')
   })
 })

@@ -48,17 +48,18 @@ export function resolverRutaPublica(pathname: string, params: URLSearchParams): 
   const consulta = params.toString()
 
   if (esListado(arbol)) {
+    const pagina = params.get('pagina')
+    // La página 1 no lleva parámetro (también con filtros): se decide antes de mandar a --filtros.
+    if (pagina === '1') {
+      const otros = new URLSearchParams(params)
+      otros.delete('pagina')
+      const q = otros.toString()
+      return { tipo: 'redirigir', destino: `/${lang}/${SEGMENTOS[lang].guia}${resto.length ? `/${resto.join('/')}` : ''}${q ? `?${q}` : ''}` }
+    }
     if (FILTROS_LISTADO.some((f) => params.has(f))) {
       return { tipo: 'reescribir', destino: `${base}/${SEGMENTO_FILTROS}?${consulta}` }
     }
-    const pagina = params.get('pagina')
     if (pagina !== null) {
-      if (pagina === '1') {
-        const otros = new URLSearchParams(params)
-        otros.delete('pagina')
-        const q = otros.toString()
-        return { tipo: 'redirigir', destino: `/${lang}/${SEGMENTOS[lang].guia}${resto.length ? `/${resto.join('/')}` : ''}${q ? `?${q}` : ''}` }
-      }
       if (!/^[1-9]\d*$/.test(pagina)) return { tipo: 'noEncontrado', lang }
       return { tipo: 'reescribir', destino: `${base}/${SEGMENTO_PAGINA}/${pagina}` }
     }

@@ -77,6 +77,17 @@ describe('resolverRutaPublica (spec §4, §7)', () => {
     expect(r('/en/guide/events?zona=la-paz')).toEqual({ tipo: 'reescribir', destino: '/en/guia/eventos/--filtros?zona=la-paz' })
   })
 
+  it('?pagina=1 con filtros redirige a la misma consulta sin pagina, no reescribe', () => {
+    expect(r('/es/guia/la-paz/playas?caracteristica=para-ninos&pagina=1')).toEqual({
+      tipo: 'redirigir',
+      destino: '/es/guia/la-paz/playas?caracteristica=para-ninos',
+    })
+    expect(r('/en/guide/events?pagina=1&zona=la-paz&abierto=1')).toEqual({
+      tipo: 'redirigir',
+      destino: '/en/guide/events?zona=la-paz&abierto=1',
+    })
+  })
+
   it('?pagina y filtros fuera de un listado no cambian nada', () => {
     expect(r('/es/guia/lugares/balandra?pagina=2')).toEqual({ tipo: 'pasar' })
     expect(r('/es/guia/la-paz?zona=x')).toEqual({ tipo: 'pasar' })

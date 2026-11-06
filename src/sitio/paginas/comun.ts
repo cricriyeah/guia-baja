@@ -47,7 +47,16 @@ export function hrefAlternando<K extends keyof Filtros>(ruta: string, filtros: F
 // Las rutas --filtros son dinámicas y nunca dan 404 ellas mismas (en render dinámico Next 16.4.3 deja el cascarón
 // `__next_error__`): redirigen a la URL del listado, donde la ruta ISR da la página o el 404 completo.
 export function desviar(v: Variante, destino: string): void {
-  if (v.filtros) redirect(destino)
+  if (v.filtros) redirect(destinoCodificado(destino))
+}
+
+// Los slugs de la ruta llegan decodificados desde los params: se codifican antes de ir a la cabecera Location. Con
+// slugs válidos no cambia nada; la consulta ya viene codificada por URLSearchParams y no se toca.
+export function destinoCodificado(destino: string): string {
+  const i = destino.indexOf('?')
+  const ruta = i === -1 ? destino : destino.slice(0, i)
+  const consulta = i === -1 ? '' : destino.slice(i)
+  return `${ruta.split('/').map(encodeURIComponent).join('/')}${consulta}`
 }
 
 type EnIdioma = { ruta: string; conteo: number }

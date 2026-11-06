@@ -19,6 +19,21 @@ describe('origenDePeticion (spec §4.1)', () => {
     })
   })
 
+  it('un secreto distinto del mismo largo es directo (compara contenido, no solo largo)', () => {
+    expect(origenDePeticion(h({ 'x-guia-proxy': 's3cr3X', 'x-guia-ip': '1.2.3.4', 'x-real-ip': '9.9.9.9' }), 's3cr3t')).toEqual({
+      tipo: 'directo',
+      ip: '9.9.9.9',
+    })
+  })
+
+  it('una cabecera vacía nunca coincide, ni con un secreto configurado', () => {
+    expect(origenDePeticion(h({ 'x-guia-proxy': '' }), 's3cr3t').tipo).toBe('directo')
+  })
+
+  it('pública sin x-guia-ip: IP nula, sin caer a x-real-ip', () => {
+    expect(origenDePeticion(h({ 'x-guia-proxy': 's3cr3t', 'x-real-ip': '9.9.9.9' }), 's3cr3t')).toEqual({ tipo: 'publico', ip: null })
+  })
+
   it('es directa sin la cabecera', () => {
     expect(origenDePeticion(h({ 'x-real-ip': '9.9.9.9' }), 's3cr3t').tipo).toBe('directo')
   })

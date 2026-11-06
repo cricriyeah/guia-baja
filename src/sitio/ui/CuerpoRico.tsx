@@ -24,6 +24,12 @@ type Props = {
 }
 
 const ESQUEMAS_SEGUROS = /^(https?|mailto|tel):/i
+// Rutas del propio sitio (`/x`) y anclas (`#x`). `//x` y `/\x` los navegadores los leen como protocolo relativo (otro
+// sitio), y los saltos o tabulaciones se descartan al interpretar la URL (`/<tab>/x` pasa a `//x`): fuera todos.
+const CONTROL = /[\u0000-\u001f\u007f]/
+const RUTA_PROPIA = /^(\/(?![/\\])|#)/
+// `www.x` sin esquema sigue fuera: no hay una normalización clara (http o https) y el editor puede escribir https://.
+const esEnlaceSeguro = (url: string): boolean => !CONTROL.test(url) && (ESQUEMAS_SEGUROS.test(url) || RUTA_PROPIA.test(url))
 
 // Los nodos y bloques llegan de Payload sin tipo estático (cada bloque tiene sus campos); por eso `any` en los argumentos.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -53,10 +59,11 @@ export function CuerpoRico({ lang, cuerpo, resolutor, media, categorias, classNa
         const href = f.doc?.relationTo && id !== null ? resolutor.href(f.doc.relationTo, id) : null
         return href ? <Link href={href}>{hijos}</Link> : <>{hijos}</>
       }
-      // validateUrl de Payload acepta `javascript:`: solo estos esquemas se pintan como link; el resto queda como texto.
-      return f.url && ESQUEMAS_SEGUROS.test(f.url) ? (
-        <a href={f.url} rel={patrocinado ? 'noopener sponsored' : 'noopener'} target={f.newTab ? '_blank' : undefined}>{hijos}</a>
-      ) : <>{hijos}</>
+      // validateUrl de Payload acepta `javascript:`: solo estos esquemas y rutas propias se pintan como link; el resto queda como texto.
+      if (!f.url || !esEnlaceSeguro(f.url)) return <>{hijos}</>
+      // sponsored solo tiene sentido hacia afuera: una ruta propia o un ancla no es un link patrocinado.
+      const rel = patrocinado && ESQUEMAS_SEGUROS.test(f.url) ? 'noopener sponsored' : 'noopener'
+      return <a href={f.url} rel={rel} target={f.newTab ? '_blank' : undefined}>{hijos}</a>
     },
     upload: ({ node }: Args) => {
       const img = media[String(idDe(node.value))]
