@@ -1,4 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { resendAdapter } from '@payloadcms/email-resend'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -43,7 +44,14 @@ export default buildConfig({
     fallback: false,
   },
   editor: lexicalEditor(),
-  email: correoSilencioso,
+  // Spec §5.2: Resend con la llave de esta app. Sin llave (local, CI), el adaptador silencioso de F2.
+  email: process.env.RESEND_API_KEY
+    ? resendAdapter({
+        apiKey: process.env.RESEND_API_KEY,
+        defaultFromAddress: process.env.CORREO_REMITENTE || 'guia@salysoltours.com',
+        defaultFromName: 'Guía de la Baja',
+      })
+    : correoSilencioso,
   secret: process.env.PAYLOAD_SECRET || '',
   graphQL: { disable: true },
   upload: { limits: { fileSize: 20 * 1024 * 1024 } },
