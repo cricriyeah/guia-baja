@@ -10,6 +10,7 @@ import { guiaIndexable, sitioUrl } from '../entorno'
 import '../estilos/portada.css' // .encabezado, .agenda y .fecha de FilaAgenda
 import { listaLd, migasLd } from '../seo/jsonld'
 import { metadatos } from '../seo/metadatos'
+import { rutaOg } from '../seo/og'
 import { versionesDe } from '../seo/versiones'
 import { textos } from '../textos'
 import { Aparece } from '../ui/Aparece'
@@ -51,6 +52,7 @@ export async function metadatosEventos(lang: Locale, v: Variante): Promise<Metad
     ruta: v.filtros ? rutas.eventos(lang) : propia.ruta,
     indexable: propia.indexable,
     versiones,
+    imagenOg: rutaOg(lang, 'pagina', ['eventos']),
   })
 }
 

@@ -8,6 +8,7 @@ import { guiaIndexable, sitioUrl } from '../../../../../sitio/entorno'
 import '../../../../../sitio/estilos/aparece.css'
 import { migasLd } from '../../../../../sitio/seo/jsonld'
 import { metadatos } from '../../../../../sitio/seo/metadatos'
+import { rutaOg } from '../../../../../sitio/seo/og'
 import { versionesDe } from '../../../../../sitio/seo/versiones'
 import { textos } from '../../../../../sitio/textos'
 import { FormularioSolicitud } from '../../../../../sitio/ui/FormularioSolicitud'
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!esLocale(lang)) return {}
   const { propia, versiones } = versionesDe({ lang, guiaIndexable: guiaIndexable(), rutas: Object.fromEntries(LOCALES.map((l) => [l, rutas.negocios(l)])) })
   const t = textos(lang).formulario
-  return metadatos({ lang, titulo: t.titulo, descripcion: t.explicacion, ruta: propia.ruta, indexable: propia.indexable, versiones })
+  return metadatos({ lang, titulo: t.titulo, descripcion: t.explicacion, ruta: propia.ruta, indexable: propia.indexable, versiones, imagenOg: rutaOg(lang, 'pagina', ['negocios']) })
 }
 
 export default async function Aparece({ params }: Props) {

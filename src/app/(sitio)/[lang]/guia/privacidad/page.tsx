@@ -12,6 +12,7 @@ import '../../../../../sitio/estilos/privacidad.css'
 import { rutasPorIdioma } from '../../../../../sitio/paginas/comun'
 import { migasLd } from '../../../../../sitio/seo/jsonld'
 import { metadatos } from '../../../../../sitio/seo/metadatos'
+import { rutaOg } from '../../../../../sitio/seo/og'
 import { versionesDe } from '../../../../../sitio/seo/versiones'
 import { textos } from '../../../../../sitio/textos'
 import { CopiarCorreo } from '../../../../../sitio/ui/CopiarCorreo'
@@ -39,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   )
   const { propia, versiones } = versionesDe({ lang, guiaIndexable: guiaIndexable(), rutas: rutasIdioma })
   const t = textos(lang).privacidad
-  return metadatos({ lang, titulo: t.titulo, descripcion: t.titulo, ruta: propia.ruta, indexable: propia.indexable, versiones })
+  return metadatos({ lang, titulo: t.titulo, descripcion: t.titulo, ruta: propia.ruta, indexable: propia.indexable, versiones, imagenOg: rutaOg(lang, 'pagina', ['privacidad']) })
 }
 
 // avisoVigenteDesde es de solo día: inicioDelDiaGuardado lo lleva a la medianoche de la Baja para que no caiga un día antes.

@@ -11,9 +11,11 @@ export type EntradaMetadatos = {
   ruta: string
   indexable: boolean
   versiones: VersionIdioma[]
+  // Ruta de la imagen OG (rutaOg): el sitio de reservas la reescribe a la guía.
+  imagenOg?: string
 }
 
-// Spec §9. Rutas relativas: metadataBase (= SITIO_URL, en el layout raíz) las vuelve absolutas.
+// Spec §9. Rutas relativas: metadataBase (= sitioUrl(), en el layout raíz) las vuelve absolutas, también la imagen OG.
 export function metadatos(e: EntradaMetadatos): Metadata {
   const languages = hreflang({ lang: e.lang, ruta: e.ruta, indexable: e.indexable }, e.versiones)
   return {
@@ -28,6 +30,8 @@ export function metadatos(e: EntradaMetadatos): Metadata {
       locale: e.lang === 'es' ? 'es_MX' : 'en_US',
       type: 'website',
       siteName: textos(e.lang).guia,
+      ...(e.imagenOg ? { images: [{ url: e.imagenOg, width: 1200, height: 630 }] } : {}),
     },
+    ...(e.imagenOg ? { twitter: { card: 'summary_large_image' as const } } : {}),
   }
 }

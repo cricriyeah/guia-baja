@@ -32,4 +32,16 @@ describe('metadatos (spec §9)', () => {
     expect(metadatos({ ...base, indexable: true, versiones }).openGraph).toMatchObject({ siteName: 'Guía de la Baja' })
     expect(metadatos({ ...base, lang: 'en', indexable: true, versiones }).openGraph).toMatchObject({ siteName: 'Baja Guide' })
   })
+
+  it('imagenOg: imagen 1200×630 en Open Graph y tarjeta grande en Twitter', () => {
+    const m = metadatos({ ...base, indexable: true, versiones, imagenOg: '/guia-assets/og/es/zona/la-paz' })
+    expect(m.openGraph).toMatchObject({ images: [{ url: '/guia-assets/og/es/zona/la-paz', width: 1200, height: 630 }] })
+    expect(m.twitter).toEqual({ card: 'summary_large_image' })
+  })
+
+  it('sin imagenOg: ni images ni twitter', () => {
+    const m = metadatos({ ...base, indexable: true, versiones })
+    expect(m.openGraph).not.toHaveProperty('images')
+    expect(m.twitter).toBeUndefined()
+  })
 })

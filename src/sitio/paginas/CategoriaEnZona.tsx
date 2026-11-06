@@ -13,6 +13,7 @@ import { guiaIndexable, sitioUrl } from '../entorno'
 import '../estilos/categoria.css'
 import { listaLd, migasLd } from '../seo/jsonld'
 import { metadatos } from '../seo/metadatos'
+import { rutaOg } from '../seo/og'
 import { textos } from '../textos'
 import { Aparece } from '../ui/Aparece'
 import { EsqueletoResultados } from '../ui/esqueletos/Categoria'
@@ -64,6 +65,7 @@ export async function metadatosCategoriaEnZona(lang: Locale, zonaSlug: string, c
     ruta: seo.canonica,
     indexable: seo.indexable,
     versiones: seo.versiones,
+    imagenOg: rutaOg(lang, 'categoria-zona', [d.zona.slug, d.cat.slug]),
   })
 }
 

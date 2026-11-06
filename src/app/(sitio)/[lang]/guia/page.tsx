@@ -14,6 +14,7 @@ import { guiaIndexable, sitioUrl } from '../../../../sitio/entorno'
 import '../../../../sitio/estilos/portada.css'
 import { migasLd } from '../../../../sitio/seo/jsonld'
 import { metadatos } from '../../../../sitio/seo/metadatos'
+import { rutaOg } from '../../../../sitio/seo/og'
 import { textos } from '../../../../sitio/textos'
 import { Aparece } from '../../../../sitio/ui/Aparece'
 import { Patrocinado } from '../../../../sitio/ui/Etiquetas'
@@ -39,6 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ruta: rutas.portada(lang),
     indexable,
     versiones: LOCALES.map((l) => ({ lang: l, ruta: rutas.portada(l), indexable })),
+    imagenOg: rutaOg(lang, 'portada'),
   })
 }
 

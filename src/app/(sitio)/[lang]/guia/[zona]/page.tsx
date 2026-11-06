@@ -20,6 +20,7 @@ import { guiaIndexable, sitioUrl } from '../../../../../sitio/entorno'
 import '../../../../../sitio/estilos/zona.css'
 import { listaLd, migasLd } from '../../../../../sitio/seo/jsonld'
 import { metadatos } from '../../../../../sitio/seo/metadatos'
+import { rutaOg } from '../../../../../sitio/seo/og'
 import { versionesDe } from '../../../../../sitio/seo/versiones'
 import { textos } from '../../../../../sitio/textos'
 import { Aparece } from '../../../../../sitio/ui/Aparece'
@@ -56,7 +57,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!zona) return {}
   const enCadaIdioma = await Promise.all(LOCALES.map(async (l) => [l, (await zonaEn(l, slug)) ? rutas.zona(l, slug) : undefined] as const))
   const { propia, versiones } = versionesDe({ lang, guiaIndexable: guiaIndexable(), rutas: Object.fromEntries(enCadaIdioma) })
-  return metadatos({ lang, titulo: zona.nombre, descripcion: zona.descripcion ?? textos(lang).portada.intro, ruta: propia.ruta, indexable: propia.indexable, versiones })
+  return metadatos({ lang, titulo: zona.nombre, descripcion: zona.descripcion ?? textos(lang).portada.intro, ruta: propia.ruta, indexable: propia.indexable, versiones, imagenOg: rutaOg(lang, 'zona', [zona.slug]) })
 }
 
 function aDiapositiva(lang: Locale, d: ItemDestacado, cats: CategoriaPublica[]): Diapositiva {
