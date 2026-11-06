@@ -4,7 +4,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { correrDiario } from '../../src/cron/diario'
 import { correrHora } from '../../src/cron/hora'
 import { anonimizarSolicitud } from '../../src/solicitudes/anonimizar'
-import { crearCategoria, crearImagen, crearLugar, crearZona, limpiar, obtenerPayload } from './utils'
+import { crearCategoria, crearImagen, crearLugar, crearUsuario, crearZona, limpiar, obtenerPayload } from './utils'
 
 // Registra las etiquetas que revalidan los hooks de las colecciones (fuera de Next, revalidateTag lanza).
 const etiquetasDeHooks = vi.hoisted(() => [] as string[])
@@ -44,7 +44,8 @@ describe('crones (spec §10, §12)', () => {
     expect((await payload.findByID({ collection: 'solicitudes', id: nueva.id, overrideAccess: true })).ipHash).toBe('b'.repeat(64))
   })
 
-  it('hora: corre la publicación programada (schedulePublish) de punta a punta', async () => {
+  it.each(['admin', 'editor'] as const)('hora: corre la publicación programada (schedulePublish) de punta a punta, programada por %s', async (rol) => {
+    const usuario = await crearUsuario(payload, rol)
     const zona = await crearZona(payload)
     const cat = await crearCategoria(payload)
     const img = await crearImagen(payload)
@@ -53,11 +54,16 @@ describe('crones (spec §10, §12)', () => {
       payload.find({ collection: 'indice-busqueda', overrideAccess: true, pagination: false, where: { and: [{ tipo: { equals: 'lugar' } }, { docId: { equals: l.id } }] } })
     expect((await indice()).docs).toEqual([])
     // Como lo encola el admin al programar (Payload 3.92.1, ui/PublishButton/ScheduleDrawer): doc.value va como
-    // string aunque el tipo generado diga number; el handler lo convierte de vuelta.
+    // string aunque el tipo generado diga number; el handler lo convierte de vuelta. Y va con user: el job publica
+    // con los permisos de quien programó (overrideAccess: false), no con los del sistema.
     await payload.jobs.queue({
       task: 'schedulePublish',
       waitUntil: new Date(Date.now() - 60_000),
-      input: { type: 'publish', doc: { relationTo: 'lugares', value: String(l.id) as unknown as number } },
+      input: {
+        type: 'publish',
+        doc: { relationTo: 'lugares', value: String(l.id) as unknown as number },
+        user: { relationTo: 'users', value: usuario.id },
+      },
     })
     etiquetasDeHooks.length = 0
     const revalidar = vi.fn()
