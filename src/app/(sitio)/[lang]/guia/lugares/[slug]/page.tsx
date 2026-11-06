@@ -140,7 +140,7 @@ export default async function FichaDeLugar({ params }: Props) {
         <article>
           <section className="bloque" aria-labelledby="t-saber">
             <h2 id="t-saber" className="t-seccion">{t.ficha.loQueHayQueSaber}</h2>
-            <CuerpoRico lang={lang} cuerpo={l.cuerpo} resolutor={resolutorDeCuerpo({ lugares, eventos, articulos }, lang)} media={l.media} categorias={cats} />
+            <CuerpoRico lang={lang} cuerpo={l.cuerpo} resolutor={resolutorDeCuerpo({ lugares, eventos, articulos }, lang)} media={l.media} categorias={cats} patrocinado={declarado} />
           </section>
 
           {l.horario.length > 0 && (

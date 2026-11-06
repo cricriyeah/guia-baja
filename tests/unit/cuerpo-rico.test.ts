@@ -62,3 +62,29 @@ describe('CuerpoRico', () => {
     expect(html).not.toContain('b-tours')
   })
 })
+
+describe('CuerpoRico: links externos', () => {
+  const enlace = (url: string) => ({
+    root: nodo('root', {}, [nodo('paragraph', { textFormat: 0 }, [nodo('link', { fields: { linkType: 'custom', url, newTab: true } }, [texto('sitio')])])]),
+  })
+  const pintar = (url: string, patrocinado?: boolean) =>
+    renderToStaticMarkup(createElement(CuerpoRico, { lang: 'es', cuerpo: enlace(url), resolutor: resolutor as never, media, categorias: [], patrocinado }))
+
+  it('con patrocinado, el link externo lleva rel con sponsored', () => {
+    expect(pintar('https://ejemplo.test', true)).toMatch(/<a [^>]*rel="noopener sponsored"/)
+  })
+  it('sin patrocinado, el link externo no lleva sponsored', () => {
+    const html = pintar('https://ejemplo.test')
+    expect(html).toMatch(/<a [^>]*href="https:\/\/ejemplo\.test"/)
+    expect(html).not.toContain('sponsored')
+  })
+  it('los esquemas http, mailto y tel se pintan como link', () => {
+    for (const url of ['http://a.test', 'mailto:a@a.test', 'tel:+526120000000']) expect(pintar(url)).toContain(`href="${url}"`)
+  })
+  it('javascript: no da <a> y deja el texto', () => {
+    const html = pintar('javascript:alert(1)')
+    expect(html).not.toContain('<a')
+    expect(html).not.toContain('javascript')
+    expect(html).toContain('sitio')
+  })
+})

@@ -19,7 +19,11 @@ type Props = {
   media: Record<string, ImagenT>
   categorias: CategoriaPublica[]
   className?: string
+  // Con patrocinio declarado del lugar o evento dueño del cuerpo, sus links externos llevan rel="sponsored" (spec §6/§7).
+  patrocinado?: boolean
 }
+
+const ESQUEMAS_SEGUROS = /^(https?|mailto|tel):/i
 
 // Los nodos y bloques llegan de Payload sin tipo estático (cada bloque tiene sus campos); por eso `any` en los argumentos.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,7 +31,7 @@ type Args = JSXConverterArgs<any>
 
 // Único que pinta cuerpos Lexical (lugar, evento y artículo; plan F3b, «Cuerpos Lexical»). Los ids del cuerpo se
 // resuelven contra las listas del idioma: lo que no existe para el público no se pinta (un link queda como texto).
-export function CuerpoRico({ lang, cuerpo, resolutor, media, categorias, className = 'texto' }: Props) {
+export function CuerpoRico({ lang, cuerpo, resolutor, media, categorias, className = 'texto', patrocinado = false }: Props) {
   if (!cuerpo || typeof cuerpo !== 'object') return null
   const ids = encabezadosDe(cuerpo).map((e) => e.id)
   let h2 = 0
@@ -49,7 +53,10 @@ export function CuerpoRico({ lang, cuerpo, resolutor, media, categorias, classNa
         const href = f.doc?.relationTo && id !== null ? resolutor.href(f.doc.relationTo, id) : null
         return href ? <Link href={href}>{hijos}</Link> : <>{hijos}</>
       }
-      return f.url ? <a href={f.url} rel="noopener" target={f.newTab ? '_blank' : undefined}>{hijos}</a> : <>{hijos}</>
+      // validateUrl de Payload acepta `javascript:`: solo estos esquemas se pintan como link; el resto queda como texto.
+      return f.url && ESQUEMAS_SEGUROS.test(f.url) ? (
+        <a href={f.url} rel={patrocinado ? 'noopener sponsored' : 'noopener'} target={f.newTab ? '_blank' : undefined}>{hijos}</a>
+      ) : <>{hijos}</>
     },
     upload: ({ node }: Args) => {
       const img = media[String(idDe(node.value))]
