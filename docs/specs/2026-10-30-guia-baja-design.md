@@ -127,13 +127,18 @@ visitante.
   - Si no, es **directa** (llegó por el dominio de Vercel) y su IP es el `x-real-ip` de la propia petición.
 - **El origen solo afecta cabeceras, nunca el HTML.** Las páginas se cachean (sección 10), así que el HTML
   no puede depender de quién pidió primero. Por eso:
-  - `origenDePeticion` solo se llama en el `proxy.ts` de la Guía (corre en cada petición, antes de la caché)
-    y en la Server Action del formulario (que necesita la IP). **Las páginas no leen `headers()`.**
+  - `origenDePeticion` solo se llama en el `proxy.ts` de la Guía (corre en cada petición, antes de la caché).
+    **Las páginas no leen `headers()`.**
+  - La Server Action del formulario (que necesita la IP) no decide el origen: `origenReenviado` lee lo que dejó el
+    `proxy.ts`, y solo lo cree si trae `x-guia-sello`, un HMAC del secreto que pone ese `proxy.ts` y cuyo valor
+    recibido del cliente se descarta. Hay peticiones que llegan a la acción sin pasar por él (un idioma fuera del
+    matcher, o Next reenviando la acción desde otra página). Sin sello válido, la petición es **directa** y su IP
+    es el `x-real-ip` de la propia petición.
   - El `proxy.ts` de la Guía pone en la respuesta `x-guia-origen: publico|directo` y, si es directa,
     `X-Robots-Tag: noindex`.
   - `<meta name="robots">` y `hreflang` dependen solo de reglas que no cambian por petición
     (`GUIA_INDEXABLE`, `noIndexar`, umbral, filtros; sección 9).
-  - La cabecera `x-guia-proxy` nunca viaja en la respuesta ni se registra en logs.
+  - Las cabeceras `x-guia-proxy` y `x-guia-sello` nunca viajan en la respuesta ni se registran en logs.
 - Turnstile se verifica en el servidor mandando `remoteip` = la IP de la petición según esta regla.
 - **Comprobaciones en F5** (en producción, con `GUIA_INDEXABLE=false`):
   1. `curl -I https://www.salysoltours.com/es/guia` trae `x-guia-origen: publico` y no trae
