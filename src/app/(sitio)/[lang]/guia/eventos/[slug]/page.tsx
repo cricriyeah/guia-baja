@@ -143,14 +143,17 @@ export default async function PaginaEvento({ params }: Props) {
         <article>
           <section className="bloque" aria-labelledby="t-que">
             <h2 id="t-que" className="t-seccion">{t.evento.deQueSeTrata}</h2>
-            <CuerpoRico lang={lang} cuerpo={e.cuerpo} resolutor={resolutorDeCuerpo({ lugares, eventos: d.eventos, articulos }, lang)} media={e.media} categorias={cats} />
+            <CuerpoRico lang={lang} cuerpo={e.cuerpo} resolutor={resolutorDeCuerpo({ lugares, eventos: d.eventos, articulos }, lang)} media={e.media} categorias={cats} patrocinado={declarado} />
           </section>
           <section className="bloque" aria-labelledby="t-donde">
             <h2 id="t-donde" className="t-seccion">{t.evento.donde}</h2>
             {lugar ? (
-              <Link className={`lugar-ref tarjeta presionable ${porId(cats, lugar.categoriaIds[0])?.claseGrupo ?? ''}`} href={rutas.lugar(lang, lugar.slug)}>
+              <Link className={`lugar-ref tarjeta presionable ${porId(cats, lugar.categoriaIds[0])?.claseGrupo ?? ''}`} href={rutas.lugar(lang, lugar.slug)} rel={patrocinioDeclarado(lugar.patrocinio) ? 'sponsored' : undefined}>
                 <div className="media"><Imagen imagen={lugar.foto} sizes="120px" alt="" /></div>
-                <div><span className="etiqueta">{porId(cats, lugar.categoriaIds[0])?.nombre}</span><p className="titular" style={{ marginTop: 4 }}>{lugar.nombre}</p></div>
+                <div>
+                  {patrocinioDeclarado(lugar.patrocinio) && <><Patrocinado lang={lang} /> </>}
+                  <span className="etiqueta">{porId(cats, lugar.categoriaIds[0])?.nombre}</span><p className="titular" style={{ marginTop: 4 }}>{lugar.nombre}</p>
+                </div>
               </Link>
             ) : (
               e.direccionLibre && <p>{e.direccionLibre}</p>
@@ -162,9 +165,12 @@ export default async function PaginaEvento({ params }: Props) {
           <aside className="lateral" aria-labelledby="t-mas-ev">
             <h2 id="t-mas-ev" className="t-seccion" style={{ fontSize: '1.25rem', marginBottom: 10 }}>{t.evento.tambien}</h2>
             {tambien.map((x) => (
-              <Link key={x.id} className={`lugar-ref tarjeta presionable ${porId(cats, x.categoriaIds[0])?.claseGrupo ?? ''}`} href={rutas.evento(lang, x.slug)} style={{ marginBottom: 8 }}>
+              <Link key={x.id} className={`lugar-ref tarjeta presionable ${porId(cats, x.categoriaIds[0])?.claseGrupo ?? ''}`} href={rutas.evento(lang, x.slug)} rel={patrocinioDeclarado(x.patrocinio) ? 'sponsored' : undefined} style={{ marginBottom: 8 }}>
                 <div className="media"><Imagen imagen={x.foto} sizes="120px" alt="" /></div>
-                <div><span className="etiqueta">{porId(cats, x.categoriaIds[0])?.nombre}</span><p className="titular" style={{ marginTop: 4 }}>{x.nombre}</p></div>
+                <div>
+                  {patrocinioDeclarado(x.patrocinio) && <><Patrocinado lang={lang} /> </>}
+                  <span className="etiqueta">{porId(cats, x.categoriaIds[0])?.nombre}</span><p className="titular" style={{ marginTop: 4 }}>{x.nombre}</p>
+                </div>
               </Link>
             ))}
           </aside>
