@@ -18,10 +18,21 @@ export function CopiarCorreo({ correo, copiar, copiado }: { correo: string; copi
   const [hecho, setHecho] = useState(false)
   const temporizador = useRef<number | undefined>(undefined)
 
-  useEffect(() => () => window.clearTimeout(temporizador.current), [])
+  const montado = useRef(false)
+
+  // En el cuerpo del efecto (y no solo en la limpieza) para que también valga con el doble montaje de StrictMode.
+  useEffect(() => {
+    montado.current = true
+    return () => {
+      montado.current = false
+      window.clearTimeout(temporizador.current)
+    }
+  }, [])
 
   async function alCopiar() {
-    if (!(await copiarAlPortapapeles(correo))) return
+    const logrado = await copiarAlPortapapeles(correo)
+    // Si se desmontó mientras esperaba el permiso, ni estado ni temporizador nuevos.
+    if (!logrado || !montado.current) return
     setHecho(true)
     window.clearTimeout(temporizador.current)
     temporizador.current = window.setTimeout(() => setHecho(false), 1400)
