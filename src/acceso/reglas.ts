@@ -26,3 +26,5 @@ export const adminOEsUnoMismo: Access = ({ req }) => {
 
 export const campoSoloAdmin: FieldAccess = ({ req }) => esAdmin(req.user)
 export const campoSoloPersonal: FieldAccess = ({ req }) => esPersonal(req.user)
+// Campos que solo escribe el servidor con overrideAccess (p. ej. anonimizadaEl, spec §12).
+export const campoNadie: FieldAccess = () => false

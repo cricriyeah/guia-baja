@@ -92,4 +92,16 @@ describe('acción de anonimizar (spec §12)', () => {
     expect(texto).not.toContain('secreto@ejemplo.invalid')
     vi.restoreAllMocks()
   })
+
+  it('nadie escribe anonimizadaEl por la API: el cron diario saltaría la fila para siempre', async () => {
+    const s = await crearAceptada()
+    for (const rol of ['admin', 'editor'] as const) {
+      const user = await crearUsuario(payload, rol)
+      await payload.update({ collection: 'solicitudes', id: s.id, overrideAccess: false, user, data: { anonimizadaEl: '2026-01-01T00:00:00.000Z', notasInternas: rol } })
+      const tras = await payload.findByID({ collection: 'solicitudes', id: s.id, overrideAccess: true })
+      expect(tras.notasInternas).toBe(rol)
+      expect(tras.anonimizadaEl ?? null).toBeNull()
+      expect(tras.correo).toBe('x@ejemplo.invalid')
+    }
+  })
 })

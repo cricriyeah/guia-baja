@@ -1,6 +1,6 @@
 import { NotFound, type CheckboxField, type CollectionBeforeChangeHook, type CollectionConfig } from 'payload'
 
-import { campoSoloAdmin, nadie, soloPersonal } from '../acceso/reglas'
+import { campoNadie, campoSoloAdmin, nadie, soloPersonal } from '../acceso/reglas'
 import { esAdmin } from '../acceso/roles'
 import { anonimizarSolicitud } from '../solicitudes/anonimizar'
 
@@ -81,7 +81,14 @@ export const Solicitudes: CollectionConfig = {
     },
     { name: 'notasInternas', type: 'textarea' },
     { name: 'lugarCreado', type: 'relationship', relationTo: 'lugares' },
-    { name: 'anonimizadaEl', type: 'date', admin: { readOnly: true, position: 'sidebar' } },
+    // Solo la escribe anonimizarSolicitud (overrideAccess). Si el personal la llenara sin borrar los datos personales,
+    // el cron diario saltaría la fila para siempre (spec §12).
+    {
+      name: 'anonimizadaEl',
+      type: 'date',
+      access: { create: campoNadie, update: campoNadie },
+      admin: { readOnly: true, position: 'sidebar' },
+    },
     {
       name: 'accionAnonimizar',
       type: 'ui',
