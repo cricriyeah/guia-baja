@@ -5,6 +5,10 @@ const unstableCache = vi.hoisted(() => vi.fn((fn: () => unknown) => fn))
 vi.mock('next/cache', () => ({ unstable_cache: unstableCache }))
 vi.mock('../../src/sitio/datos/payload', () => ({ obtenerPayload: async () => ({}) }))
 
+// Importación estática: cargar cacheadas arrastra todas las lecturas y la búsqueda (~1,8 s en frío). Hecha dentro del
+// primer test, ese costo caía en su tiempo límite de 5 s y fallaba bajo carga; así corre al cargar el archivo.
+import { cachear } from '../../src/sitio/datos/cacheadas'
+
 describe('cachear: versión de despliegue en la llave', () => {
   beforeEach(() => {
     unstableCache.mockClear()
@@ -14,7 +18,6 @@ describe('cachear: versión de despliegue en la llave', () => {
   afterEach(() => vi.unstubAllEnvs())
 
   async function llaveUsada() {
-    const { cachear } = await import('../../src/sitio/datos/cacheadas')
     await cachear(async () => 1, () => ({ llave: ['zonasActivas', 'es'], etiquetas: ['t'] }))()
     const [, partes, opciones] = unstableCache.mock.calls[0] as unknown as [unknown, string[], { tags: string[] }]
     return { partes, opciones }

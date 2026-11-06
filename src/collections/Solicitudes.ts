@@ -87,7 +87,9 @@ export const Solicitudes: CollectionConfig = {
       type: 'ui',
       admin: {
         position: 'sidebar',
-        condition: (datos) => Boolean(datos?.id) && !datos?.anonimizadaEl,
+        // Sin `datos?.id`: en el estado del formulario puede faltar y el botón desaparecería al editar un campo. El componente
+        // ya devuelve null si no hay id de documento.
+        condition: (datos) => !datos?.anonimizadaEl,
         components: { Field: '/componentes-admin/BotonAnonimizar#BotonAnonimizar' },
       },
     },
