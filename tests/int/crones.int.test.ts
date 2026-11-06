@@ -78,4 +78,72 @@ describe('crones (spec §10, §12)', () => {
     expect(dos.anonimizadaEl).toBe(uno.anonimizadaEl)
     expect(dos.updatedAt).toBe(uno.updatedAt)
   })
+
+  describe('aislamiento de fallos', () => {
+    const conIpVieja = async () => {
+      const vieja = await payload.create({ collection: 'solicitudes', overrideAccess: true, data: { negocio: 'V', aceptoPrivacidad: true, ipHash: 'a'.repeat(64) } })
+      await payload.db.updateOne({ collection: 'solicitudes', where: { id: { equals: vieja.id } }, data: { createdAt: '2026-11-09T07:00:00.000Z' } })
+      return vieja
+    }
+    const ipDe = async (id: number) => (await payload.findByID({ collection: 'solicitudes', id, overrideAccess: true })).ipHash ?? null
+
+    it('hora: un revalidar que lanza no impide purgar el ipHash ni revalidar el resto', async () => {
+      const zona = await crearZona(payload)
+      const cat = await crearCategoria(payload)
+      const img = await crearImagen(payload)
+      const l = await crearLugar(payload, { zona: zona.id, categorias: [cat.id], foto: img.id, slugEs: 'patrocinado-z' })
+      await payload.update({ collection: 'lugares', id: l.id, overrideAccess: true, data: { patrocinio: { activo: true, desde: '2026-11-10', hasta: '2026-12-10' } } })
+      const vieja = await conIpVieja()
+      const revalidar = vi.fn((etiquetas: string[]) => {
+        if (etiquetas.includes(`lugar:${l.id}`)) throw new Error('falla una etiqueta')
+      })
+      const r = await correrHora(payload, new Date('2026-11-10T08:05:00Z'), revalidar)
+      expect(revalidar.mock.calls.length).toBeGreaterThan(1)
+      expect(r.fallos).toContain(`revalidar:lugar:${l.id}`)
+      expect(r.ipBorrados).toBe(1)
+      expect(await ipDe(vieja.id)).toBeNull()
+    })
+
+    it('hora: si la cola de Payload lanza, igual purga el ipHash', async () => {
+      const vieja = await conIpVieja()
+      const espia = vi.spyOn(payload.jobs, 'run').mockRejectedValueOnce(new Error('cola caída'))
+      const r = await correrHora(payload, new Date('2026-11-10T08:05:00Z'), vi.fn())
+      espia.mockRestore()
+      expect(r.fallos).toContain('jobs')
+      expect(await ipDe(vieja.id)).toBeNull()
+    })
+
+    it('diario: una fila que falla no bloquea a las demás y sale en fallidas', async () => {
+      const mk = (negocio: string) => payload.create({ collection: 'solicitudes', overrideAccess: true, data: { negocio, aceptoPrivacidad: true, estado: 'rechazada', correo: 'x@ejemplo.invalid' } })
+      const a = await mk('A')
+      const b = await mk('B')
+      const c = await mk('C')
+      const anonimizar = vi.fn(async (p: Payload, id: number) => {
+        if (id === b.id) throw new Error('falla b')
+        await anonimizarSolicitud(p, id)
+      })
+      const r = await correrDiario(payload, new Date(), anonimizar)
+      expect(r.anonimizadas).toBe(2)
+      expect(r.fallidas).toEqual([b.id])
+      const leer = (id: number) => payload.findByID({ collection: 'solicitudes', id, overrideAccess: true })
+      expect((await leer(a.id)).correo).toBeNull()
+      expect((await leer(b.id)).correo).toBe('x@ejemplo.invalid')
+      expect((await leer(c.id)).correo).toBeNull()
+    })
+
+    it('diario: la consulta incluye la que no tiene estadoCambiadoEl (cae a createdAt) y excluye lo reciente y lo aceptado', async () => {
+      const mk = (negocio: string, estado: 'nueva' | 'aceptada') => payload.create({ collection: 'solicitudes', overrideAccess: true, data: { negocio, aceptoPrivacidad: true, estado, correo: 'x@ejemplo.invalid' } })
+      const sinFecha = await mk('sin-fecha', 'nueva')
+      const reciente = await mk('reciente', 'nueva')
+      const aceptada = await mk('aceptada-vieja', 'aceptada')
+      await payload.db.updateOne({ collection: 'solicitudes', where: { id: { equals: sinFecha.id } }, data: { estadoCambiadoEl: null, createdAt: '2024-01-01T00:00:00.000Z' } })
+      await payload.db.updateOne({ collection: 'solicitudes', where: { id: { equals: aceptada.id } }, data: { estadoCambiadoEl: '2024-01-01T00:00:00.000Z' } })
+      const r = await correrDiario(payload, new Date())
+      expect(r.anonimizadas).toBe(1)
+      const leer = (id: number) => payload.findByID({ collection: 'solicitudes', id, overrideAccess: true })
+      expect((await leer(sinFecha.id)).correo).toBeNull()
+      expect((await leer(reciente.id)).correo).toBe('x@ejemplo.invalid')
+      expect((await leer(aceptada.id)).correo).toBe('x@ejemplo.invalid')
+    })
+  })
 })

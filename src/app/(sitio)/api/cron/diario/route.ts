@@ -6,5 +6,6 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
   if (!autorizado(request)) return new Response('No autorizado', { status: 401 })
-  return Response.json(await correrDiario(await obtenerPayload(), new Date()))
+  const r = await correrDiario(await obtenerPayload(), new Date())
+  return Response.json(r, { status: r.fallidas.length ? 500 : 200 })
 }

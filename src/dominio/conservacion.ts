@@ -1,7 +1,7 @@
 export const CAMPOS_PERSONALES = ['contactoNombre', 'correo', 'telefono', 'webOInstagram', 'mensaje'] as const
 const DIA = 24 * 60 * 60 * 1000
 
-const haceMeses = (ahora: Date, meses: number) => {
+export const haceMeses = (ahora: Date, meses: number) => {
   const d = new Date(ahora)
   d.setUTCMonth(d.getUTCMonth() - meses)
   return d
