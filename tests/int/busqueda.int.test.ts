@@ -44,6 +44,9 @@ describe('índice de búsqueda', () => {
 })
 
 describe('consultas de búsqueda', () => {
+  beforeAll(async () => {
+    payload = await obtenerPayload()
+  })
   beforeEach(async () => {
     await limpiar(payload)
   })
@@ -68,7 +71,22 @@ describe('consultas de búsqueda', () => {
     await crearLugar(payload, { zona: zona.id, categorias: [cat.id], foto: img.id, slugEs: 'cafe-duna' })
     expect(await coincidencias(payload, { q: 'cafe', lang: 'es', zonaId: otra.id })).toEqual([])
     expect((await coincidencias(payload, { q: 'cafe', lang: 'es', tipo: 'zona' })).length).toBe(0)
+    expect((await coincidencias(payload, { q: 'cafe', lang: 'es', zonaId: zona.id })).map((x) => x.slug)).toEqual(['cafe-duna'])
+    expect((await coincidencias(payload, { q: 'cafe', lang: 'es', tipo: 'lugar' })).map((x) => x.slug)).toEqual(['cafe-duna'])
     expect((await sugerencias(payload, { q: 'caf', lang: 'es' })).map((s) => s.slug)).toContain('cafe-duna')
     await expect(sugerencias(payload, { q: 'a) & !', lang: 'es' })).resolves.toBeInstanceOf(Array)
+  })
+
+  it('unaccent no convierte letras ni números del visitante en sintaxis de tsquery', async () => {
+    for (const q of ['ʼ', 'a½', 'a ʼb', 'ʼ:*']) {
+      await expect(sugerencias(payload, { q, lang: 'es' })).resolves.toBeInstanceOf(Array)
+      await expect(coincidencias(payload, { q, lang: 'es' })).resolves.toBeInstanceOf(Array)
+    }
+  })
+
+  it('un idioma fuera del mapa cerrado no consulta nada', async () => {
+    const lang = "es' OR '1'='1" as never
+    expect(await coincidencias(payload, { q: 'cafe', lang })).toEqual([])
+    expect(await sugerencias(payload, { q: 'cafe', lang })).toEqual([])
   })
 })
