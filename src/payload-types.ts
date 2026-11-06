@@ -456,6 +456,10 @@ export interface Solicitude {
   versionAviso?: string | null;
   ipHash?: string | null;
   estado?: ('nueva' | 'en-contacto' | 'aceptada' | 'rechazada') | null;
+  /**
+   * Último cambio de estado (conservación, aviso §12).
+   */
+  estadoCambiadoEl?: string | null;
   notasInternas?: string | null;
   lugarCreado?: (number | null) | Lugare;
   anonimizadaEl?: string | null;
@@ -943,6 +947,7 @@ export interface SolicitudesSelect<T extends boolean = true> {
   versionAviso?: T;
   ipHash?: T;
   estado?: T;
+  estadoCambiadoEl?: T;
   notasInternas?: T;
   lugarCreado?: T;
   anonimizadaEl?: T;

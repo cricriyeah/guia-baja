@@ -458,6 +458,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"version_aviso" varchar,
   	"ip_hash" varchar,
   	"estado" "enum_solicitudes_estado" DEFAULT 'nueva',
+  	"estado_cambiado_el" timestamp(3) with time zone,
   	"notas_internas" varchar,
   	"lugar_creado_id" integer,
   	"anonimizada_el" timestamp(3) with time zone,

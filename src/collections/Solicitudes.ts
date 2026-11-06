@@ -1,6 +1,14 @@
-import type { CheckboxField, CollectionConfig } from 'payload'
+import type { CheckboxField, CollectionBeforeChangeHook, CollectionConfig } from 'payload'
 
 import { campoSoloAdmin, nadie, soloPersonal } from '../acceso/reglas'
+
+// Spec §12: «sin cambio de estado en 12 meses» se mide desde aquí; una nota interna no reinicia el plazo.
+const marcarCambioDeEstado: CollectionBeforeChangeHook = ({ data, operation, originalDoc }) => {
+  if (operation === 'create' || (data.estado !== undefined && data.estado !== originalDoc?.estado)) {
+    return { ...data, estadoCambiadoEl: new Date().toISOString() }
+  }
+  return data
+}
 
 // Solo se crean desde la Server Action de F3 (overrideAccess). El público nunca las lee (spec §6, §11).
 export const Solicitudes: CollectionConfig = {
@@ -8,6 +16,7 @@ export const Solicitudes: CollectionConfig = {
   admin: { useAsTitle: 'negocio', defaultColumns: ['negocio', 'estado', 'zonaTexto', 'createdAt'] },
   access: { read: soloPersonal, create: nadie, update: soloPersonal, delete: soloPersonal },
   defaultSort: '-createdAt',
+  hooks: { beforeChange: [marcarCambioDeEstado] },
   fields: [
     { name: 'negocio', type: 'text', required: true },
     { name: 'giro', type: 'text' },
@@ -38,6 +47,11 @@ export const Solicitudes: CollectionConfig = {
         { label: 'Rechazada', value: 'rechazada' },
       ],
       admin: { position: 'sidebar' },
+    },
+    {
+      name: 'estadoCambiadoEl',
+      type: 'date',
+      admin: { readOnly: true, position: 'sidebar', description: 'Último cambio de estado (conservación, aviso §12).' },
     },
     { name: 'notasInternas', type: 'textarea' },
     { name: 'lugarCreado', type: 'relationship', relationTo: 'lugares' },

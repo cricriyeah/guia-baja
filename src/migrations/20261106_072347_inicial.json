@@ -5305,6 +5305,12 @@
           "notNull": false,
           "default": "'nueva'"
         },
+        "estado_cambiado_el": {
+          "name": "estado_cambiado_el",
+          "type": "timestamp(3) with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
         "notas_internas": {
           "name": "notas_internas",
           "type": "varchar",
@@ -7839,6 +7845,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "19a7273e-b1de-4a3d-87e1-559ec1bcccc3",
+  "id": "d060d881-791e-4e87-a04f-93e84804d075",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

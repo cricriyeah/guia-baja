@@ -117,4 +117,14 @@ describe('Artículos, Solicitudes y Ajustes', () => {
       payload.updateGlobal({ slug: 'ajustes-guia', data: { formularioActivo: true }, overrideAccess: false, user: editor }),
     ).rejects.toThrow()
   })
+
+  it('estadoCambiadoEl se fija al crear y solo cambia si cambia el estado', async () => {
+    const s = await payload.create({ collection: 'solicitudes', data: { negocio: 'N', aceptoPrivacidad: true }, overrideAccess: true })
+    expect(s.estadoCambiadoEl).toBeTruthy()
+    const nota = await payload.update({ collection: 'solicitudes', id: s.id, data: { notasInternas: 'llamar' }, overrideAccess: true })
+    expect(nota.estadoCambiadoEl).toBe(s.estadoCambiadoEl)
+    await new Promise((r) => setTimeout(r, 20))
+    const cambio = await payload.update({ collection: 'solicitudes', id: s.id, data: { estado: 'en-contacto' }, overrideAccess: true })
+    expect(new Date(cambio.estadoCambiadoEl as string).getTime()).toBeGreaterThan(new Date(s.estadoCambiadoEl as string).getTime())
+  })
 })
