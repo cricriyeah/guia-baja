@@ -11,7 +11,7 @@ export type EntradaMetadatos = {
   ruta: string
   indexable: boolean
   versiones: VersionIdioma[]
-  // Ruta de la imagen OG (rutaOg): el sitio de reservas la reescribe a la guía.
+  // Ruta de la imagen OG (rutas.og): el sitio de reservas la reescribe a la guía.
   imagenOg?: string
   // Página N (≥ 2) de un listado: su título lleva el número para no repetir el de la página 1.
   pagina?: number

@@ -1,11 +1,4 @@
-import type { Locale } from '../../dominio/idioma'
-
-export type TipoOg = 'portada' | 'zona' | 'categoria-zona' | 'categoria' | 'lugar' | 'evento' | 'articulo' | 'pagina'
-
-// Las imágenes OG viven bajo /guia-assets/og (ese prefijo sí lo reescribe el sitio de reservas, spec §4); la ruta
-// interna en inglés (/en/guia/…) daría 404 por el proxy.
-export const rutaOg = (lang: Locale, tipo: TipoOg, segmentos: string[] = []): string =>
-  ['/guia-assets/og', lang, tipo, ...segmentos].join('/')
+import type { TipoOg } from '../../dominio/rutas'
 
 const MAX_CARACTERES_TITULO = 120
 

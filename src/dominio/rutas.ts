@@ -11,6 +11,8 @@ export const SEGMENTOS = {
   },
 } as const satisfies Record<Locale, Record<string, string>>
 
+export type TipoOg = 'portada' | 'zona' | 'categoria-zona' | 'categoria' | 'lugar' | 'evento' | 'articulo' | 'pagina'
+
 const base = (l: Locale) => `/${l}/${SEGMENTOS[l].guia}`
 
 // Única fuente de URLs públicas de la guía. F3 la reutiliza para páginas, sitemap y hreflang.
@@ -28,6 +30,9 @@ export const rutas = {
   buscar: (l: Locale) => `${base(l)}/${SEGMENTOS[l].buscar}`,
   // Ruta interna de la cabecera; el proxy reescribe /en/guide/search/sugerencias al árbol en español.
   sugerencias: (l: Locale) => `${base(l)}/${SEGMENTOS[l].buscar}/sugerencias`,
+  // Imágenes OG bajo /guia-assets/og (ese prefijo sí lo reescribe el sitio de reservas, spec §4); la ruta interna
+  // en inglés (/en/guia/…) daría 404 por el proxy.
+  og: (l: Locale, tipo: TipoOg, segmentos: string[] = []) => ['/guia-assets/og', l, tipo, ...segmentos].join('/'),
 }
 
 // Paginación y filtros (spec §7). La página 1 no lleva parámetro.

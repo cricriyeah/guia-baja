@@ -1,12 +1,18 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { fotoDeFondo, recortarTituloOg, rutaOg, segmentosOgValidos, tamanoTituloOg } from '../../src/sitio/seo/og'
+import { rutas } from '../../src/dominio/rutas'
+import * as og from '../../src/sitio/seo/og'
+import { fotoDeFondo, recortarTituloOg, segmentosOgValidos, tamanoTituloOg } from '../../src/sitio/seo/og'
 
-describe('rutaOg', () => {
+describe('rutas.og (AGENTS.md: URLs públicas solo desde rutas.ts)', () => {
   it('bajo /guia-assets (lo reescribe el sitio de reservas), con slugs', () => {
-    expect(rutaOg('en', 'lugar', ['balandra'])).toBe('/guia-assets/og/en/lugar/balandra')
-    expect(rutaOg('es', 'portada')).toBe('/guia-assets/og/es/portada')
-    expect(rutaOg('es', 'categoria-zona', ['la-paz', 'playas'])).toBe('/guia-assets/og/es/categoria-zona/la-paz/playas')
+    expect(rutas.og('en', 'lugar', ['balandra'])).toBe('/guia-assets/og/en/lugar/balandra')
+    expect(rutas.og('es', 'portada')).toBe('/guia-assets/og/es/portada')
+    expect(rutas.og('es', 'categoria-zona', ['la-paz', 'playas'])).toBe('/guia-assets/og/es/categoria-zona/la-paz/playas')
+  })
+
+  it('og.ts ya no arma URLs', () => {
+    expect(Object.keys(og)).not.toContain('rutaOg')
   })
 })
 

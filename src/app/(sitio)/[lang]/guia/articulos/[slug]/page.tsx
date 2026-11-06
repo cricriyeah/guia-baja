@@ -16,7 +16,6 @@ import '../../../../../../sitio/estilos/articulo.css'
 import { rutasPorIdioma } from '../../../../../../sitio/paginas/comun'
 import { articuloLd, faqLd, migasLd } from '../../../../../../sitio/seo/jsonld'
 import { metadatos } from '../../../../../../sitio/seo/metadatos'
-import { rutaOg } from '../../../../../../sitio/seo/og'
 import { versionesDe } from '../../../../../../sitio/seo/versiones'
 import { textos } from '../../../../../../sitio/textos'
 import { Compartir } from '../../../../../../sitio/ui/Compartir'
@@ -53,7 +52,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ruta: propia.ruta,
     indexable: propia.indexable,
     versiones,
-    imagenOg: rutaOg(lang, 'articulo', [d.ficha.slug]),
+    imagenOg: rutas.og(lang, 'articulo', [d.ficha.slug]),
   })
 }
 

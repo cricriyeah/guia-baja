@@ -12,7 +12,6 @@ import { guiaIndexable, sitioUrl } from '../entorno'
 import '../estilos/categoria.css'
 import { listaLd, migasLd } from '../seo/jsonld'
 import { metadatos } from '../seo/metadatos'
-import { rutaOg } from '../seo/og'
 import { textos } from '../textos'
 import { Aparece } from '../ui/Aparece'
 import { EsqueletoResultados } from '../ui/esqueletos/Categoria'
@@ -63,7 +62,7 @@ export async function metadatosCategoriaGlobal(lang: Locale, categoriaSlug: stri
     ruta: seo.canonica,
     indexable: seo.indexable,
     versiones: seo.versiones,
-    imagenOg: rutaOg(lang, 'categoria', [d.cat.slug]),
+    imagenOg: rutas.og(lang, 'categoria', [d.cat.slug]),
     pagina: v.pagina,
   })
 }

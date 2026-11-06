@@ -16,7 +16,6 @@ import '../../../../../../sitio/estilos/evento.css'
 import { rutasPorIdioma } from '../../../../../../sitio/paginas/comun'
 import { eventoLd, migasLd } from '../../../../../../sitio/seo/jsonld'
 import { metadatos } from '../../../../../../sitio/seo/metadatos'
-import { rutaOg } from '../../../../../../sitio/seo/og'
 import { versionesDe } from '../../../../../../sitio/seo/versiones'
 import { textos } from '../../../../../../sitio/textos'
 import { Calendario } from '../../../../../../sitio/ui/Calendario'
@@ -58,7 +57,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ruta: propia.ruta,
     indexable: propia.indexable,
     versiones,
-    imagenOg: rutaOg(lang, 'evento', [d.ficha.slug]),
+    imagenOg: rutas.og(lang, 'evento', [d.ficha.slug]),
   })
 }
 
