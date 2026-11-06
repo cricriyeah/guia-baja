@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 
 import { esLocale } from '../../../../dominio/idioma'
+import { Analitica } from '../../../../sitio/analitica/Analitica'
 import { zonasActivasCacheadas } from '../../../../sitio/datos/cacheadas'
 import { Cabecera } from '../../../../sitio/ui/Cabecera'
 import { Efectos } from '../../../../sitio/ui/Efectos'
@@ -20,6 +21,7 @@ export default async function LayoutGuia(props: { children: ReactNode; idioma: R
       <main id="contenido"><NavegacionConEsqueleto>{props.children}</NavegacionConEsqueleto></main>
       <Pie lang={lang} />
       <Efectos />
+      <Analitica />
     </>
   )
 }
