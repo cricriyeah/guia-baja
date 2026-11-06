@@ -1,0 +1,49 @@
+/* Aparece en la Guía (propuesta C, c-aparece.html). Todo el CSS de páginas es global (los esqueletos lo importan),
+   así que cada selector va bajo .pagina-aparece; el JSX de la página lleva esa clase junto a .ancho.
+   Fuera de esta hoja quedan la validación en el navegador, el contador del mensaje, la foto de la explicación y el
+   widget de Turnstile de mentira: son del prototipo; aquí valida el servidor y el widget es el de Cloudflare. */
+.pagina-aparece .negocios { display: grid; gap: 32px; padding-top: 8px; }
+@media (min-width: 1024px) { .pagina-aparece .negocios { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 56px; align-items: start; } }
+.pagina-aparece .explica { display: grid; gap: 16px; }
+@media (min-width: 1024px) { .pagina-aparece .explica { position: sticky; top: calc(var(--cabecera) + 24px); } }
+.pagina-aparece .explica > p { font-size: 1.125rem; color: var(--tinta-suave); max-width: 52ch; }
+.pagina-aparece .explica > .meta { font-size: .8125rem; color: var(--apagado); }
+.pagina-aparece .pasos { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 10px; }
+.pagina-aparece .pasos li { display: grid; grid-template-columns: 40px 1fr; gap: 12px; align-items: start; padding: 14px; border-radius: var(--radio-control); background: var(--arena); }
+.pagina-aparece .pasos b { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--tinta); color: var(--blanco); font: 700 1rem var(--titulo); }
+.pagina-aparece .pasos strong { display: block; }
+
+.pagina-aparece .forma { border-radius: var(--radio-card); box-shadow: 0 0 0 1px var(--borde); padding: clamp(18px, 3vw, 28px); display: grid; gap: 18px; background: var(--blanco); }
+.pagina-aparece .forma h2 { font: 700 1.375rem/1.15 var(--titulo); text-transform: uppercase; }
+.pagina-aparece .fila2 { display: grid; gap: 18px; }
+@media (min-width: 640px) { .pagina-aparece .fila2 { grid-template-columns: 1fr 1fr; align-items: start; } }
+.pagina-aparece .campo { display: grid; gap: 6px; }
+.pagina-aparece .campo label { font-weight: 600; font-size: .9375rem; }
+.pagina-aparece .ayuda { color: var(--apagado); font-size: .8125rem; }
+/* La ayuda de correo y teléfono sube hacia sus campos, como en la propuesta. */
+.pagina-aparece .fila2 + .ayuda { margin-top: -8px; }
+.pagina-aparece .campo input:not([type="checkbox"]), .pagina-aparece .campo select, .pagina-aparece .campo textarea { font: inherit; font-size: 1rem; min-height: 48px; padding: 10px 14px; border-radius: var(--radio-control); border: 1px solid var(--borde-control); background: var(--blanco); color: var(--tinta); transition: border-color 150ms, box-shadow 150ms; }
+.pagina-aparece .campo textarea { min-height: 120px; resize: vertical; }
+.pagina-aparece .campo input:not([type="checkbox"]):focus, .pagina-aparece .campo select:focus, .pagina-aparece .campo textarea:focus { outline: none; border-color: var(--azul); box-shadow: 0 0 0 3px rgb(27 96 127 / .18); }
+.pagina-aparece .campo [aria-invalid="true"]:not([type="checkbox"]) { border-color: #A83226; }
+.pagina-aparece .msg { display: flex; align-items: center; gap: 6px; color: #A83226; font-size: .875rem; font-weight: 600; }
+.pagina-aparece .casilla { display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: start; font-size: .9375rem; }
+.pagina-aparece .casilla input { width: 22px; height: 22px; margin: 2px 0 0; accent-color: var(--cafe); }
+.pagina-aparece .casilla a { color: var(--cafe); font-weight: 600; text-decoration: underline; }
+/* Reserva el alto del widget (65px) para que la página no salte cuando Cloudflare lo pinta. */
+.pagina-aparece .cf-turnstile { min-height: 65px; }
+.pagina-aparece .enviar:disabled { opacity: .7; cursor: progress; }
+.pagina-aparece .estado-error { padding: 12px 14px; border-radius: var(--radio-control); background: #FCECEB; color: #A83226; font-weight: 600; }
+.pagina-aparece .listo { text-align: center; padding: 32px 12px; gap: 12px; justify-items: center; animation: aparece-entra 500ms var(--curva); }
+@keyframes aparece-entra { from { opacity: 0; transform: translateY(12px) scale(.98); } }
+.pagina-aparece .listo svg { width: 72px; height: 72px; }
+.pagina-aparece .listo svg path { stroke-dasharray: 60; stroke-dashoffset: 60; animation: aparece-trazo 600ms 200ms var(--curva) forwards; }
+@keyframes aparece-trazo { to { stroke-dashoffset: 0; } }
+.pagina-aparece .listo h2 { font: 700 1.5rem/1.15 var(--titulo); text-transform: uppercase; }
+.pagina-aparece .listo p { color: var(--tinta-suave); max-width: 44ch; }
+.pagina-aparece .cerrado { border-radius: var(--radio-card); background: var(--arena); padding: 28px; display: grid; gap: 10px; }
+.pagina-aparece .cerrado h2 { font: 700 1.375rem/1.15 var(--titulo); text-transform: uppercase; }
+@media (prefers-reduced-motion: reduce) { .pagina-aparece .listo, .pagina-aparece .listo svg path { animation: none; stroke-dashoffset: 0; } }
+/* Esqueleto: los campos son bloques de la altura de un input. */
+.pagina-aparece .esq-campo { display: block; height: 48px; border-radius: var(--radio-control); }
+.pagina-aparece .esq-campo--alto { height: 120px; }

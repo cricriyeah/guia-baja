@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 
+import { EsqueletoAparece } from '../esqueletos/Aparece'
 import { EsqueletoArticulo } from '../esqueletos/Articulo'
 import { EsqueletoCategoria } from '../esqueletos/Categoria'
 import { EsqueletoEvento } from '../esqueletos/Evento'
@@ -23,6 +24,7 @@ const ESQUELETOS: Record<Destino, ReactNode> = {
   lugar: <EsqueletoFicha />,
   articulo: <EsqueletoArticulo />,
   privacidad: <EsqueletoPrivacidad />,
+  negocios: <EsqueletoAparece />,
 }
 
 // Esqueleto de la página destino al navegar dentro de la Guía, por transición. No puede ser un loading.tsx: es un

@@ -1,7 +1,7 @@
 import { esLocale } from '../../../dominio/idioma'
 import { SEGMENTOS } from '../../../dominio/rutas'
 
-export type Destino = 'portada' | 'zona' | 'categoriaEnZona' | 'categoria' | 'eventos' | 'evento' | 'lugar' | 'articulo' | 'privacidad'
+export type Destino = 'portada' | 'zona' | 'categoriaEnZona' | 'categoria' | 'eventos' | 'evento' | 'lugar' | 'articulo' | 'privacidad' | 'negocios'
 
 // Qué esqueleto corresponde a un link, o null si ese link no navega dentro de la Guía: otro sitio, el sitio de reservas
 // (mismo dominio tras el rewrite), otro idioma (cambia el layout raíz y recarga), páginas sin esqueleto, o solo la
@@ -17,7 +17,8 @@ export function destinoDe(href: string, actual: string): Destino | null {
   if (resto.length === 0) return 'portada'
   if (primero === s.eventos) return resto.length === 1 ? 'eventos' : resto.length === 2 ? 'evento' : null
   if (primero === s.privacidad) return resto.length === 1 ? 'privacidad' : null
-  if (primero === s.negocios || primero === s.buscar) return null
+  if (primero === s.negocios) return resto.length === 1 ? 'negocios' : null
+  if (primero === s.buscar) return null
   if (resto.length === 1) return 'zona'
   if (resto.length !== 2) return null
   if (primero === s.lugares) return 'lugar'
