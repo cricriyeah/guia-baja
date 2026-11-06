@@ -4,10 +4,12 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 
+import type { TipoBusqueda } from '../../dominio/busqueda'
 import type { Locale } from '../../dominio/idioma'
 import { textos } from '../textos'
 
 type ZonaCabecera = { slug: string; nombre: string; ruta: string }
+type Sugerencia = { tipo: TipoBusqueda; titulo: string; ruta: string }
 
 const Lupa = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
@@ -22,11 +24,13 @@ export function CabeceraCliente(props: {
   lang: Locale
   portada: string
   buscar: string
+  sugerencias: string
   zonas: ZonaCabecera[]
   children: ReactNode
 }) {
-  const { lang, portada, buscar, zonas, children } = props
+  const { lang, portada, buscar, sugerencias, zonas, children } = props
   const t = textos(lang).cabecera
+  const tb = textos(lang).busqueda
   const zonaActual = usePathname().split('/')[3]
   const cabecera = useRef<HTMLElement>(null)
   const botonBuscar = useRef<HTMLButtonElement>(null)
@@ -34,6 +38,9 @@ export function CabeceraCliente(props: {
   const [borde, setBorde] = useState(false)
   const [compacta, setCompacta] = useState(false)
   const [hoja, setHoja] = useState(false)
+  const [q, setQ] = useState('')
+  // Respuesta del último término que terminó de cargar. La lista anterior sigue a la vista mientras llega la nueva.
+  const [respuesta, setRespuesta] = useState<{ q: string; lista: Sugerencia[] } | null>(null)
 
   useEffect(() => {
     const cab = cabecera.current
@@ -71,6 +78,45 @@ export function CabeceraCliente(props: {
     }
   }, [hoja])
 
+  // Sugerencias por prefijo: a los 200 ms de dejar de teclear, y se cancela la petición que ya no sirve.
+  // setRespuesta va dentro del callback del fetch, no directo en el efecto.
+  useEffect(() => {
+    const termino = q.trim()
+    if (termino.length < 2) return
+    const control = new AbortController()
+    const espera = window.setTimeout(() => {
+      fetch(`${sugerencias}?q=${encodeURIComponent(termino)}`, { signal: control.signal })
+        .then((r) => (r.ok ? (r.json() as Promise<Sugerencia[]>) : null))
+        .then((datos) => {
+          if (datos) setRespuesta({ q: termino, lista: datos })
+        })
+        .catch(() => undefined)
+    }, 200)
+    return () => {
+      window.clearTimeout(espera)
+      control.abort()
+    }
+  }, [q, sugerencias])
+
+  const termino = q.trim()
+  const lista = termino.length < 2 ? [] : (respuesta?.lista ?? [])
+  // «Sin resultados» solo cuando ya respondió el servidor por este término: no parpadea mientras la primera petición viaja.
+  const sinResultados = termino.length >= 2 && respuesta?.q === termino && respuesta.lista.length === 0
+  const panel = (lista.length > 0 || sinResultados) && (
+    <div className="sugerencias">
+      {lista.map((s) => (
+        <Link key={`${s.tipo}-${s.ruta}`} href={s.ruta} onClick={() => {
+            setQ('')
+            setHoja(false)
+          }}>
+          {s.titulo}
+          <span>{tb.tipos[s.tipo]}</span>
+        </Link>
+      ))}
+      {sinResultados && <p>{tb.sinResultados}</p>}
+    </div>
+  )
+
   const enlaces = (
     <>
       <Link className="zona" href={portada} aria-current={zonaActual === undefined ? 'page' : undefined}>
@@ -100,7 +146,8 @@ export function CabeceraCliente(props: {
             <form className="busca" role="search" action={buscar}>
               <Lupa />
               <label className="solo-lector" htmlFor="q">{t.buscar}</label>
-              <input id="q" type="search" name="q" placeholder={t.buscar} autoComplete="off" />
+              <input id="q" type="search" name="q" placeholder={t.buscar} autoComplete="off" value={q} onChange={(e) => setQ(e.target.value)} />
+              {panel}
             </form>
             <button ref={botonBuscar} className="busca-movil presionable" type="button" aria-label={t.buscar} onClick={() => setHoja(true)}>
               <Lupa />
@@ -120,10 +167,11 @@ export function CabeceraCliente(props: {
           <label>
             <Lupa />
             <span className="solo-lector">{t.buscar}</span>
-            <input ref={campoMovil} type="search" name="q" placeholder={t.ejemplo} autoComplete="off" />
+            <input ref={campoMovil} type="search" name="q" placeholder={t.ejemplo} autoComplete="off" value={q} onChange={(e) => setQ(e.target.value)} />
           </label>
           <button type="button" onClick={() => setHoja(false)}>{t.cancelar}</button>
         </form>
+        <div className="busqueda__cuerpo">{panel}</div>
       </div>
     </>
   )

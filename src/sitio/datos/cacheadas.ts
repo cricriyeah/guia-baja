@@ -9,6 +9,9 @@ import { fichaLugar, lugaresPublicados } from './lecturas/lugares'
 import { mapaRedirecciones } from './lecturas/redirecciones'
 import { textoZonaCategoria } from './lecturas/textos'
 import { zonasActivas } from './lecturas/zonas'
+import { coincidencias } from '../../busqueda/consulta'
+import type { TipoBusqueda } from '../../dominio/busqueda'
+import type { Locale } from '../../dominio/idioma'
 import { versionCache } from '../entorno'
 import { LLAVES, type Llave } from './llaves'
 import { obtenerPayload } from './payload'
@@ -39,4 +42,8 @@ export const articulosCacheados = cachear(articulosPublicados, LLAVES.articulos)
 export const fichaLugarCacheada = cachear(fichaLugar, LLAVES.fichaLugar)
 export const fichaEventoCacheada = cachear(fichaEvento, LLAVES.fichaEvento)
 export const fichaArticuloCacheada = cachear(fichaArticulo, LLAVES.fichaArticulo)
+export const coincidenciasCacheadas = cachear(
+  (payload, q: string, lang: Locale, tipo: TipoBusqueda | null, zonaId: number | null) => coincidencias(payload, { q, lang, tipo, zonaId }),
+  LLAVES.coincidencias,
+)
 export const textoCacheado = cachear(textoZonaCategoria, LLAVES.texto)

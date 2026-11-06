@@ -26,6 +26,8 @@ export const rutas = {
   negocios: (l: Locale) => `${base(l)}/${SEGMENTOS[l].negocios}`,
   privacidad: (l: Locale) => `${base(l)}/${SEGMENTOS[l].privacidad}`,
   buscar: (l: Locale) => `${base(l)}/${SEGMENTOS[l].buscar}`,
+  // Ruta interna de la cabecera; el proxy reescribe /en/guide/search/sugerencias al árbol en español.
+  sugerencias: (l: Locale) => `${base(l)}/${SEGMENTOS[l].buscar}/sugerencias`,
 }
 
 // Paginación y filtros (spec §7). La página 1 no lleva parámetro.

@@ -1,0 +1,39 @@
+/* Página de búsqueda (propuesta C, c-busqueda.html). Todo el CSS de páginas es global (los esqueletos lo importan),
+   así que cada selector va bajo .pagina-busqueda; el JSX de la página lleva esa clase junto a .ancho. */
+.pagina-busqueda .busca-cabeza { padding: 8px 0 4px; display: grid; gap: 14px; }
+.pagina-busqueda .busca-grande { display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 8px 0 18px; border-radius: 999px; background: var(--gris); max-width: 720px; transition: background 150ms, box-shadow 200ms; }
+.pagina-busqueda .busca-grande:focus-within { background: var(--blanco); box-shadow: 0 0 0 1px var(--borde-control), 0 8px 24px rgb(31 26 20 / .1); }
+.pagina-busqueda .busca-grande svg { width: 20px; height: 20px; color: var(--apagado); flex: 0 0 auto; }
+.pagina-busqueda .busca-grande input { flex: 1; border: 0; background: transparent; font: inherit; font-size: 1.125rem; outline: none; min-width: 0; }
+.pagina-busqueda .busca-grande button { height: 42px; padding: 0 18px; border-radius: 999px; border: 0; background: var(--tinta); color: var(--blanco); font-weight: 600; cursor: pointer; }
+.pagina-busqueda .busca-grande button:hover { background: var(--cafe); }
+.pagina-busqueda .busca-cabeza h1 { font: 700 clamp(1.75rem, 3.6vw, 2.75rem)/1.08 var(--titulo); text-transform: uppercase; letter-spacing: -0.02em; text-wrap: balance; overflow-wrap: anywhere; }
+/* Tipo de resultado: pestañas de la propuesta, sin el indicador que se desliza (la página recarga sus resultados) */
+.pagina-busqueda .pestanas { display: inline-flex; padding: 3px; border-radius: 11px; background: var(--gris); max-width: 100%; overflow-x: auto; scrollbar-width: none; justify-self: start; }
+.pagina-busqueda .pestanas::-webkit-scrollbar { display: none; }
+.pagina-busqueda .pestanas a { height: 34px; padding: 0 14px; display: inline-flex; align-items: center; border-radius: 8px; font-weight: 600; font-size: .9375rem; color: var(--tinta-suave); white-space: nowrap; transition: background 160ms, color 160ms; }
+.pagina-busqueda .pestanas a[aria-current="page"] { color: var(--tinta); background: var(--blanco); box-shadow: 0 2px 6px rgb(31 26 20 / .12); }
+.pagina-busqueda .zonas-filtro { padding: 6px 0 0; }
+/* Resultados */
+.pagina-busqueda .grupo { padding-top: 32px; }
+.pagina-busqueda .grupo h2 { font: 700 1.25rem/1.1 var(--titulo); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: baseline; gap: 8px; }
+.pagina-busqueda .grupo h2 small { font: 600 .875rem var(--texto); color: var(--apagado); text-transform: none; }
+.pagina-busqueda .resultados { display: grid; gap: var(--hueco); grid-template-columns: 1fr; }
+@media (min-width: 720px) { .pagina-busqueda .resultados { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1200px) { .pagina-busqueda .resultados { grid-template-columns: repeat(3, 1fr); } }
+/* Sin foto: el índice de búsqueda guarda título y texto */
+.pagina-busqueda .res { display: grid; align-content: start; gap: 4px; padding: 14px; border-radius: var(--radio-card); box-shadow: 0 0 0 1px var(--borde); background: var(--blanco); transition: box-shadow 200ms, transform 160ms var(--curva); }
+.pagina-busqueda .res:hover { box-shadow: 0 0 0 1px var(--borde-control), 0 6px 16px rgb(31 26 20 / .06); }
+.pagina-busqueda .res .patrocinado { justify-self: start; }
+.pagina-busqueda .res .titular { font-size: 1rem; margin: 2px 0; overflow-wrap: anywhere; }
+.pagina-busqueda .res p.bajada { font-size: .875rem; color: var(--tinta-suave); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.pagina-busqueda .ver-todos { display: inline-flex; margin-top: 12px; }
+.pagina-busqueda .paginas { padding-top: 32px; }
+/* Sin resultados */
+.pagina-busqueda .vacio { padding: 48px 0 8px; display: grid; gap: 14px; justify-items: start; max-width: 640px; }
+.pagina-busqueda .vacio svg { width: 88px; height: 88px; }
+.pagina-busqueda .vacio .lupa-sola { transform-origin: 60% 60%; animation: busca-lupa 3.2s ease-in-out infinite; }
+@keyframes busca-lupa { 0%, 100% { transform: translate(0, 0) rotate(0); } 25% { transform: translate(-6px, 2px) rotate(-8deg); } 60% { transform: translate(5px, -3px) rotate(6deg); } }
+.pagina-busqueda .vacio h2 { font: 700 1.5rem/1.15 var(--titulo); text-transform: uppercase; overflow-wrap: anywhere; }
+.pagina-busqueda .vacio p { color: var(--tinta-suave); }
+@media (prefers-reduced-motion: reduce) { .pagina-busqueda .vacio .lupa-sola { animation: none; } }

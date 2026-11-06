@@ -13,6 +13,7 @@ export function Cabecera({ lang, zonas, idioma }: { lang: Locale; zonas: ZonaPub
       lang={lang}
       portada={rutas.portada(lang)}
       buscar={rutas.buscar(lang)}
+      sugerencias={rutas.sugerencias(lang)}
       zonas={zonas.map((z) => ({ slug: z.slug, nombre: z.nombre, ruta: rutas.zona(lang, z.slug) }))}
     >
       {idioma}

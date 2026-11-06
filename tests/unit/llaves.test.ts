@@ -17,6 +17,14 @@ describe('llaves y etiquetas de las lecturas cacheadas (spec §10)', () => {
     expect(LLAVES.texto(1, 2, 'es')).toEqual({ llave: ['texto', '1', '2', 'es'], etiquetas: ['textos:1:2'] })
   })
 
+  it('coincidencias: llave sin hora ni página', () => {
+    expect(LLAVES.coincidencias('cafe', 'es', null, null)).toEqual({
+      llave: ['coincidencias', 'cafe', 'es', '', ''],
+      etiquetas: ['categorias', 'listados', 'zonas'],
+    })
+    expect(LLAVES.coincidencias('cafe', 'en', 'lugar', 3).llave).toEqual(['coincidencias', 'cafe', 'en', 'lugar', '3'])
+  })
+
   it('cada idioma tiene su llave', () => {
     expect(LLAVES.zonasActivas('es').llave).not.toEqual(LLAVES.zonasActivas('en').llave)
   })
