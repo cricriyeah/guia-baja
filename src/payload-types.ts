@@ -298,6 +298,10 @@ export interface Lugare {
     | null;
   notaHorario?: string | null;
   caracteristicas?: ('para-ninos' | 'con-comida' | 'solo-con-tour')[] | null;
+  /**
+   * Tours del sitio de reservas que llevan a este lugar. Salen en la ficha, con su precio del catálogo.
+   */
+  toursRelacionados?: string[] | null;
   orden?: number | null;
   /**
    * Sale en los destacados de la portada de la Guía.
@@ -935,6 +939,7 @@ export interface LugaresSelect<T extends boolean = true> {
       };
   notaHorario?: T;
   caracteristicas?: T;
+  toursRelacionados?: T;
   orden?: T;
   destacadoEnPortada?: T;
   ordenDestacado?: T;

@@ -43,7 +43,8 @@ export const fichaLugarCacheada = cachear(fichaLugar, LLAVES.fichaLugar)
 export const fichaEventoCacheada = cachear(fichaEvento, LLAVES.fichaEvento)
 export const fichaArticuloCacheada = cachear(fichaArticulo, LLAVES.fichaArticulo)
 export const textoCacheado = cachear(textoZonaCategoria, LLAVES.texto)
-const catalogoCacheado = cachear(catalogoDeSede, LLAVES.catalogo)
+// Lanza ante un fallo (no lo atrapa): el admin necesita distinguir «catálogo caído» de «sede sin tours».
+export const catalogoCacheado = cachear(catalogoDeSede, LLAVES.catalogo)
 const fotosToursCacheadas = cachear(fotosDeTours, LLAVES.fotosTours)
 
 export type TourConFoto = Tour & Pick<FotoTour, 'foto' | 'temporada'>

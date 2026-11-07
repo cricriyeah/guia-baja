@@ -6,7 +6,7 @@ import type { TarjetaLugar } from '../../src/sitio/datos/tipos'
 const lugar = (n: number, extra: Partial<TarjetaLugar> = {}): TarjetaLugar => ({
   id: n, slug: `l-${n}`, nombre: `Lugar ${String(n).padStart(3, '0')}`, resumen: '', zonaId: 1, zonaSlug: 'la-paz',
   categoriaIds: [1], foto: null, rangoPrecio: null, horario: [], caracteristicas: [], coordenadas: null,
-  patrocinio: { activo: false, desde: null, hasta: null }, orden: 100, destacado: { activo: false, orden: 0 }, noIndexar: false,
+  patrocinio: { activo: false, desde: null, hasta: null }, orden: 100, destacado: { activo: false, orden: 0 }, noIndexar: false, toursRelacionados: [],
   ...extra,
 })
 

@@ -18,7 +18,7 @@ const dias = (n: number) => new Date(Date.now() + n * 24 * 60 * 60 * 1000).toISO
 const lugarBase: TarjetaLugar = {
   id: 1, slug: 'cafe-duna', nombre: 'Café Duna', resumen: 'Café', zonaId: 1, zonaSlug: 'la-paz', categoriaIds: [1],
   foto: null, rangoPrecio: null, horario: [], caracteristicas: [], coordenadas: [-110.31, 24.14], patrocinio: sinPatrocinio,
-  orden: 0, destacado: { activo: false, orden: 0 }, noIndexar: false,
+  orden: 0, destacado: { activo: false, orden: 0 }, noIndexar: false, toursRelacionados: [],
 }
 const tarjeta = (id: number, slug: string, patrocinio: TarjetaEvento['patrocinio']): TarjetaEvento => ({
   id, slug, nombre: `Evento ${slug}`, resumen: 'Resumen', zonaId: 1, zonaSlug: 'la-paz', categoriaIds: [1], foto: null,

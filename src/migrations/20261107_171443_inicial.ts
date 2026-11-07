@@ -193,6 +193,14 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_parent_id" integer NOT NULL
   );
   
+  CREATE TABLE "lugares_texts" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"order" integer NOT NULL,
+  	"parent_id" integer NOT NULL,
+  	"path" varchar NOT NULL,
+  	"text" varchar
+  );
+  
   CREATE TABLE "lugares_rels" (
   	"id" serial PRIMARY KEY NOT NULL,
   	"order" integer,
@@ -259,6 +267,14 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"id" serial PRIMARY KEY NOT NULL,
   	"_locale" "_locales" NOT NULL,
   	"_parent_id" integer NOT NULL
+  );
+  
+  CREATE TABLE "_lugares_v_texts" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"order" integer NOT NULL,
+  	"parent_id" integer NOT NULL,
+  	"path" varchar NOT NULL,
+  	"text" varchar
   );
   
   CREATE TABLE "_lugares_v_rels" (
@@ -659,6 +675,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "lugares_caracteristicas" ADD CONSTRAINT "lugares_caracteristicas_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "lugares" ADD CONSTRAINT "lugares_zona_id_zonas_id_fk" FOREIGN KEY ("zona_id") REFERENCES "public"."zonas"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "lugares_locales" ADD CONSTRAINT "lugares_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "lugares_texts" ADD CONSTRAINT "lugares_texts_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "lugares_rels" ADD CONSTRAINT "lugares_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "lugares_rels" ADD CONSTRAINT "lugares_rels_categorias_fk" FOREIGN KEY ("categorias_id") REFERENCES "public"."categorias"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "lugares_rels" ADD CONSTRAINT "lugares_rels_media_fk" FOREIGN KEY ("media_id") REFERENCES "public"."media"("id") ON DELETE cascade ON UPDATE no action;
@@ -667,6 +684,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "_lugares_v" ADD CONSTRAINT "_lugares_v_parent_id_lugares_id_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."lugares"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "_lugares_v" ADD CONSTRAINT "_lugares_v_version_zona_id_zonas_id_fk" FOREIGN KEY ("version_zona_id") REFERENCES "public"."zonas"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "_lugares_v_locales" ADD CONSTRAINT "_lugares_v_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_lugares_v"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_lugares_v_texts" ADD CONSTRAINT "_lugares_v_texts_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."_lugares_v"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "_lugares_v_rels" ADD CONSTRAINT "_lugares_v_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."_lugares_v"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "_lugares_v_rels" ADD CONSTRAINT "_lugares_v_rels_categorias_fk" FOREIGN KEY ("categorias_id") REFERENCES "public"."categorias"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "_lugares_v_rels" ADD CONSTRAINT "_lugares_v_rels_media_fk" FOREIGN KEY ("media_id") REFERENCES "public"."media"("id") ON DELETE cascade ON UPDATE no action;
@@ -763,6 +781,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE UNIQUE INDEX "lugares_slug_idx" ON "lugares_locales" USING btree ("slug","_locale");
   CREATE UNIQUE INDEX "lugares_locales_locale_parent_id_unique" ON "lugares_locales" USING btree ("_locale","_parent_id");
   CREATE INDEX "lugares_locales_parent_id_idx" ON "lugares_locales" USING btree ("_parent_id");
+  CREATE INDEX "lugares_texts_order_parent" ON "lugares_texts" USING btree ("order","parent_id");
   CREATE INDEX "lugares_rels_order_idx" ON "lugares_rels" USING btree ("order");
   CREATE INDEX "lugares_rels_parent_idx" ON "lugares_rels" USING btree ("parent_id");
   CREATE INDEX "lugares_rels_path_idx" ON "lugares_rels" USING btree ("path");
@@ -786,6 +805,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "_lugares_v_version_version_slug_idx" ON "_lugares_v_locales" USING btree ("version_slug","_locale");
   CREATE UNIQUE INDEX "_lugares_v_locales_locale_parent_id_unique" ON "_lugares_v_locales" USING btree ("_locale","_parent_id");
   CREATE INDEX "_lugares_v_locales_parent_id_idx" ON "_lugares_v_locales" USING btree ("_parent_id");
+  CREATE INDEX "_lugares_v_texts_order_parent" ON "_lugares_v_texts" USING btree ("order","parent_id");
   CREATE INDEX "_lugares_v_rels_order_idx" ON "_lugares_v_rels" USING btree ("order");
   CREATE INDEX "_lugares_v_rels_parent_idx" ON "_lugares_v_rels" USING btree ("parent_id");
   CREATE INDEX "_lugares_v_rels_path_idx" ON "_lugares_v_rels" USING btree ("path");
@@ -950,11 +970,13 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "lugares_caracteristicas" CASCADE;
   DROP TABLE "lugares" CASCADE;
   DROP TABLE "lugares_locales" CASCADE;
+  DROP TABLE "lugares_texts" CASCADE;
   DROP TABLE "lugares_rels" CASCADE;
   DROP TABLE "_lugares_v_version_horario" CASCADE;
   DROP TABLE "_lugares_v_version_caracteristicas" CASCADE;
   DROP TABLE "_lugares_v" CASCADE;
   DROP TABLE "_lugares_v_locales" CASCADE;
+  DROP TABLE "_lugares_v_texts" CASCADE;
   DROP TABLE "_lugares_v_rels" CASCADE;
   DROP TABLE "eventos" CASCADE;
   DROP TABLE "eventos_locales" CASCADE;

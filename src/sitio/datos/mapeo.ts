@@ -1,6 +1,7 @@
 import type { Grupo } from '../../dominio/grupos'
 import { CAMPOS_IDIOMA, existeEnIdioma, type Locale, textoDeLexical } from '../../dominio/idioma'
 import { idDe } from '../../dominio/lexical'
+import { esClaveDeTour } from '../../dominio/presencia'
 import type { Articulo, Categoria, Evento, Lugare, Media, Zona } from '../../payload-types'
 import type {
   CategoriaPublica, Destacado, FichaArticulo, FichaEvento, FichaLugar, FilaHorarioPublica, Imagen, PatrocinioPublico,
@@ -108,6 +109,8 @@ export function lugarDe(doc: Lugare, lang: Locale): TarjetaLugar | null {
     orden: doc.orden ?? 100,
     destacado: destacadoDe(doc),
     noIndexar: Boolean(doc.seo?.noIndexar),
+    // Sin el campo (datos de antes del cambio) es lista vacía; una clave mal formada se descarta.
+    toursRelacionados: (doc.toursRelacionados ?? []).filter(esClaveDeTour),
   }
 }
 

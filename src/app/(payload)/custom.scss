@@ -5,3 +5,9 @@
 .sbe-icono { display: block; width: 18px; height: 18px; }
 html[data-theme='dark'] .sbe-marca__logo,
 html[data-theme='dark'] .sbe-icono { filter: brightness(0) invert(1); }
+
+// Campo «Tours relacionados» de Lugares (src/admin/ToursRelacionados.tsx).
+.tours-relacionados__lista { list-style: none; margin: 0 0 var(--base); padding: 0; display: grid; gap: calc(var(--base) / 3); }
+.tours-relacionados__aviso { margin: 0 0 calc(var(--base) / 2); color: var(--theme-elevation-600); }
+.tours-relacionados__precio { color: var(--theme-elevation-600); }
+.tours-relacionados__vieja { color: var(--theme-error-500); }

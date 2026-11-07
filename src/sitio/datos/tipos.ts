@@ -57,6 +57,8 @@ export type TarjetaLugar = {
   categoriaIds: number[]; foto: Imagen | null; rangoPrecio: string | null; horario: FilaHorarioPublica[]
   caracteristicas: string[]; coordenadas: [number, number] | null; patrocinio: PatrocinioPublico
   orden: number; destacado: Destacado; noIndexar: boolean
+  // Claves del catálogo (spec de presencia §2.1). Viajan en la tarjeta para que el slot de tours las tenga en la ficha.
+  toursRelacionados: string[]
 }
 export type FichaLugar = TarjetaLugar & {
   cuerpo: unknown; fotos: Imagen[]; direccion: string | null; telefono: string | null; whatsapp: string | null

@@ -1,15 +1,15 @@
-import * as migration_20261106_114605_inicial from './20261106_114605_inicial';
-import * as migration_20261106_114609_busqueda from './20261106_114609_busqueda';
+import * as migration_20261107_171443_inicial from './20261107_171443_inicial';
+import * as migration_20261107_171447_busqueda from './20261107_171447_busqueda';
 
 export const migrations = [
   {
-    up: migration_20261106_114605_inicial.up,
-    down: migration_20261106_114605_inicial.down,
-    name: '20261106_114605_inicial',
+    up: migration_20261107_171443_inicial.up,
+    down: migration_20261107_171443_inicial.down,
+    name: '20261107_171443_inicial',
   },
   {
-    up: migration_20261106_114609_busqueda.up,
-    down: migration_20261106_114609_busqueda.down,
-    name: '20261106_114609_busqueda'
+    up: migration_20261107_171447_busqueda.up,
+    down: migration_20261107_171447_busqueda.down,
+    name: '20261107_171447_busqueda'
   },
 ];

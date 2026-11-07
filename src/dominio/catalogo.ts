@@ -113,6 +113,18 @@ function precioDesde(item: ItemCatalogo, lang: Locale): PrecioDesde | null {
     : { monto: formato(Number(item.precioMxn), 'MXN'), moneda: 'MXN', estrategia: item.estrategia }
 }
 
+// Precio de la barra de tours (spec de presencia §2.2): el más bajo entre los servicios por persona que existen en ese
+// idioma. Los paquetes no cuentan (varias noches no son un precio de entrada) y nunca se compara con un precio por grupo.
+export function precioPorPersonaDesde(items: ItemCatalogo[], lang: Locale): string | null {
+  let menor: ItemCatalogo | null = null
+  for (const item of items) {
+    if (item.tipo !== 'servicio' || item.estrategia !== 'por_persona' || !item.precioMxn) continue
+    if (lang === 'en' && !item.nombreEn) continue
+    if (!menor || Number(item.precioMxn) < Number(menor.precioMxn)) menor = item
+  }
+  return menor ? (precioDesde(menor, lang)?.monto ?? null) : null
+}
+
 // Sin idioma de respaldo (spec §6): un tour sin nombre en inglés no sale en inglés.
 export function toursDe(items: ItemCatalogo[], lang: Locale): Tour[] {
   return items.flatMap((item): Tour[] => {

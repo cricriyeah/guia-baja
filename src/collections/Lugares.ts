@@ -8,6 +8,7 @@ import { camposSeo } from '../campos/seo'
 import { campoSlug } from '../campos/slug'
 import { CARACTERISTICAS } from '../dominio/caracteristicas'
 import { CAMPOS_IDIOMA, CAMPOS_LOCALIZADOS } from '../dominio/idioma'
+import { MAX_TOURS_RELACIONADOS, validarToursRelacionados } from '../dominio/presencia'
 import { rutas } from '../dominio/rutas'
 import { destinoAlRetirarLugar, hooksDeRedireccion } from '../redirecciones/hooks'
 import { hooksDeRevalidacion } from '../revalidacion/hooks'
@@ -105,6 +106,18 @@ export const Lugares: CollectionConfig = {
       type: 'select',
       hasMany: true,
       options: CARACTERISTICAS.map((c) => ({ label: { es: c.es, en: c.en }, value: c.valor })),
+    },
+    {
+      // Spec de presencia §2.1: claves del catálogo (servicio:slug o paquete:slug), hasta 3. El sitio ignora las viejas.
+      name: 'toursRelacionados',
+      type: 'text',
+      hasMany: true,
+      maxRows: MAX_TOURS_RELACIONADOS,
+      validate: (v: unknown) => validarToursRelacionados(v),
+      admin: {
+        description: 'Tours del sitio de reservas que llevan a este lugar. Salen en la ficha, con su precio del catálogo.',
+        components: { Field: '/admin/ToursRelacionados#ToursRelacionados' },
+      },
     },
     { name: 'orden', type: 'number', defaultValue: 100, admin: { position: 'sidebar' } },
     ...camposDestacado(),
