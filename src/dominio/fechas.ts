@@ -1,6 +1,12 @@
 export const ZONA_HORARIA = 'America/Mazatlan'
 // BCS no usa horario de verano desde 2022: siempre UTC−7.
 const DESFASE = '-07:00'
+const DESFASE_MS = 7 * 60 * 60 * 1000
+
+// El mismo instante, escrito con el desfase de BCS (contrato v1, spec §8.2).
+export function isoEnMazatlan(valor: string): string {
+  return `${new Date(new Date(valor).getTime() - DESFASE_MS).toISOString().slice(0, 19)}${DESFASE}`
+}
 
 const formatoDia = new Intl.DateTimeFormat('en-CA', {
   timeZone: ZONA_HORARIA,
