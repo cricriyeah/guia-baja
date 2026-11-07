@@ -65,7 +65,7 @@ en dos contratos de lectura (sección 8).
 | Imágenes | Bucket R2 con dominio propio en una zona de Cloudflare de la misma cuenta (sección 5.2). Nunca `r2.dev` en producción. |
 | Subidas | Directas del navegador a R2 (`clientUploads`), para no chocar con el límite de 4.5 MB por petición de Vercel. |
 | Previews | Base y bucket propios sin datos reales; nunca una copia de producción (sección 5.3). |
-| Repo | GitHub con plan que permita proteger ramas en repos privados (GitHub Pro o Team). |
+| Repo | GitHub público con plan Free (decisión del dueño, 2026-11-06): el plan Free permite proteger ramas en repos públicos. |
 | Analítica | La misma herramienta y propiedad que el sitio de reservas (sección 13). |
 | Diseño visual | Lo define el equipo del dueño antes de construir el sitio público (fase F1); los programadores implementan contra `docs/diseno/`. |
 
@@ -214,7 +214,7 @@ visitante.
 
 ### 5.3 Previews de PR
 
-- En un repo privado, los commits de personas que no son miembros del equipo de Vercel no despliegan solos;
+- El repo es público: Git Fork Protection queda activa en Vercel (se comprueba en F0), así los PR desde forks no despliegan solos;
   Vercel deja un comentario para pedir autorización. **El dueño lee el diff completo del PR antes de
   autorizar un preview**, porque autorizarlo ejecuta ese código con las variables de preview.
 - Las variables de preview son propias y no tocan nada de producción: `DATABASE_URL` de una base de Neon
@@ -601,8 +601,8 @@ Toda lectura de Payload para el sitio público pasa por `unstable_cache` con eti
 
 ### Barreras del repo
 
-- **Plan de GitHub** que permita proteger ramas y exigir revisiones en repos privados (GitHub Pro para una
-  cuenta personal, o Team para una organización). Es requisito de F0: sin eso estas barreras no existen.
+- **Repo público con plan Free de GitHub**, que permite proteger ramas y exigir revisiones. Todo lo que se sube
+  queda público, incluidos los logs y artefactos de Actions. Los PR de forks no reciben secretos. Es requisito de F0.
 - `main` protegida (ruleset): solo por PR, con aprobación de CODEOWNERS y CI verde; sin force push ni
   borrado. Solo el dueño puede saltar la aprobación, y solo en sus propios PRs (GitHub no deja aprobar un PR
   propio); el CI verde no se salta nunca.
@@ -719,7 +719,7 @@ redacta o aprueba el dueño (entregable de F0); el código solo garantiza lo sig
 
 | Fase | Quién | Qué | Depende de |
 |---|---|---|---|
-| F0 Preparación | Dueño | Repo privado en GitHub con plan Pro o Team, Vercel Pro, proyecto Vercel, integración Neon (`aws-us-east-1`, sin branches automáticos), base `preview`, buckets R2 y sus llaves, dominio de imágenes resuelto (5.2), Turnstile con el dominio, Resend con dominio verificado, `GUIA_PROXY_SECRET`, environment `respaldos` en GitHub. Además: texto del aviso de privacidad (sección 12) y confirmación de la herramienta de analítica (sección 13). | — |
+| F0 Preparación | Dueño | Repo público en GitHub con plan Free y `main` protegida, Vercel Pro, proyecto Vercel, integración Neon (`aws-us-east-1`, sin branches automáticos), base `preview`, buckets R2 y sus llaves, dominio de imágenes resuelto (5.2), Turnstile con el dominio, Resend con dominio verificado, `GUIA_PROXY_SECRET`, environment `respaldos` en GitHub. Además: texto del aviso de privacidad (sección 12) y confirmación de la herramienta de analítica (sección 13). | — |
 | F1 Diseño | Dueño (con su equipo de diseño) | Pantallas clave en móvil y escritorio: portada, zona/categoría, ficha, evento, artículo, formulario. Paleta, tipografías y formas de la marca. Se entregan en `docs/diseno/`. Entregado el 2026-11-03: lineamientos, propuesta C (10 pantallas) y las decisiones de `docs/diseno/decisiones-frontend-backoffice.md`, que cambian el modelo de datos de la sección 6. | — |
 | F2 Base | Programadores | App Next + Payload, colecciones (con Redirecciones), permisos, migraciones, Global, seed, subidas a R2 (verificación de 4.2), workflow de respaldos, CI pasos 1–3. Se despliega a producción con `GUIA_INDEXABLE=false`. | F0 |
 | F3 Sitio público | Programadores | Páginas, SEO, JSON-LD, sitemap, redirecciones, formulario, aviso de privacidad, eventos de analítica, caché y crones (sección 10 y 12), CI pasos 4–5. | F1 aprobada, F2 |
