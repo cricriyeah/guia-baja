@@ -1,6 +1,7 @@
 // Un solo entorno por modo: el mismo en build, start (webServer) y Lighthouse (plan F3d). Valores de prueba.
 export const PUERTOS = { 'no-indexable': 3101, indexable: 3102 }
 export const SECRETO_PROXY = 'secreto-e2e'
+export const PUERTO_CATALOGO = 3103
 
 export function envModo(modo) {
   return {
@@ -11,5 +12,6 @@ export function envModo(modo) {
     IP_HASH_SALT: 'sal-e2e',
     CRON_SECRET: 'cron-e2e',
     SITIO_URL: 'https://www.salysoltours.com',
+    CATALOGO_API_URL: `http://localhost:${PUERTO_CATALOGO}`,
   }
 }

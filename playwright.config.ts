@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test'
 
-import { envModo, PUERTOS } from './scripts/entorno-e2e.mjs'
+import { envModo, PUERTO_CATALOGO, PUERTOS } from './scripts/entorno-e2e.mjs'
 
 const modo = (process.env.E2E_MODO ?? 'indexable') as 'no-indexable' | 'indexable'
 const puerto = PUERTOS[modo]
@@ -14,11 +14,18 @@ export default defineConfig({
   outputDir: `test-results/${modo}`,
   use: { baseURL: `http://localhost:${puerto}` },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
-  webServer: {
-    command: `npm run start -- -p ${puerto}`,
-    url: `http://localhost:${puerto}/es/guia`,
-    env: envModo(modo),
-    timeout: 120_000,
-    reuseExistingServer: false,
-  },
+  webServer: [
+    {
+      command: 'node scripts/catalogo-falso.mjs',
+      url: `http://localhost:${PUERTO_CATALOGO}/api/sedes/la-paz/servicios/`,
+      reuseExistingServer: false,
+    },
+    {
+      command: `npm run start -- -p ${puerto}`,
+      url: `http://localhost:${puerto}/es/guia`,
+      env: envModo(modo),
+      timeout: 120_000,
+      reuseExistingServer: false,
+    },
+  ],
 })
