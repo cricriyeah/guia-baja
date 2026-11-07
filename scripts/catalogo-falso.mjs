@@ -10,6 +10,11 @@ const SERVICIOS = [
     estrategia_precio: 'por_grupo', precio_base: '11290.00', tipo_cambio_usd: '17.5000', activo: true, duracion: '6 h', duracion_en: '6 hrs',
   },
   {
+    // Servicio por persona activo: precio de la barra de tours (spec de presencia §2.2).
+    id: 3, empresa_slug: 'empresa-prueba', nombre: 'Ballenas de prueba', nombre_en: 'Test whales', slug: 'ballenas-prueba',
+    estrategia_precio: 'por_persona', precio_base: '1500.00', tipo_cambio_usd: '17.5000', activo: true, duracion: '4 h', duracion_en: '4 hrs',
+  },
+  {
     id: 2, empresa_slug: 'empresa-prueba', nombre: 'Tour apagado', nombre_en: 'Inactive tour', slug: 'tour-apagado',
     estrategia_precio: 'por_persona', precio_base: '100.00', tipo_cambio_usd: '17.5000', activo: false, duracion: '', duracion_en: '',
   },

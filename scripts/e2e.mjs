@@ -1,5 +1,5 @@
 // Orquestador de las E2E (plan F3d): para cada modo, datos frescos, .next limpio, build con su entorno y Playwright.
-import { spawnSync } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
 import { rmSync, writeFileSync } from 'node:fs'
 
 import { envModo } from './entorno-e2e.mjs'
@@ -21,7 +21,12 @@ for (const modo of MODOS) {
   if (correr('npx', ['payload', 'run', 'tests/e2e/preparar.ts'], { ...env, NODE_OPTIONS: '--no-deprecation' }) !== 0) process.exit(1)
   // unstable_cache guarda datos en .next/cache: un build anterior los reutilizaría.
   rmSync('.next', { recursive: true, force: true })
-  if (correr('npm', ['run', 'build'], env) !== 0) process.exit(1)
+  // El build prerenderiza la portada con sus tours (spec de presencia §2.2): como en producción, el catálogo responde.
+  // Se apaga antes de Playwright, que levanta el suyo en el mismo puerto.
+  const catalogo = spawn('node', ['scripts/catalogo-falso.mjs'], { stdio: 'ignore' })
+  const construido = correr('npm', ['run', 'build'], env)
+  catalogo.kill()
+  if (construido !== 0) process.exit(1)
   writeFileSync('.next/.e2e-modo', modo)
   if (correr('npx', ['playwright', 'test'], { E2E_MODO: modo }) !== 0) fallo = true
 }
