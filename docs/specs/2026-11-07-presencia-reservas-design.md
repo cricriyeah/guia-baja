@@ -94,7 +94,9 @@ resultado ya filtrado.
 - Va en todas las páginas de la Guía **excepto**: la ficha de lugar (tiene su barra, 2.1), «Aparece en la
   Guía» (formulario) y el aviso de privacidad.
 - **Zona de la barra** (regla única, la misma para la tarjeta de 2.3 y para los bloques de 2.4):
-  1. En el listado de eventos y en la búsqueda, si la URL trae `?zona={slug}` de una zona activa, esa zona.
+  1. En las variantes filtradas (las que el proxy reescribe al segmento interno `--filtros`: listado de
+     eventos y categoría en todas las zonas) y en la búsqueda, si la URL trae `?zona={slug}` de una zona
+     activa, esa zona.
   2. Si no, la zona que da `contextoDe` para esa ruta.
   3. Si es `null` (portada, listado de eventos sin filtro, categoría en todas las zonas, búsqueda sin filtro,
      404), la **zona principal**: la primera zona activa con `sedeSlug` según el orden de
@@ -125,9 +127,11 @@ resultado ya filtrado.
   `@idioma`: `page.tsx`, `[...resto]/page.tsx` con `generateStaticParams = () => []`, y `default.tsx`. El
   layout lo pone fuera de la cabecera.
 - **Contexto que necesita el slot.** `contextoDe` hoy devuelve `{ alterno, zona }`. Se extiende con el tipo de
-  página (`ficha`, `formulario`, `privacidad`, `eventos`, `busqueda` u `otra`) y, en una ficha, los
-  `toursRelacionados` del lugar. El slot lee `?zona=` solo en eventos y búsqueda, que ya son dinámicas; el
-  resto de las páginas sigue siendo ISR.
+  página (`ficha`, `formulario`, `privacidad`, `filtrada`, `busqueda` u `otra`) y, en una ficha, los
+  `toursRelacionados` del lugar. `filtrada` es solo una ruta cuyo segmento interno es `--filtros` (eventos o
+  categoría en todas las zonas), que ya son `force-dynamic`; el listado de eventos sin filtro y sus páginas
+  `--pagina/{n}` son `otra`. El slot lee `searchParams` **solo** cuando el tipo es `filtrada` o `busqueda`;
+  nunca en otra ruta, para que el listado de eventos, su paginación y el resto de las páginas sigan siendo ISR.
 
 ### 2.3 Tarjeta de tours que aparece después (solo escritorio)
 
@@ -236,12 +240,19 @@ spec principal §13); el detalle viaja en `pieza`, con prefijos que no chocan en
 - **E2E** con el catálogo falso (`scripts/catalogo-falso.mjs`, que suma un servicio `por_persona` activo):
   - ficha con relacionado: sección, frase en el HTML, lateral sin repetir y «Reservar tour» en la barra de
     móvil; ficha sin relacionados: sin «Reservar tour»;
-  - barra en móvil en zona y en portada (zona principal), con `?zona=` en eventos, ausente en ficha,
-    formulario y privacidad, y ausente en escritorio;
+  - barra en móvil en zona y en portada (zona principal), con `?zona=` en eventos y en categoría en todas
+    las zonas (muestra la zona del filtro), ausente en ficha, formulario y privacidad, y ausente en
+    escritorio;
   - fila extra en móvil: aparece al bajar a la mitad y la barra no pasa del 20 % de la pantalla;
   - tarjeta en escritorio: no sale antes de 5 s, sale al bajar a la mitad, no sale con el visor abierto, se
     cierra con Esc, y no vuelve en la siguiente página de la misma sesión;
   - tours en evento y en búsqueda;
   - con el catálogo falso apagado, las páginas cargan sin tours y la barra sin precio;
-  - las páginas siguen siendo ISR (`x-nextjs-cache: HIT`), como en `tests/e2e/tours.spec.ts`.
+  - las páginas siguen siendo ISR (`x-nextjs-cache: HIT`), como en `tests/e2e/tours.spec.ts`: la zona, y
+    además `/es/guia/eventos` y una página `--pagina/2` de eventos.
 - **Lighthouse:** el criterio de «no empeorar» de la sección 5.
+
+---
+Status: APPROVED
+Critic verdict: Rule 1 and the `filtrada` type now match the proxy (`?zona=` on events and on category in all zones is rewritten to `--filtros`, which is `force-dynamic`), while plain events and `--pagina/{n}` remain ISR and the slot never reads `searchParams` there; the new E2E checks guard both, and no new contradiction or untested assumption was found.
+Note for the plan: the ISR check on events `--pagina/2` needs enough upcoming events in the E2E data to fill a second page; otherwise that URL is a 404.
