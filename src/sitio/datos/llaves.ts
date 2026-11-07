@@ -17,4 +17,6 @@ export const LLAVES = {
   fichaEvento: (id: number, lang: Locale): Llave => ({ llave: ['fichaEvento', String(id), lang], etiquetas: [etiqueta.categorias, etiqueta.evento(id), etiqueta.media, etiqueta.zonas] }),
   fichaArticulo: (id: number, lang: Locale): Llave => ({ llave: ['fichaArticulo', String(id), lang], etiquetas: [etiqueta.articulo(id), etiqueta.categorias, etiqueta.media, etiqueta.zonas] }),
   texto: (zonaId: number, categoriaId: number, lang: Locale): Llave => ({ llave: ['texto', String(zonaId), String(categoriaId), lang], etiquetas: [etiqueta.textos(zonaId, categoriaId)] }),
+  catalogo: (sedeSlug: string): Llave => ({ llave: ['catalogo', sedeSlug], etiquetas: [etiqueta.catalogo(sedeSlug)] }),
+  fotosTours: (sedeSlug: string, lang: Locale): Llave => ({ llave: ['fotosTours', sedeSlug, lang], etiquetas: [etiqueta.media, etiqueta.toursFotos] }),
 }

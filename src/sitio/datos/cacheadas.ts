@@ -1,8 +1,11 @@
 import { unstable_cache } from 'next/cache'
 import type { Payload } from 'payload'
 
+import { toursDe, type Tour } from '../../dominio/catalogo'
+import type { Locale } from '../../dominio/idioma'
 import { ajustesPublicos } from './lecturas/ajustes'
 import { articulosPublicados, fichaArticulo } from './lecturas/articulos'
+import { catalogoDeSede, fotosDeTours, type FotoTour } from './lecturas/catalogo'
 import { categorias } from './lecturas/categorias'
 import { eventosPublicados, fichaEvento } from './lecturas/eventos'
 import { fichaLugar, lugaresPublicados } from './lecturas/lugares'
@@ -40,3 +43,20 @@ export const fichaLugarCacheada = cachear(fichaLugar, LLAVES.fichaLugar)
 export const fichaEventoCacheada = cachear(fichaEvento, LLAVES.fichaEvento)
 export const fichaArticuloCacheada = cachear(fichaArticulo, LLAVES.fichaArticulo)
 export const textoCacheado = cachear(textoZonaCategoria, LLAVES.texto)
+const catalogoCacheado = cachear(catalogoDeSede, LLAVES.catalogo)
+const fotosToursCacheadas = cachear(fotosDeTours, LLAVES.fotosTours)
+
+export type TourConFoto = Tour & Pick<FotoTour, 'foto' | 'temporada'>
+
+// Spec §8.1: si el catálogo falla, tarda o no pasa el esquema, no hay bloque y la página carga normal. El fallo se
+// lanza dentro de la caché (no se guarda) y se atrapa aquí, fuera de ella. El log no lleva datos de personas.
+export async function toursDeSede(sedeSlug: string, lang: Locale): Promise<TourConFoto[]> {
+  try {
+    const [items, fotos] = await Promise.all([catalogoCacheado(sedeSlug), fotosToursCacheadas(sedeSlug, lang)])
+    const porClave = new Map(fotos.map((f) => [f.clave, f]))
+    return toursDe(items, lang).map((t) => ({ ...t, foto: porClave.get(t.clave)?.foto ?? null, temporada: porClave.get(t.clave)?.temporada ?? null }))
+  } catch (e) {
+    console.error(`Tours de ${sedeSlug}: no se muestran.`, e instanceof Error ? e.message : 'error desconocido')
+    return []
+  }
+}

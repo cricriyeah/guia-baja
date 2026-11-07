@@ -106,7 +106,7 @@ export default async function PaginaArticulo({ params }: Props) {
             <div>{indice.map((h) => <a key={h.id} href={`#${h.id}`}>{h.texto}</a>)}</div>
           </nav>
         )}
-        <CuerpoRico lang={lang} cuerpo={a.cuerpo} resolutor={resolutorDeCuerpo({ lugares, eventos, articulos: d.lista }, lang)} media={a.media} categorias={cats} className="prosa" />
+        <CuerpoRico lang={lang} cuerpo={a.cuerpo} resolutor={resolutorDeCuerpo({ lugares, eventos, articulos: d.lista }, lang)} media={a.media} categorias={cats} className="prosa" piezaTours={`articulo-${a.slug}`} />
       </div>
 
       {mas.length > 0 && (

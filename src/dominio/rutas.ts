@@ -35,6 +35,16 @@ export const rutas = {
   og: (l: Locale, tipo: TipoOg, segmentos: string[] = []) => ['/guia-assets/og', l, tipo, ...segmentos].join('/'),
 }
 
+// Rutas del sitio de reservas (spec §8.1). Sin origen: lo pone quien las pinta con SITIO_URL.
+export const rutasReservas = {
+  sede: (l: Locale, sede: string) => `/${l}/sede/${sede}`,
+  servicio: (l: Locale, empresa: string, servicio: string) => `/${l}/servicio/${empresa}/${servicio}`,
+  paquete: (l: Locale, sede: string, paquete: string) => `/${l}/sede/${sede}/paquete/${paquete}`,
+}
+
+// Parámetros de atribución de los links a tours (spec §13).
+export const atribucion = (pieza: string): string => `desde=guia&pieza=${encodeURIComponent(pieza)}`
+
 // Paginación y filtros (spec §7). La página 1 no lleva parámetro.
 export const conConsulta = (ruta: string, consulta: string): string => (consulta ? `${ruta}?${consulta}` : ruta)
 

@@ -33,6 +33,7 @@ import { Riel } from '../../../../../../sitio/ui/Riel'
 import { MiniEvento } from '../../../../../../sitio/ui/tarjetas/MiniEvento'
 import { TarjetaArticulo } from '../../../../../../sitio/ui/tarjetas/TarjetaArticulo'
 import { TarjetaLugar } from '../../../../../../sitio/ui/tarjetas/TarjetaLugar'
+import { ToursEnZona } from '../../../../../../sitio/ui/ToursEnZona'
 
 // ISR y no dinámica (ver guia/[zona]/page.tsx y guia/[...resto]/page.tsx): sin generateStaticParams un segmento dinámico
 // queda ƒ, y en render dinámico notFound() deja el cascarón vacío `__next_error__`. Con la lista vacía, cada ficha se
@@ -205,6 +206,7 @@ export default async function FichaDeLugar({ params }: Props) {
               </div>
             )}
           </div>
+          {zona && <ToursEnZona lang={lang} zona={zona} pieza={`lugar-${l.slug}`} origen="lugar" formato="fila" limite={3} />}
         </aside>
       </div>
 

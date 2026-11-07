@@ -24,6 +24,7 @@ import { Paginacion } from '../ui/Paginacion'
 import { Pildoras } from '../ui/Pildoras'
 import { TarjetaArticulo } from '../ui/tarjetas/TarjetaArticulo'
 import { TarjetaLugar } from '../ui/tarjetas/TarjetaLugar'
+import { ToursEnZona } from '../ui/ToursEnZona'
 import { TransicionFiltros } from '../ui/TransicionFiltros'
 import { desviar, hrefAlternando, recortarListado, versionesListado, type Variante } from './comun'
 
@@ -162,6 +163,8 @@ export async function CategoriaEnZona({ lang, zonaSlug, categoriaSlug, variante 
         )}
         <Paginacion lang={lang} ruta={ruta} pagina={pag.pagina} totalPaginas={pag.totalPaginas} consulta={variante.filtros ? consultaDeFiltros(variante.filtros) : ''} />
       </TransicionFiltros>
+
+      <ToursEnZona lang={lang} zona={zona} pieza={`categoria-${cat.slug}`} origen="categoria" formato="riel" claseRiel="tours" />
 
       {lecturas.length > 0 && (
         <section className="seccion" aria-labelledby="t-leer">

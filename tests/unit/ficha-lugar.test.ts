@@ -11,6 +11,9 @@ vi.mock('next/link', () => ({
 }))
 vi.mock('next/navigation', () => ({ notFound: () => { throw new Error('404') }, permanentRedirect: () => { throw new Error('308') } }))
 
+// renderToStaticMarkup no pinta componentes async; los tours se prueban en tests/e2e/tours.spec.ts.
+vi.mock('../../src/sitio/ui/ToursEnZona', () => ({ ToursEnZona: () => null, BloqueTours: () => null }))
+
 const sinPatrocinio = { activo: false, desde: null, hasta: null }
 const base: FichaLugar = {
   id: 1, slug: 'cafe-duna', nombre: 'Café Duna', resumen: 'Café de prueba', zonaId: 1, zonaSlug: 'la-paz', categoriaIds: [1],

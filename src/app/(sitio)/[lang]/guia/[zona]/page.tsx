@@ -34,6 +34,7 @@ import { PuestaDelSol } from '../../../../../sitio/ui/PuestaDelSol'
 import { Riel } from '../../../../../sitio/ui/Riel'
 import { TarjetaEvento } from '../../../../../sitio/ui/tarjetas/TarjetaEvento'
 import { TarjetaLugar } from '../../../../../sitio/ui/tarjetas/TarjetaLugar'
+import { ToursEnZona } from '../../../../../sitio/ui/ToursEnZona'
 
 // ISR y no dinámica (como guia/[...resto]): en Next 16.4.3 un notFound() en render dinámico deja el HTML en el cascarón
 // vacío `__next_error__`. Sin generateStaticParams, un segmento dinámico queda ƒ; con una lista vacía, las zonas se
@@ -161,6 +162,7 @@ function Zona({ lang, zona, cats, lugares, eventos, articulos }: Datos & { lang:
         ))}
       </section>
 
+      <ToursEnZona lang={lang} zona={zona} pieza={`zona-${zona.slug}`} origen="zona" formato="riel" />
       <BandaTours lang={lang} zona={zona} />
       <Aparece lang={lang} />
       <JsonLd datos={migasLd(migas, sitioUrl())} />

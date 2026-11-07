@@ -11,6 +11,7 @@ import { textos } from '../textos'
 import { Patrocinado } from './Etiquetas'
 import { Imagen } from './Imagen'
 import { MiniEvento } from './tarjetas/MiniEvento'
+import { BloqueTours } from './ToursEnZona'
 
 type Props = {
   lang: Locale
@@ -21,6 +22,8 @@ type Props = {
   className?: string
   // Con patrocinio declarado del lugar o evento dueño del cuerpo, sus links externos llevan rel="sponsored" (spec §6/§7).
   patrocinado?: boolean
+  // Atribución de los links del bloque de tours (spec §13). Sin ella, el bloque no se pinta.
+  piezaTours?: string
 }
 
 const ESQUEMAS_SEGUROS = /^(https?|mailto|tel):/i
@@ -37,7 +40,7 @@ type Args = JSXConverterArgs<any>
 
 // Único que pinta cuerpos Lexical (lugar, evento y artículo; plan F3b, «Cuerpos Lexical»). Los ids del cuerpo se
 // resuelven contra las listas del idioma: lo que no existe para el público no se pinta (un link queda como texto).
-export function CuerpoRico({ lang, cuerpo, resolutor, media, categorias, className = 'texto', patrocinado = false }: Props) {
+export function CuerpoRico({ lang, cuerpo, resolutor, media, categorias, className = 'texto', patrocinado = false, piezaTours }: Props) {
   if (!cuerpo || typeof cuerpo !== 'object') return null
   const ids = encabezadosDe(cuerpo).map((e) => e.id)
   let h2 = 0
@@ -100,8 +103,11 @@ export function CuerpoRico({ lang, cuerpo, resolutor, media, categorias, classNa
         if (!e) return null
         return <MiniEvento lang={lang} evento={e} categoria={categoria(e.categoriaIds)} lugarNombre={e.lugarId ? resolutor.lugar(e.lugarId)?.nombre : null} clase="b-evento tarjeta" />
       },
-      // «Tours en esta zona» llega en F4.
-      toursZona: () => null,
+      // Solo el artículo pasa piezaTours: el evento no lleva tours (`tour_clic` no tiene ese origen).
+      toursZona: ({ node }: Args) => {
+        const zonaId = idDe(node.fields.zona)
+        return piezaTours && typeof zonaId === 'number' ? <BloqueTours lang={lang} zonaId={zonaId} pieza={piezaTours} /> : null
+      },
       preguntasFrecuentes: ({ node }: Args) => {
         const preguntas = (node.fields.preguntas as { pregunta: string; respuesta: string }[] | undefined) ?? []
         if (!preguntas.length) return null

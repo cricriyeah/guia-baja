@@ -147,6 +147,15 @@ const ES = {
       error: 'No pudimos enviar tu solicitud. Inténtalo de nuevo en unos minutos.',
     },
   },
+  tours: {
+    titulo: (z: string) => `Tours en ${z}`,
+    desde: 'desde',
+    verTodos: 'Ver todos',
+    verTodosLosTours: 'Ver todos los tours →',
+    reservar: 'Reservar →',
+    noches: (n: number) => `${n} ${n === 1 ? 'noche' : 'noches'}`,
+    por: { por_grupo: 'por grupo', por_persona: 'por persona', tarifa_fija: '', por_noche: 'por noche', por_ruta: 'por viaje' },
+  },
   banda: {
     titulo: 'Sal al mar con Sun Baja',
     texto: 'Pesca, ballenas y la Isla Espíritu Santo. Reserva en línea en pesos o en dólares.',
@@ -387,6 +396,15 @@ const EN: Textos = {
       limite: 'We received several requests from here. Please try again in an hour.',
       error: 'We could not send your request. Please try again in a few minutes.',
     },
+  },
+  tours: {
+    titulo: (z: string) => `Tours in ${z}`,
+    desde: 'from',
+    verTodos: 'See all',
+    verTodosLosTours: 'See all tours →',
+    reservar: 'Book →',
+    noches: (n: number) => `${n} ${n === 1 ? 'night' : 'nights'}`,
+    por: { por_grupo: 'per group', por_persona: 'per person', tarifa_fija: '', por_noche: 'per night', por_ruta: 'per trip' },
   },
   banda: {
     titulo: 'Head out to sea with Sun Baja',
