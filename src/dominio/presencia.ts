@@ -1,3 +1,5 @@
+import { SEGMENTOS } from './rutas'
+import { SEGMENTO_FILTROS } from './rutas-publicas'
 import { esSlugValido } from './slugs'
 
 // Reglas puras de la presencia de reservas en la Guía (docs/specs/2026-11-07-presencia-reservas-design.md).
@@ -29,6 +31,21 @@ export function relacionadosVisibles<T extends { clave: string }>(tours: T[], cl
 }
 
 export type TipoPagina = 'ficha' | 'formulario' | 'privacidad' | 'filtrada' | 'busqueda' | 'otra'
+
+// Tipo de página a partir del árbol en español tras «guia» (lo que recibe el slot). `filtrada` es solo la variante
+// `--filtros` (force-dynamic) de eventos y de categoría en todas las zonas: el listado de eventos sin filtro y su
+// paginación son `otra` y siguen siendo ISR.
+export function tipoDePagina(segmentos: readonly string[]): TipoPagina {
+  const [a, b, c] = segmentos
+  const interno = (s: string | undefined) => s === undefined || s.startsWith('--')
+  if (a === SEGMENTOS.es.lugares && !interno(b)) return 'ficha'
+  if (a === SEGMENTOS.es.negocios) return 'formulario'
+  if (a === SEGMENTOS.es.privacidad) return 'privacidad'
+  if (a === SEGMENTOS.es.buscar) return 'busqueda'
+  if (a === SEGMENTOS.es.eventos && b === SEGMENTO_FILTROS) return 'filtrada'
+  if (a === SEGMENTOS.es.categoria && !interno(b) && c === SEGMENTO_FILTROS) return 'filtrada'
+  return 'otra'
+}
 
 type ZonaMinima = { slug: string; sedeSlug: string | null }
 

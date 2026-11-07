@@ -20,6 +20,8 @@ import { textos } from '../../../../../sitio/textos'
 import { EsqueletoBusqueda } from '../../../../../sitio/ui/esqueletos/Busqueda'
 import { Paginacion } from '../../../../../sitio/ui/Paginacion'
 import { TransicionFiltros } from '../../../../../sitio/ui/TransicionFiltros'
+import { ToursEnZona } from '../../../../../sitio/ui/ToursEnZona'
+import { zonaDeTours } from '../../../../../dominio/presencia'
 
 // Spec §7: dinámica, noindex, fuera del sitemap. El término se muestra siempre como texto (React lo escapa).
 // Nunca llama notFound() por una página fuera de rango: en render dinámico Next 16.4.3 deja el cascarón vacío
@@ -74,6 +76,7 @@ export default async function Buscar({ params, searchParams }: Props) {
   const zonas = await zonasActivasCacheadas(lang)
   // Una zona que no existe se ignora, también en los links de los chips.
   const zona = consulta.zona ? porSlug(zonas, consulta.zona) : undefined
+  const zonaTours = zonaDeTours({ tipo: 'busqueda', filtroZona: consulta.zona ?? null, zonaContexto: null, zonas })
   const ahora = new Date()
   // Las coincidencias van sin unstable_cache: el término lo escribe el visitante y no debe volverse llave de la
   // Data Cache (como las sugerencias). Las listas de visibilidad sí van cacheadas.
@@ -175,6 +178,8 @@ export default async function Buscar({ params, searchParams }: Props) {
           {pagina && <Paginacion lang={lang} ruta={ruta} pagina={pagina.pagina} totalPaginas={pagina.totalPaginas} consulta={consultaCon({})} />}
         </TransicionFiltros>
       ) : null}
+      {/* Spec de presencia §2.4: con o sin resultados, la zona del filtro o la principal. */}
+      {zonaTours && <ToursEnZona lang={lang} zona={zonaTours} pieza="busqueda" origen="busqueda" formato="fila" limite={3} />}
     </div>
   )
 }

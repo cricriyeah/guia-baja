@@ -71,6 +71,19 @@
 .tour-fila .titular { font-size: .9375rem; }
 .tour-fila--texto { grid-template-columns: 1fr; }
 .tours-zona > a:last-child { justify-self: start; font-weight: 600; color: var(--cafe); }
+/* Tours para conocer el lugar (spec de presencia §2.1): el primero grande, los demás en fila. */
+.relacionados { display: grid; gap: 14px; }
+.relacionado__tarjeta { display: grid; grid-template-columns: 96px 1fr; gap: 12px; align-items: center; padding: 8px; border-radius: var(--radio-card); background: var(--blanco); box-shadow: 0 0 0 1px var(--borde); }
+.relacionado__tarjeta .media { aspect-ratio: 1; border-radius: var(--radio-sm); overflow: hidden; }
+.relacionado__tarjeta:not(:has(.media)) { grid-template-columns: 1fr; }
+.relacionado__cuerpo { display: grid; gap: 4px; }
+.relacionado__accion { font-weight: 600; color: var(--cafe); }
+.relacionado__frase { margin-top: 6px; color: var(--apagado); font-size: .9375rem; }
+.relacionado--grande .relacionado__tarjeta { grid-template-columns: 1fr; padding: 0; overflow: hidden; }
+.relacionado--grande .relacionado__tarjeta .media { aspect-ratio: 16 / 9; border-radius: 0; }
+.relacionado--grande .relacionado__cuerpo { padding: 4px 16px 16px; }
+.relacionado--grande .titular { font-size: 1.125rem; }
+
 /* Barra fija inferior en celular */
 .barra-inferior { position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; display: none; gap: 8px; padding: 10px var(--margen) calc(10px + env(safe-area-inset-bottom));
   background: rgb(255 255 255 / .86); -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%); box-shadow: 0 -1px 0 var(--borde);

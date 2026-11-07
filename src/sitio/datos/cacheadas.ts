@@ -1,7 +1,7 @@
 import { unstable_cache } from 'next/cache'
 import type { Payload } from 'payload'
 
-import { toursDe, type Tour } from '../../dominio/catalogo'
+import { precioPorPersonaDesde, toursDe, type Tour } from '../../dominio/catalogo'
 import type { Locale } from '../../dominio/idioma'
 import { ajustesPublicos } from './lecturas/ajustes'
 import { articulosPublicados, fichaArticulo } from './lecturas/articulos'
@@ -48,6 +48,15 @@ export const catalogoCacheado = cachear(catalogoDeSede, LLAVES.catalogo)
 const fotosToursCacheadas = cachear(fotosDeTours, LLAVES.fotosTours)
 
 export type TourConFoto = Tour & Pick<FotoTour, 'foto' | 'temporada'>
+
+// Precio de la barra de tours (spec de presencia §2.2). Catálogo caído: sin precio, la barra sigue.
+export async function precioBarraDeSede(sedeSlug: string, lang: Locale): Promise<string | null> {
+  try {
+    return precioPorPersonaDesde(await catalogoCacheado(sedeSlug), lang)
+  } catch {
+    return null
+  }
+}
 
 // Spec §8.1: si el catálogo falla, tarda o no pasa el esquema, no hay bloque y la página carga normal. El fallo se
 // lanza dentro de la caché (no se guarda) y se atrapa aquí, fuera de ella. El log no lleva datos de personas.

@@ -8,9 +8,10 @@ import { horarioSemana } from '../../../../../../dominio/horario'
 import { esLocale, type Locale } from '../../../../../../dominio/idioma'
 import { ordenarListado } from '../../../../../../dominio/orden'
 import { patrocinioDeclarado } from '../../../../../../dominio/patrocinio'
-import { rutas } from '../../../../../../dominio/rutas'
+import { relacionadosVisibles } from '../../../../../../dominio/presencia'
+import { atribucion, rutas } from '../../../../../../dominio/rutas'
 import {
-  articulosCacheados, categoriasCacheadas, eventosCacheados, fichaLugarCacheada, lugaresCacheados, zonasActivasCacheadas,
+  articulosCacheados, categoriasCacheadas, eventosCacheados, fichaLugarCacheada, lugaresCacheados, toursDeSede, zonasActivasCacheadas,
 } from '../../../../../../sitio/datos/cacheadas'
 import { articulosQueCitan, documentoPorSlug, eventosProximos, lugaresDe, porId, resolutorDeCuerpo } from '../../../../../../sitio/datos/consultas'
 import { guiaIndexable, sitioUrl } from '../../../../../../sitio/entorno'
@@ -34,6 +35,7 @@ import { MiniEvento } from '../../../../../../sitio/ui/tarjetas/MiniEvento'
 import { TarjetaArticulo } from '../../../../../../sitio/ui/tarjetas/TarjetaArticulo'
 import { TarjetaLugar } from '../../../../../../sitio/ui/tarjetas/TarjetaLugar'
 import { ToursEnZona } from '../../../../../../sitio/ui/ToursEnZona'
+import { ToursRelacionados } from '../../../../../../sitio/ui/ToursRelacionados'
 
 // ISR y no dinámica (ver guia/[zona]/page.tsx y guia/[...resto]/page.tsx): sin generateStaticParams un segmento dinámico
 // queda ƒ, y en render dinámico notFound() deja el cascarón vacío `__next_error__`. Con la lista vacía, cada ficha se
@@ -81,6 +83,11 @@ export default async function FichaDeLugar({ params }: Props) {
     zonasActivasCacheadas(lang), categoriasCacheadas(lang), eventosCacheados(lang), articulosCacheados(lang),
   ])
   const zona = porId(zonas, l.zonaId)
+  // Spec de presencia §2.1: solo se lee el catálogo si el lugar marcó tours. ToursEnZona lee la misma entrada de caché.
+  const relacionados = zona?.sedeSlug && l.toursRelacionados.length
+    ? relacionadosVisibles(await toursDeSede(zona.sedeSlug, lang), l.toursRelacionados)
+    : []
+  const reservarTour = relacionados[0]
   const cat = porId(cats, l.categoriaIds[0])
   const t = textos(lang)
   const ahora = new Date().toISOString()
@@ -133,6 +140,7 @@ export default async function FichaDeLugar({ params }: Props) {
 
       <div className="cuerpo">
         <article>
+          <ToursRelacionados lang={lang} lugar={l} tours={relacionados} />
           <section className="bloque" aria-labelledby="t-saber">
             <h2 id="t-saber" className="t-seccion">{t.ficha.loQueHayQueSaber}</h2>
             <CuerpoRico lang={lang} cuerpo={l.cuerpo} resolutor={resolutorDeCuerpo({ lugares, eventos, articulos }, lang)} media={l.media} categorias={cats} patrocinado={declarado} />
@@ -206,7 +214,9 @@ export default async function FichaDeLugar({ params }: Props) {
               </div>
             )}
           </div>
-          {zona && <ToursEnZona lang={lang} zona={zona} pieza={`lugar-${l.slug}`} origen="lugar" formato="fila" limite={3} />}
+          {zona && (
+            <ToursEnZona lang={lang} zona={zona} pieza={`lugar-${l.slug}`} origen="lugar" formato="fila" limite={3} excluir={relacionados.map((x) => x.clave)} />
+          )}
         </aside>
       </div>
 
@@ -221,9 +231,17 @@ export default async function FichaDeLugar({ params }: Props) {
       )}
 
       <Aparece lang={lang} />
-      {l.coordenadas && (
+      {(l.coordenadas || reservarTour) && (
         <div className="barra-inferior">
-          <a className="boton presionable" href={mapsDir(l.coordenadas)} target="_blank" rel={rel('noopener')} {...contacto('mapa')}>{t.ficha.comoLlegar}</a>
+          {l.coordenadas && (
+            <a className={`boton presionable${reservarTour ? ' boton--secundario' : ''}`} href={mapsDir(l.coordenadas)} target="_blank" rel={rel('noopener')} {...contacto('mapa')}>{t.ficha.comoLlegar}</a>
+          )}
+          {/* Spec de presencia §2.1: solo con un tour relacionado visible; nunca un respaldo a la sede. */}
+          {reservarTour && (
+            <a className="boton presionable" href={`${sitioUrl()}${reservarTour.ruta}?${atribucion(`barra-lugar-${l.slug}`)}`} data-evento="tour_clic" data-zona={l.zonaSlug} data-origen="barra-ficha">
+              {t.tours.reservarTour}
+            </a>
+          )}
         </div>
       )}
       <JsonLd datos={migasLd(migas, sitioUrl())} />

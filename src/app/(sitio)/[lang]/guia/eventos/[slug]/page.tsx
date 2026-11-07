@@ -27,6 +27,7 @@ import { JsonLd } from '../../../../../../sitio/ui/JsonLd'
 import { Mapa } from '../../../../../../sitio/ui/Mapa'
 import { Migas } from '../../../../../../sitio/ui/Migas'
 import { NoEncontradoEnSuspense } from '../../../../../../sitio/ui/NoEncontradoEnSuspense'
+import { ToursEnZona } from '../../../../../../sitio/ui/ToursEnZona'
 
 // ISR y no dinámica (ver lugares/[slug]/page.tsx): sin generateStaticParams un segmento dinámico queda ƒ.
 export const revalidate = 3600
@@ -154,6 +155,8 @@ export default async function PaginaEvento({ params }: Props) {
             )}
             {lugar?.coordenadas && <Mapa lang={lang} titulo={t.ficha.mapa(lugar.nombre)} puntos={puntos} />}
           </section>
+          {/* Spec de presencia §2.4: también en un evento que ya pasó. Sin sede o sin tours no pinta nada. */}
+          {zona && <ToursEnZona lang={lang} zona={zona} pieza={`evento-${e.slug}`} origen="evento" formato="fila" limite={3} />}
         </article>
         {tambien.length > 0 && (
           <aside className="lateral" aria-labelledby="t-mas-ev">

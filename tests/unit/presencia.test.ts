@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { precioPorPersonaDesde, validarPaquetes, validarServicios } from '../../src/dominio/catalogo'
-import { relacionadosVisibles, validarToursRelacionados, zonaDeTours } from '../../src/dominio/presencia'
+import { relacionadosVisibles, tipoDePagina, validarToursRelacionados, zonaDeTours } from '../../src/dominio/presencia'
 
 const servicio = (extra: Record<string, unknown> = {}) => ({
   empresa_slug: 'sal-y-sol', nombre: 'Pesca', nombre_en: 'Fishing', slug: 'pesca', estrategia_precio: 'por_persona',
@@ -58,6 +58,25 @@ describe('precioPorPersonaDesde', () => {
     const items = validarServicios([servicio({ slug: 'a', precio_base: '1000.00', nombre_en: null }), servicio({ slug: 'b', precio_base: '1750.00' })])
     expect(precioPorPersonaDesde(items, 'es')).toBe('$1,000')
     expect(precioPorPersonaDesde(items, 'en')).toBe('$100')
+  })
+})
+
+describe('tipoDePagina (árbol en español tras «guia»)', () => {
+  it('ficha, formulario, privacidad y búsqueda', () => {
+    expect(tipoDePagina(['lugares', 'cafe-duna'])).toBe('ficha')
+    expect(tipoDePagina(['aparece-en-la-guia'])).toBe('formulario')
+    expect(tipoDePagina(['privacidad'])).toBe('privacidad')
+    expect(tipoDePagina(['buscar'])).toBe('busqueda')
+  })
+  it('filtrada solo en la variante --filtros de eventos y de categoría en todas las zonas', () => {
+    expect(tipoDePagina(['eventos', '--filtros'])).toBe('filtrada')
+    expect(tipoDePagina(['categoria', 'restaurantes', '--filtros'])).toBe('filtrada')
+    expect(tipoDePagina(['eventos'])).toBe('otra')
+    expect(tipoDePagina(['eventos', '--pagina', '2'])).toBe('otra')
+    expect(tipoDePagina(['la-paz', 'restaurantes', '--filtros'])).toBe('otra')
+  })
+  it('lo demás es otra, incluido el 404 interno', () => {
+    for (const s of [[], ['la-paz'], ['lugares', '--'], ['--'], ['articulos', 'x'], ['eventos', 'feria']]) expect(tipoDePagina(s)).toBe('otra')
   })
 })
 

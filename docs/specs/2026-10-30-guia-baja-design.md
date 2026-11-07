@@ -697,7 +697,9 @@ redacta o aprueba el dueño (entregable de F0); el código solo garantiza lo sig
   reservas, porque esa ruta no se reescribe a la Guía; la comprobación se hace en F5. Si la herramienta usa
   cookies, el aviso de privacidad lo declara y la Guía usa el mismo consentimiento que el sitio.
 - **Eventos** que manda la Guía:
-  - `tour_clic` (`zona`, `origen`: zona, lugar, artículo, categoría o cabecera).
+  - `tour_clic` (`zona`, `origen`: zona, lugar, artículo, categoría o cabecera; y desde
+    `docs/specs/2026-11-07-presencia-reservas-design.md`: relacionado, barra-ficha, barra, tarjeta, evento o
+    búsqueda).
   - `contacto_lugar` (`lugar`, `canal`: whatsapp, teléfono, web, instagram o mapa). Sirve para mostrarle
     valor a un negocio patrocinado.
   - `boletos_clic` (`evento`).

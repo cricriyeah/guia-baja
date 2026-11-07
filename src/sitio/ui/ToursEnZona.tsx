@@ -6,26 +6,20 @@ import type { ZonaPublica } from '../datos/tipos'
 import { sitioUrl } from '../entorno'
 import { textos } from '../textos'
 import { Imagen } from './Imagen'
+import { detalles, PrecioTour } from './PrecioTour'
 import { Riel } from './Riel'
 
-type Origen = 'zona' | 'lugar' | 'articulo' | 'categoria'
+// Orígenes de `tour_clic` (spec §13 y spec de presencia §3).
+export type Origen = 'zona' | 'lugar' | 'articulo' | 'categoria' | 'evento' | 'busqueda'
 type Comunes = { lang: Locale; zona: ZonaPublica; pieza: string; origen: Origen }
 
-function PrecioTour({ lang, tour, Tag = 'p', clase }: { lang: Locale; tour: TourConFoto; Tag?: 'p' | 'b'; clase?: string }) {
-  const t = textos(lang).tours
-  if (!tour.precio) return null
-  const resto = [tour.precio.moneda, t.por[tour.precio.estrategia]].filter(Boolean).join(' ')
-  return <Tag className={clase}>{t.desde} {tour.precio.monto} <small>{resto}</small></Tag>
-}
-
-const detalles = (lang: Locale, tour: TourConFoto): string =>
-  [tour.duracion, tour.noches ? textos(lang).tours.noches(tour.noches) : null, tour.temporada].filter(Boolean).join(' · ')
-
 // «Tours en esta zona» (spec §8.1). Tres formatos del diseño: riel (zona y categoría), fila (ficha) y bloque (artículo).
-// Sin sede o sin tours (catálogo caído incluido) no pinta nada.
-export async function ToursEnZona({ lang, zona, pieza, origen, formato, claseRiel, limite }: Comunes & { formato: 'riel' | 'fila' | 'bloque'; claseRiel?: string; limite?: number }) {
+// Sin sede o sin tours (catálogo caído incluido) no pinta nada. `excluir`: claves que ya salen en la página (relacionados).
+export async function ToursEnZona({ lang, zona, pieza, origen, formato, claseRiel, limite, excluir }: Comunes & {
+  formato: 'riel' | 'fila' | 'bloque'; claseRiel?: string; limite?: number; excluir?: readonly string[]
+}) {
   if (!zona.sedeSlug) return null
-  const tours = (await toursDeSede(zona.sedeSlug, lang)).slice(0, limite)
+  const tours = (await toursDeSede(zona.sedeSlug, lang)).filter((x) => !excluir?.includes(x.clave)).slice(0, limite)
   if (!tours.length) return null
   const sede = zona.sedeSlug
   const t = textos(lang).tours

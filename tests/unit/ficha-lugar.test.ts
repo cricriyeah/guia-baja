@@ -23,15 +23,25 @@ const base: FichaLugar = {
   web: 'https://ejemplo.test', instagram: '@cafeduna', notaHorario: null, metaTitulo: null, metaDescripcion: null, media: {},
 }
 let ficha = base
+const zonasBase: unknown[] = [{ id: 1, slug: 'la-paz', nombre: 'La Paz', descripcion: null, coordenadas: [-110.3, 24.1] }]
+let zonas = zonasBase
 
 vi.mock('../../src/sitio/datos/cacheadas', () => ({
   lugaresCacheados: async () => [ficha],
   fichaLugarCacheada: async () => ficha,
-  zonasActivasCacheadas: async () => [{ id: 1, slug: 'la-paz', nombre: 'La Paz', descripcion: null, coordenadas: [-110.3, 24.1] }],
+  zonasActivasCacheadas: async () => zonas,
   categoriasCacheadas: async () => [{ id: 1, slug: 'cafes', nombre: 'Cafés', claseGrupo: 'g-comer', tipoSchema: 'CafeOrCoffeeShop' }],
   eventosCacheados: async () => [],
   articulosCacheados: async () => [],
+  toursDeSede: async () => tours,
 }))
+
+const tourEspiritu = {
+  clave: 'servicio:espiritu-santo', tipo: 'servicio' as const, slug: 'espiritu-santo', nombre: 'Tour Espíritu Santo',
+  precio: { monto: '$11,290', moneda: 'MXN' as const, estrategia: 'por_grupo' as const }, duracion: '6 h', noches: null,
+  ruta: '/es/servicio/sal-y-sol/espiritu-santo', foto: null, temporada: null,
+}
+let tours: (typeof tourEspiritu)[] = []
 
 const { default: FichaDeLugar } = await import('../../src/app/(sitio)/[lang]/guia/lugares/[slug]/page')
 
@@ -67,6 +77,28 @@ describe('ficha de lugar', () => {
     const html = await pintar(base)
     expect(html).not.toContain('sponsored')
     expect(html).not.toContain('class="patrocinado"')
+  })
+
+  it('con tour relacionado visible: sección, frase en el HTML y «Reservar tour» en la barra (spec de presencia §2.1)', async () => {
+    tours = [tourEspiritu]
+    const zonaConSede = { id: 1, slug: 'la-paz', nombre: 'La Paz', descripcion: null, sedeSlug: 'la-paz', coordenadas: [-110.3, 24.1] }
+    zonas = [zonaConSede]
+    const html = await pintar({ ...base, toursRelacionados: ['servicio:vieja', 'servicio:espiritu-santo'] })
+    expect(html).toContain('Tours para conocer Café Duna')
+    expect(html).toContain('Para conocer Café Duna: Tour Espíritu Santo, desde $11,290 MXN por grupo.')
+    expect(html).toMatch(/<a [^>]*data-origen="barra-ficha"[^>]*>Reservar tour<\/a>/)
+    expect(html).toContain('pieza=barra-lugar-cafe-duna')
+    expect(html).toContain('pieza=relacionado-cafe-duna')
+    tours = []
+    zonas = zonasBase
+  })
+
+  it('sin tours relacionados visibles no hay sección ni «Reservar tour»', async () => {
+    tours = [tourEspiritu]
+    const html = await pintar({ ...base, toursRelacionados: ['servicio:vieja'] })
+    expect(html).not.toContain('Tours para conocer')
+    expect(html).not.toContain('barra-ficha')
+    tours = []
   })
 
   it('con patrocinio declarado: «Patrocinado» y rel="sponsored" en todos los links externos y de contacto', async () => {
