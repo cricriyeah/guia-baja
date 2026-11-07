@@ -28,6 +28,14 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
+    components: {
+      graphics: { Logo: '/admin/Marca#Logo', Icon: '/admin/Marca#Icono' },
+    },
+    meta: {
+      titleSuffix: ' · SBE Guide',
+      description: 'Sitio de administración editorial para SBE Guide',
+      icons: [{ rel: 'icon', type: 'image/svg+xml', url: '/guia-assets/logos/logosm.svg' }],
+    },
     timezones: {
       supportedTimezones: [{ label: 'Baja California Sur', value: 'America/Mazatlan' }],
       defaultTimezone: 'America/Mazatlan',

@@ -1,0 +1,7 @@
+/* Marca del admin (src/admin/Marca.tsx). Los logos son negros: en tema oscuro se pintan en blanco. */
+.sbe-marca { display: grid; justify-items: center; gap: 16px; text-align: center; }
+.sbe-marca__logo { width: min(286px, 100%); height: auto; }
+.sbe-marca__titulo { margin: 0; font-size: 1rem; line-height: 1.35; }
+.sbe-icono { display: block; width: 18px; height: 18px; }
+html[data-theme='dark'] .sbe-marca__logo,
+html[data-theme='dark'] .sbe-icono { filter: brightness(0) invert(1); }
