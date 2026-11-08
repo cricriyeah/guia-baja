@@ -164,10 +164,9 @@ explica cómo llenar el perfil en «Fotos y temporadas de tours».
         y no `prebuild`;
       - desde `prebuild` y `predev`, para `npm run build` (CI, E2E, Lighthouse) y `npm run dev`.
     - Si los dos archivos no existen después de copiar, el script termina con error y el build falla.
-    - `Mapa.tsx` arma la misma ruta con la versión. La importa en tiempo de compilación desde un módulo generado
-      junto con la copia (`src/sitio/ui/mapa-version.ts`, en `.gitignore`), o desde `maplibre-gl/package.json`. El plan
-      elige uno, con prueba.
-    - Antes de crear el mapa llama a `m.setWorkerUrl('/guia-assets/maplibre/{version}/maplibre-gl-worker.mjs')`.
+    - `Mapa.tsx` arma la misma ruta con `m.getVersion()`, que trae la librería. Así la ruta siempre coincide con el
+      paquete cargado y no hace falta un módulo generado, que además rompería `typecheck` en un checkout limpio.
+    - Antes de crear el mapa llama a `` m.setWorkerUrl(`/guia-assets/maplibre/${m.getVersion()}/maplibre-gl-worker.mjs`) ``.
       `/guia-assets/*` ya pasa por el rewrite del sitio de reservas (spec principal §4.1).
     - Los archivos copiados van en `.gitignore`.
   - Se revisan contra la guía de migración de la 6: `Map`, `Marker` (con `element`), `Popup.setDOMContent`,
