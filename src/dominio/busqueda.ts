@@ -2,7 +2,7 @@ import { MAX_PATROCINIOS_ARRIBA } from './orden'
 import { patrocinioVigente } from './patrocinio'
 import { esSlugValido } from './slugs'
 
-export const TIPOS_BUSQUEDA = ['lugar', 'evento', 'articulo', 'zona', 'categoria'] as const
+export const TIPOS_BUSQUEDA = ['lugar', 'evento', 'articulo', 'itinerario', 'tema', 'zona', 'categoria'] as const
 export type TipoBusqueda = (typeof TIPOS_BUSQUEDA)[number]
 const FILTRABLES = ['lugar', 'evento', 'articulo'] as const
 

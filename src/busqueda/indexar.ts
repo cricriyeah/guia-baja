@@ -4,8 +4,8 @@ import type { Payload, PayloadRequest } from 'payload'
 import type { TipoBusqueda } from '../dominio/busqueda'
 import { filasDe, type FilaIndice } from './filas'
 
-const COLECCION: Record<TipoBusqueda, 'lugares' | 'eventos' | 'articulos' | 'zonas' | 'categorias'> = {
-  lugar: 'lugares', evento: 'eventos', articulo: 'articulos', zona: 'zonas', categoria: 'categorias',
+const COLECCION: Record<TipoBusqueda, 'lugares' | 'eventos' | 'articulos' | 'itinerarios' | 'temas' | 'zonas' | 'categorias'> = {
+  lugar: 'lugares', evento: 'eventos', articulo: 'articulos', itinerario: 'itinerarios', tema: 'temas', zona: 'zonas', categoria: 'categorias',
 }
 
 type Db = { execute(q: unknown): Promise<unknown>; transaction<T>(f: (tx: Db) => Promise<T>): Promise<T> }

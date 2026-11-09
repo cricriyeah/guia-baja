@@ -27,7 +27,7 @@ describe('slugs reservados de zona', () => {
     expect([...SLUGS_RESERVADOS_ZONA].sort()).toEqual(
       [
         'aparece-en-la-guia', 'articles', 'articulos', 'categoria', 'category', 'eventos', 'events',
-        'buscar', 'get-listed', 'lugares', 'places', 'privacidad', 'privacy', 'search',
+        'buscar', 'get-listed', 'lugares', 'places', 'privacidad', 'privacy', 'search', 'itinerarios', 'itineraries', 'temas', 'topics',
       ].sort(),
     )
   })

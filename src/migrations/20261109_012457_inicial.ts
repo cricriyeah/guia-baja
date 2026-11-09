@@ -30,10 +30,20 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TYPE "public"."enum_articulos_status" AS ENUM('draft', 'published');
   CREATE TYPE "public"."enum__articulos_v_version_status" AS ENUM('draft', 'published');
   CREATE TYPE "public"."enum__articulos_v_published_locale" AS ENUM('es', 'en');
+  CREATE TYPE "public"."enum_itinerarios_status" AS ENUM('draft', 'published');
+  CREATE TYPE "public"."enum__itinerarios_v_version_status" AS ENUM('draft', 'published');
+  CREATE TYPE "public"."enum__itinerarios_v_published_locale" AS ENUM('es', 'en');
+  CREATE TYPE "public"."enum_temas_caracteristicas" AS ENUM('para-ninos', 'con-comida', 'solo-con-tour');
+  CREATE TYPE "public"."enum_temas_servicios" AS ENUM('sombra', 'banos', 'regaderas', 'estacionamiento', 'renta-de-equipo', 'comida-cerca', 'sin-servicios');
+  CREATE TYPE "public"."enum_temas_status" AS ENUM('draft', 'published');
+  CREATE TYPE "public"."enum__temas_v_version_caracteristicas" AS ENUM('para-ninos', 'con-comida', 'solo-con-tour');
+  CREATE TYPE "public"."enum__temas_v_version_servicios" AS ENUM('sombra', 'banos', 'regaderas', 'estacionamiento', 'renta-de-equipo', 'comida-cerca', 'sin-servicios');
+  CREATE TYPE "public"."enum__temas_v_version_status" AS ENUM('draft', 'published');
+  CREATE TYPE "public"."enum__temas_v_published_locale" AS ENUM('es', 'en');
   CREATE TYPE "public"."enum_solicitudes_estado" AS ENUM('nueva', 'en-contacto', 'aceptada', 'rechazada');
   CREATE TYPE "public"."enum_fotos_tours_meses" AS ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
   CREATE TYPE "public"."enum_fotos_tours_tipo" AS ENUM('servicio', 'paquete');
-  CREATE TYPE "public"."enum_indice_busqueda_tipo" AS ENUM('lugar', 'evento', 'articulo', 'zona', 'categoria');
+  CREATE TYPE "public"."enum_indice_busqueda_tipo" AS ENUM('lugar', 'evento', 'articulo', 'itinerario', 'tema', 'zona', 'categoria');
   CREATE TYPE "public"."enum_indice_busqueda_idioma" AS ENUM('es', 'en');
   CREATE TYPE "public"."enum_redirects_to_type" AS ENUM('reference', 'custom');
   CREATE TYPE "public"."enum_redirects_type" AS ENUM('308');
@@ -514,6 +524,307 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"lugares_id" integer
   );
   
+  CREATE TABLE "itinerarios_dias_paradas" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" varchar NOT NULL,
+  	"id" varchar PRIMARY KEY NOT NULL,
+  	"hora" varchar,
+  	"lugar_id" integer,
+  	"tour" varchar
+  );
+  
+  CREATE TABLE "itinerarios_dias_paradas_locales" (
+  	"nota" varchar,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"_parent_id" varchar NOT NULL
+  );
+  
+  CREATE TABLE "itinerarios_dias" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" integer NOT NULL,
+  	"id" varchar PRIMARY KEY NOT NULL
+  );
+  
+  CREATE TABLE "itinerarios_dias_locales" (
+  	"titulo" varchar,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"_parent_id" varchar NOT NULL
+  );
+  
+  CREATE TABLE "itinerarios_preguntas" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" integer NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"id" varchar PRIMARY KEY NOT NULL,
+  	"pregunta" varchar,
+  	"respuesta" varchar
+  );
+  
+  CREATE TABLE "itinerarios" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"zona_id" integer,
+  	"portada_id" integer,
+  	"autor_id" integer,
+  	"autor_nombre" varchar,
+  	"publicado_el" timestamp(3) with time zone,
+  	"actualizado_el" timestamp(3) with time zone,
+  	"destacado_en_portada" boolean DEFAULT false,
+  	"orden_destacado" numeric DEFAULT 100,
+  	"seo_no_indexar" boolean DEFAULT false,
+  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  	"_status" "enum_itinerarios_status" DEFAULT 'draft'
+  );
+  
+  CREATE TABLE "itinerarios_locales" (
+  	"titulo" varchar,
+  	"slug" varchar,
+  	"resumen" varchar,
+  	"cuerpo" jsonb,
+  	"seo_meta_titulo" varchar,
+  	"seo_meta_descripcion" varchar,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"_parent_id" integer NOT NULL
+  );
+  
+  CREATE TABLE "itinerarios_rels" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"order" integer,
+  	"parent_id" integer NOT NULL,
+  	"path" varchar NOT NULL,
+  	"lugares_id" integer
+  );
+  
+  CREATE TABLE "_itinerarios_v_version_dias_paradas" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" integer NOT NULL,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"hora" varchar,
+  	"lugar_id" integer,
+  	"tour" varchar,
+  	"_uuid" varchar
+  );
+  
+  CREATE TABLE "_itinerarios_v_version_dias_paradas_locales" (
+  	"nota" varchar,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"_parent_id" integer NOT NULL
+  );
+  
+  CREATE TABLE "_itinerarios_v_version_dias" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" integer NOT NULL,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"_uuid" varchar
+  );
+  
+  CREATE TABLE "_itinerarios_v_version_dias_locales" (
+  	"titulo" varchar,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"_parent_id" integer NOT NULL
+  );
+  
+  CREATE TABLE "_itinerarios_v_version_preguntas" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" integer NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"pregunta" varchar,
+  	"respuesta" varchar,
+  	"_uuid" varchar
+  );
+  
+  CREATE TABLE "_itinerarios_v" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"parent_id" integer,
+  	"version_zona_id" integer,
+  	"version_portada_id" integer,
+  	"version_autor_id" integer,
+  	"version_autor_nombre" varchar,
+  	"version_publicado_el" timestamp(3) with time zone,
+  	"version_actualizado_el" timestamp(3) with time zone,
+  	"version_destacado_en_portada" boolean DEFAULT false,
+  	"version_orden_destacado" numeric DEFAULT 100,
+  	"version_seo_no_indexar" boolean DEFAULT false,
+  	"version_updated_at" timestamp(3) with time zone,
+  	"version_created_at" timestamp(3) with time zone,
+  	"version__status" "enum__itinerarios_v_version_status" DEFAULT 'draft',
+  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  	"snapshot" boolean,
+  	"published_locale" "enum__itinerarios_v_published_locale",
+  	"latest" boolean
+  );
+  
+  CREATE TABLE "_itinerarios_v_locales" (
+  	"version_titulo" varchar,
+  	"version_slug" varchar,
+  	"version_resumen" varchar,
+  	"version_cuerpo" jsonb,
+  	"version_seo_meta_titulo" varchar,
+  	"version_seo_meta_descripcion" varchar,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"_parent_id" integer NOT NULL
+  );
+  
+  CREATE TABLE "_itinerarios_v_rels" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"order" integer,
+  	"parent_id" integer NOT NULL,
+  	"path" varchar NOT NULL,
+  	"lugares_id" integer
+  );
+  
+  CREATE TABLE "temas_caracteristicas" (
+  	"order" integer NOT NULL,
+  	"parent_id" integer NOT NULL,
+  	"value" "enum_temas_caracteristicas",
+  	"id" serial PRIMARY KEY NOT NULL
+  );
+  
+  CREATE TABLE "temas_servicios" (
+  	"order" integer NOT NULL,
+  	"parent_id" integer NOT NULL,
+  	"value" "enum_temas_servicios",
+  	"id" serial PRIMARY KEY NOT NULL
+  );
+  
+  CREATE TABLE "temas_tours" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" integer NOT NULL,
+  	"id" varchar PRIMARY KEY NOT NULL,
+  	"zona_id" integer,
+  	"tour" varchar
+  );
+  
+  CREATE TABLE "temas_preguntas" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" integer NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"id" varchar PRIMARY KEY NOT NULL,
+  	"pregunta" varchar,
+  	"respuesta" varchar
+  );
+  
+  CREATE TABLE "temas" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"zona_id" integer,
+  	"portada_id" integer,
+  	"autor_id" integer,
+  	"autor_nombre" varchar,
+  	"publicado_el" timestamp(3) with time zone,
+  	"actualizado_el" timestamp(3) with time zone,
+  	"destacado_en_portada" boolean DEFAULT false,
+  	"orden_destacado" numeric DEFAULT 100,
+  	"seo_no_indexar" boolean DEFAULT false,
+  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  	"_status" "enum_temas_status" DEFAULT 'draft'
+  );
+  
+  CREATE TABLE "temas_locales" (
+  	"titulo" varchar,
+  	"slug" varchar,
+  	"resumen" varchar,
+  	"introduccion" jsonb,
+  	"seo_meta_titulo" varchar,
+  	"seo_meta_descripcion" varchar,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"_parent_id" integer NOT NULL
+  );
+  
+  CREATE TABLE "temas_rels" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"order" integer,
+  	"parent_id" integer NOT NULL,
+  	"path" varchar NOT NULL,
+  	"categorias_id" integer,
+  	"lugares_id" integer
+  );
+  
+  CREATE TABLE "_temas_v_version_caracteristicas" (
+  	"order" integer NOT NULL,
+  	"parent_id" integer NOT NULL,
+  	"value" "enum__temas_v_version_caracteristicas",
+  	"id" serial PRIMARY KEY NOT NULL
+  );
+  
+  CREATE TABLE "_temas_v_version_servicios" (
+  	"order" integer NOT NULL,
+  	"parent_id" integer NOT NULL,
+  	"value" "enum__temas_v_version_servicios",
+  	"id" serial PRIMARY KEY NOT NULL
+  );
+  
+  CREATE TABLE "_temas_v_version_tours" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" integer NOT NULL,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"zona_id" integer,
+  	"tour" varchar,
+  	"_uuid" varchar
+  );
+  
+  CREATE TABLE "_temas_v_version_preguntas" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" integer NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"pregunta" varchar,
+  	"respuesta" varchar,
+  	"_uuid" varchar
+  );
+  
+  CREATE TABLE "_temas_v" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"parent_id" integer,
+  	"version_zona_id" integer,
+  	"version_portada_id" integer,
+  	"version_autor_id" integer,
+  	"version_autor_nombre" varchar,
+  	"version_publicado_el" timestamp(3) with time zone,
+  	"version_actualizado_el" timestamp(3) with time zone,
+  	"version_destacado_en_portada" boolean DEFAULT false,
+  	"version_orden_destacado" numeric DEFAULT 100,
+  	"version_seo_no_indexar" boolean DEFAULT false,
+  	"version_updated_at" timestamp(3) with time zone,
+  	"version_created_at" timestamp(3) with time zone,
+  	"version__status" "enum__temas_v_version_status" DEFAULT 'draft',
+  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  	"snapshot" boolean,
+  	"published_locale" "enum__temas_v_published_locale",
+  	"latest" boolean
+  );
+  
+  CREATE TABLE "_temas_v_locales" (
+  	"version_titulo" varchar,
+  	"version_slug" varchar,
+  	"version_resumen" varchar,
+  	"version_introduccion" jsonb,
+  	"version_seo_meta_titulo" varchar,
+  	"version_seo_meta_descripcion" varchar,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"_parent_id" integer NOT NULL
+  );
+  
+  CREATE TABLE "_temas_v_rels" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"order" integer,
+  	"parent_id" integer NOT NULL,
+  	"path" varchar NOT NULL,
+  	"categorias_id" integer,
+  	"lugares_id" integer
+  );
+  
   CREATE TABLE "solicitudes" (
   	"id" serial PRIMARY KEY NOT NULL,
   	"negocio" varchar NOT NULL,
@@ -612,7 +923,9 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"path" varchar NOT NULL,
   	"lugares_id" integer,
   	"eventos_id" integer,
-  	"articulos_id" integer
+  	"articulos_id" integer,
+  	"itinerarios_id" integer,
+  	"temas_id" integer
   );
   
   CREATE TABLE "payload_kv" (
@@ -669,6 +982,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"lugares_id" integer,
   	"eventos_id" integer,
   	"articulos_id" integer,
+  	"itinerarios_id" integer,
+  	"temas_id" integer,
   	"solicitudes_id" integer,
   	"textos_zona_categoria_id" integer,
   	"fotos_tours_id" integer,
@@ -780,6 +1095,56 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "_articulos_v_rels" ADD CONSTRAINT "_articulos_v_rels_zonas_fk" FOREIGN KEY ("zonas_id") REFERENCES "public"."zonas"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "_articulos_v_rels" ADD CONSTRAINT "_articulos_v_rels_categorias_fk" FOREIGN KEY ("categorias_id") REFERENCES "public"."categorias"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "_articulos_v_rels" ADD CONSTRAINT "_articulos_v_rels_lugares_fk" FOREIGN KEY ("lugares_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "itinerarios_dias_paradas" ADD CONSTRAINT "itinerarios_dias_paradas_lugar_id_lugares_id_fk" FOREIGN KEY ("lugar_id") REFERENCES "public"."lugares"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "itinerarios_dias_paradas" ADD CONSTRAINT "itinerarios_dias_paradas_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."itinerarios_dias"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "itinerarios_dias_paradas_locales" ADD CONSTRAINT "itinerarios_dias_paradas_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."itinerarios_dias_paradas"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "itinerarios_dias" ADD CONSTRAINT "itinerarios_dias_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."itinerarios"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "itinerarios_dias_locales" ADD CONSTRAINT "itinerarios_dias_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."itinerarios_dias"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "itinerarios_preguntas" ADD CONSTRAINT "itinerarios_preguntas_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."itinerarios"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "itinerarios" ADD CONSTRAINT "itinerarios_zona_id_zonas_id_fk" FOREIGN KEY ("zona_id") REFERENCES "public"."zonas"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "itinerarios" ADD CONSTRAINT "itinerarios_portada_id_media_id_fk" FOREIGN KEY ("portada_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "itinerarios" ADD CONSTRAINT "itinerarios_autor_id_users_id_fk" FOREIGN KEY ("autor_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "itinerarios_locales" ADD CONSTRAINT "itinerarios_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."itinerarios"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "itinerarios_rels" ADD CONSTRAINT "itinerarios_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."itinerarios"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "itinerarios_rels" ADD CONSTRAINT "itinerarios_rels_lugares_fk" FOREIGN KEY ("lugares_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_itinerarios_v_version_dias_paradas" ADD CONSTRAINT "_itinerarios_v_version_dias_paradas_lugar_id_lugares_id_fk" FOREIGN KEY ("lugar_id") REFERENCES "public"."lugares"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "_itinerarios_v_version_dias_paradas" ADD CONSTRAINT "_itinerarios_v_version_dias_paradas_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_itinerarios_v_version_dias"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_itinerarios_v_version_dias_paradas_locales" ADD CONSTRAINT "_itinerarios_v_version_dias_paradas_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_itinerarios_v_version_dias_paradas"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_itinerarios_v_version_dias" ADD CONSTRAINT "_itinerarios_v_version_dias_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_itinerarios_v"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_itinerarios_v_version_dias_locales" ADD CONSTRAINT "_itinerarios_v_version_dias_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_itinerarios_v_version_dias"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_itinerarios_v_version_preguntas" ADD CONSTRAINT "_itinerarios_v_version_preguntas_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_itinerarios_v"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_itinerarios_v" ADD CONSTRAINT "_itinerarios_v_parent_id_itinerarios_id_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."itinerarios"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "_itinerarios_v" ADD CONSTRAINT "_itinerarios_v_version_zona_id_zonas_id_fk" FOREIGN KEY ("version_zona_id") REFERENCES "public"."zonas"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "_itinerarios_v" ADD CONSTRAINT "_itinerarios_v_version_portada_id_media_id_fk" FOREIGN KEY ("version_portada_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "_itinerarios_v" ADD CONSTRAINT "_itinerarios_v_version_autor_id_users_id_fk" FOREIGN KEY ("version_autor_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "_itinerarios_v_locales" ADD CONSTRAINT "_itinerarios_v_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_itinerarios_v"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_itinerarios_v_rels" ADD CONSTRAINT "_itinerarios_v_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."_itinerarios_v"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_itinerarios_v_rels" ADD CONSTRAINT "_itinerarios_v_rels_lugares_fk" FOREIGN KEY ("lugares_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "temas_caracteristicas" ADD CONSTRAINT "temas_caracteristicas_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."temas"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "temas_servicios" ADD CONSTRAINT "temas_servicios_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."temas"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "temas_tours" ADD CONSTRAINT "temas_tours_zona_id_zonas_id_fk" FOREIGN KEY ("zona_id") REFERENCES "public"."zonas"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "temas_tours" ADD CONSTRAINT "temas_tours_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."temas"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "temas_preguntas" ADD CONSTRAINT "temas_preguntas_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."temas"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "temas" ADD CONSTRAINT "temas_zona_id_zonas_id_fk" FOREIGN KEY ("zona_id") REFERENCES "public"."zonas"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "temas" ADD CONSTRAINT "temas_portada_id_media_id_fk" FOREIGN KEY ("portada_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "temas" ADD CONSTRAINT "temas_autor_id_users_id_fk" FOREIGN KEY ("autor_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "temas_locales" ADD CONSTRAINT "temas_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."temas"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "temas_rels" ADD CONSTRAINT "temas_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."temas"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "temas_rels" ADD CONSTRAINT "temas_rels_categorias_fk" FOREIGN KEY ("categorias_id") REFERENCES "public"."categorias"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "temas_rels" ADD CONSTRAINT "temas_rels_lugares_fk" FOREIGN KEY ("lugares_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_temas_v_version_caracteristicas" ADD CONSTRAINT "_temas_v_version_caracteristicas_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."_temas_v"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_temas_v_version_servicios" ADD CONSTRAINT "_temas_v_version_servicios_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."_temas_v"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_temas_v_version_tours" ADD CONSTRAINT "_temas_v_version_tours_zona_id_zonas_id_fk" FOREIGN KEY ("zona_id") REFERENCES "public"."zonas"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "_temas_v_version_tours" ADD CONSTRAINT "_temas_v_version_tours_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_temas_v"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_temas_v_version_preguntas" ADD CONSTRAINT "_temas_v_version_preguntas_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_temas_v"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_temas_v" ADD CONSTRAINT "_temas_v_parent_id_temas_id_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."temas"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "_temas_v" ADD CONSTRAINT "_temas_v_version_zona_id_zonas_id_fk" FOREIGN KEY ("version_zona_id") REFERENCES "public"."zonas"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "_temas_v" ADD CONSTRAINT "_temas_v_version_portada_id_media_id_fk" FOREIGN KEY ("version_portada_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "_temas_v" ADD CONSTRAINT "_temas_v_version_autor_id_users_id_fk" FOREIGN KEY ("version_autor_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "_temas_v_locales" ADD CONSTRAINT "_temas_v_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_temas_v"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_temas_v_rels" ADD CONSTRAINT "_temas_v_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."_temas_v"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_temas_v_rels" ADD CONSTRAINT "_temas_v_rels_categorias_fk" FOREIGN KEY ("categorias_id") REFERENCES "public"."categorias"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_temas_v_rels" ADD CONSTRAINT "_temas_v_rels_lugares_fk" FOREIGN KEY ("lugares_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "solicitudes" ADD CONSTRAINT "solicitudes_zona_id_zonas_id_fk" FOREIGN KEY ("zona_id") REFERENCES "public"."zonas"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "solicitudes" ADD CONSTRAINT "solicitudes_lugar_creado_id_lugares_id_fk" FOREIGN KEY ("lugar_creado_id") REFERENCES "public"."lugares"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "textos_zona_categoria" ADD CONSTRAINT "textos_zona_categoria_zona_id_zonas_id_fk" FOREIGN KEY ("zona_id") REFERENCES "public"."zonas"("id") ON DELETE set null ON UPDATE no action;
@@ -792,6 +1157,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "redirects_rels" ADD CONSTRAINT "redirects_rels_lugares_fk" FOREIGN KEY ("lugares_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "redirects_rels" ADD CONSTRAINT "redirects_rels_eventos_fk" FOREIGN KEY ("eventos_id") REFERENCES "public"."eventos"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "redirects_rels" ADD CONSTRAINT "redirects_rels_articulos_fk" FOREIGN KEY ("articulos_id") REFERENCES "public"."articulos"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "redirects_rels" ADD CONSTRAINT "redirects_rels_itinerarios_fk" FOREIGN KEY ("itinerarios_id") REFERENCES "public"."itinerarios"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "redirects_rels" ADD CONSTRAINT "redirects_rels_temas_fk" FOREIGN KEY ("temas_id") REFERENCES "public"."temas"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_jobs_log" ADD CONSTRAINT "payload_jobs_log_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."payload_jobs"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."payload_locked_documents"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_users_fk" FOREIGN KEY ("users_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
@@ -801,6 +1168,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_lugares_fk" FOREIGN KEY ("lugares_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_eventos_fk" FOREIGN KEY ("eventos_id") REFERENCES "public"."eventos"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_articulos_fk" FOREIGN KEY ("articulos_id") REFERENCES "public"."articulos"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_itinerarios_fk" FOREIGN KEY ("itinerarios_id") REFERENCES "public"."itinerarios"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_temas_fk" FOREIGN KEY ("temas_id") REFERENCES "public"."temas"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_solicitudes_fk" FOREIGN KEY ("solicitudes_id") REFERENCES "public"."solicitudes"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_textos_zona_categoria_fk" FOREIGN KEY ("textos_zona_categoria_id") REFERENCES "public"."textos_zona_categoria"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_fotos_tours_fk" FOREIGN KEY ("fotos_tours_id") REFERENCES "public"."fotos_tours"("id") ON DELETE cascade ON UPDATE no action;
@@ -958,6 +1327,120 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "_articulos_v_rels_zonas_id_idx" ON "_articulos_v_rels" USING btree ("zonas_id");
   CREATE INDEX "_articulos_v_rels_categorias_id_idx" ON "_articulos_v_rels" USING btree ("categorias_id");
   CREATE INDEX "_articulos_v_rels_lugares_id_idx" ON "_articulos_v_rels" USING btree ("lugares_id");
+  CREATE INDEX "itinerarios_dias_paradas_order_idx" ON "itinerarios_dias_paradas" USING btree ("_order");
+  CREATE INDEX "itinerarios_dias_paradas_parent_id_idx" ON "itinerarios_dias_paradas" USING btree ("_parent_id");
+  CREATE INDEX "itinerarios_dias_paradas_lugar_idx" ON "itinerarios_dias_paradas" USING btree ("lugar_id");
+  CREATE UNIQUE INDEX "itinerarios_dias_paradas_locales_locale_parent_id_unique" ON "itinerarios_dias_paradas_locales" USING btree ("_locale","_parent_id");
+  CREATE INDEX "itinerarios_dias_paradas_locales_parent_id_idx" ON "itinerarios_dias_paradas_locales" USING btree ("_parent_id");
+  CREATE INDEX "itinerarios_dias_order_idx" ON "itinerarios_dias" USING btree ("_order");
+  CREATE INDEX "itinerarios_dias_parent_id_idx" ON "itinerarios_dias" USING btree ("_parent_id");
+  CREATE UNIQUE INDEX "itinerarios_dias_locales_locale_parent_id_unique" ON "itinerarios_dias_locales" USING btree ("_locale","_parent_id");
+  CREATE INDEX "itinerarios_dias_locales_parent_id_idx" ON "itinerarios_dias_locales" USING btree ("_parent_id");
+  CREATE INDEX "itinerarios_preguntas_order_idx" ON "itinerarios_preguntas" USING btree ("_order");
+  CREATE INDEX "itinerarios_preguntas_parent_id_idx" ON "itinerarios_preguntas" USING btree ("_parent_id");
+  CREATE INDEX "itinerarios_preguntas_locale_idx" ON "itinerarios_preguntas" USING btree ("_locale");
+  CREATE INDEX "itinerarios_zona_idx" ON "itinerarios" USING btree ("zona_id");
+  CREATE INDEX "itinerarios_portada_idx" ON "itinerarios" USING btree ("portada_id");
+  CREATE INDEX "itinerarios_autor_idx" ON "itinerarios" USING btree ("autor_id");
+  CREATE INDEX "itinerarios_destacado_en_portada_idx" ON "itinerarios" USING btree ("destacado_en_portada");
+  CREATE INDEX "itinerarios_updated_at_idx" ON "itinerarios" USING btree ("updated_at");
+  CREATE INDEX "itinerarios_created_at_idx" ON "itinerarios" USING btree ("created_at");
+  CREATE INDEX "itinerarios__status_idx" ON "itinerarios" USING btree ("_status");
+  CREATE UNIQUE INDEX "itinerarios_slug_idx" ON "itinerarios_locales" USING btree ("slug","_locale");
+  CREATE UNIQUE INDEX "itinerarios_locales_locale_parent_id_unique" ON "itinerarios_locales" USING btree ("_locale","_parent_id");
+  CREATE INDEX "itinerarios_locales_parent_id_idx" ON "itinerarios_locales" USING btree ("_parent_id");
+  CREATE INDEX "itinerarios_rels_order_idx" ON "itinerarios_rels" USING btree ("order");
+  CREATE INDEX "itinerarios_rels_parent_idx" ON "itinerarios_rels" USING btree ("parent_id");
+  CREATE INDEX "itinerarios_rels_path_idx" ON "itinerarios_rels" USING btree ("path");
+  CREATE INDEX "itinerarios_rels_lugares_id_idx" ON "itinerarios_rels" USING btree ("lugares_id");
+  CREATE INDEX "_itinerarios_v_version_dias_paradas_order_idx" ON "_itinerarios_v_version_dias_paradas" USING btree ("_order");
+  CREATE INDEX "_itinerarios_v_version_dias_paradas_parent_id_idx" ON "_itinerarios_v_version_dias_paradas" USING btree ("_parent_id");
+  CREATE INDEX "_itinerarios_v_version_dias_paradas_lugar_idx" ON "_itinerarios_v_version_dias_paradas" USING btree ("lugar_id");
+  CREATE UNIQUE INDEX "_itinerarios_v_version_dias_paradas_locales_locale_parent_id" ON "_itinerarios_v_version_dias_paradas_locales" USING btree ("_locale","_parent_id");
+  CREATE INDEX "_itinerarios_v_version_dias_paradas_locales_parent_id_idx" ON "_itinerarios_v_version_dias_paradas_locales" USING btree ("_parent_id");
+  CREATE INDEX "_itinerarios_v_version_dias_order_idx" ON "_itinerarios_v_version_dias" USING btree ("_order");
+  CREATE INDEX "_itinerarios_v_version_dias_parent_id_idx" ON "_itinerarios_v_version_dias" USING btree ("_parent_id");
+  CREATE UNIQUE INDEX "_itinerarios_v_version_dias_locales_locale_parent_id_unique" ON "_itinerarios_v_version_dias_locales" USING btree ("_locale","_parent_id");
+  CREATE INDEX "_itinerarios_v_version_dias_locales_parent_id_idx" ON "_itinerarios_v_version_dias_locales" USING btree ("_parent_id");
+  CREATE INDEX "_itinerarios_v_version_preguntas_order_idx" ON "_itinerarios_v_version_preguntas" USING btree ("_order");
+  CREATE INDEX "_itinerarios_v_version_preguntas_parent_id_idx" ON "_itinerarios_v_version_preguntas" USING btree ("_parent_id");
+  CREATE INDEX "_itinerarios_v_version_preguntas_locale_idx" ON "_itinerarios_v_version_preguntas" USING btree ("_locale");
+  CREATE INDEX "_itinerarios_v_parent_idx" ON "_itinerarios_v" USING btree ("parent_id");
+  CREATE INDEX "_itinerarios_v_version_version_zona_idx" ON "_itinerarios_v" USING btree ("version_zona_id");
+  CREATE INDEX "_itinerarios_v_version_version_portada_idx" ON "_itinerarios_v" USING btree ("version_portada_id");
+  CREATE INDEX "_itinerarios_v_version_version_autor_idx" ON "_itinerarios_v" USING btree ("version_autor_id");
+  CREATE INDEX "_itinerarios_v_version_version_destacado_en_portada_idx" ON "_itinerarios_v" USING btree ("version_destacado_en_portada");
+  CREATE INDEX "_itinerarios_v_version_version_updated_at_idx" ON "_itinerarios_v" USING btree ("version_updated_at");
+  CREATE INDEX "_itinerarios_v_version_version_created_at_idx" ON "_itinerarios_v" USING btree ("version_created_at");
+  CREATE INDEX "_itinerarios_v_version_version__status_idx" ON "_itinerarios_v" USING btree ("version__status");
+  CREATE INDEX "_itinerarios_v_created_at_idx" ON "_itinerarios_v" USING btree ("created_at");
+  CREATE INDEX "_itinerarios_v_updated_at_idx" ON "_itinerarios_v" USING btree ("updated_at");
+  CREATE INDEX "_itinerarios_v_snapshot_idx" ON "_itinerarios_v" USING btree ("snapshot");
+  CREATE INDEX "_itinerarios_v_published_locale_idx" ON "_itinerarios_v" USING btree ("published_locale");
+  CREATE INDEX "_itinerarios_v_latest_idx" ON "_itinerarios_v" USING btree ("latest");
+  CREATE INDEX "_itinerarios_v_version_version_slug_idx" ON "_itinerarios_v_locales" USING btree ("version_slug","_locale");
+  CREATE UNIQUE INDEX "_itinerarios_v_locales_locale_parent_id_unique" ON "_itinerarios_v_locales" USING btree ("_locale","_parent_id");
+  CREATE INDEX "_itinerarios_v_locales_parent_id_idx" ON "_itinerarios_v_locales" USING btree ("_parent_id");
+  CREATE INDEX "_itinerarios_v_rels_order_idx" ON "_itinerarios_v_rels" USING btree ("order");
+  CREATE INDEX "_itinerarios_v_rels_parent_idx" ON "_itinerarios_v_rels" USING btree ("parent_id");
+  CREATE INDEX "_itinerarios_v_rels_path_idx" ON "_itinerarios_v_rels" USING btree ("path");
+  CREATE INDEX "_itinerarios_v_rels_lugares_id_idx" ON "_itinerarios_v_rels" USING btree ("lugares_id");
+  CREATE INDEX "temas_caracteristicas_order_idx" ON "temas_caracteristicas" USING btree ("order");
+  CREATE INDEX "temas_caracteristicas_parent_idx" ON "temas_caracteristicas" USING btree ("parent_id");
+  CREATE INDEX "temas_servicios_order_idx" ON "temas_servicios" USING btree ("order");
+  CREATE INDEX "temas_servicios_parent_idx" ON "temas_servicios" USING btree ("parent_id");
+  CREATE INDEX "temas_tours_order_idx" ON "temas_tours" USING btree ("_order");
+  CREATE INDEX "temas_tours_parent_id_idx" ON "temas_tours" USING btree ("_parent_id");
+  CREATE INDEX "temas_tours_zona_idx" ON "temas_tours" USING btree ("zona_id");
+  CREATE INDEX "temas_preguntas_order_idx" ON "temas_preguntas" USING btree ("_order");
+  CREATE INDEX "temas_preguntas_parent_id_idx" ON "temas_preguntas" USING btree ("_parent_id");
+  CREATE INDEX "temas_preguntas_locale_idx" ON "temas_preguntas" USING btree ("_locale");
+  CREATE INDEX "temas_zona_idx" ON "temas" USING btree ("zona_id");
+  CREATE INDEX "temas_portada_idx" ON "temas" USING btree ("portada_id");
+  CREATE INDEX "temas_autor_idx" ON "temas" USING btree ("autor_id");
+  CREATE INDEX "temas_destacado_en_portada_idx" ON "temas" USING btree ("destacado_en_portada");
+  CREATE INDEX "temas_updated_at_idx" ON "temas" USING btree ("updated_at");
+  CREATE INDEX "temas_created_at_idx" ON "temas" USING btree ("created_at");
+  CREATE INDEX "temas__status_idx" ON "temas" USING btree ("_status");
+  CREATE UNIQUE INDEX "temas_slug_idx" ON "temas_locales" USING btree ("slug","_locale");
+  CREATE UNIQUE INDEX "temas_locales_locale_parent_id_unique" ON "temas_locales" USING btree ("_locale","_parent_id");
+  CREATE INDEX "temas_locales_parent_id_idx" ON "temas_locales" USING btree ("_parent_id");
+  CREATE INDEX "temas_rels_order_idx" ON "temas_rels" USING btree ("order");
+  CREATE INDEX "temas_rels_parent_idx" ON "temas_rels" USING btree ("parent_id");
+  CREATE INDEX "temas_rels_path_idx" ON "temas_rels" USING btree ("path");
+  CREATE INDEX "temas_rels_categorias_id_idx" ON "temas_rels" USING btree ("categorias_id");
+  CREATE INDEX "temas_rels_lugares_id_idx" ON "temas_rels" USING btree ("lugares_id");
+  CREATE INDEX "_temas_v_version_caracteristicas_order_idx" ON "_temas_v_version_caracteristicas" USING btree ("order");
+  CREATE INDEX "_temas_v_version_caracteristicas_parent_idx" ON "_temas_v_version_caracteristicas" USING btree ("parent_id");
+  CREATE INDEX "_temas_v_version_servicios_order_idx" ON "_temas_v_version_servicios" USING btree ("order");
+  CREATE INDEX "_temas_v_version_servicios_parent_idx" ON "_temas_v_version_servicios" USING btree ("parent_id");
+  CREATE INDEX "_temas_v_version_tours_order_idx" ON "_temas_v_version_tours" USING btree ("_order");
+  CREATE INDEX "_temas_v_version_tours_parent_id_idx" ON "_temas_v_version_tours" USING btree ("_parent_id");
+  CREATE INDEX "_temas_v_version_tours_zona_idx" ON "_temas_v_version_tours" USING btree ("zona_id");
+  CREATE INDEX "_temas_v_version_preguntas_order_idx" ON "_temas_v_version_preguntas" USING btree ("_order");
+  CREATE INDEX "_temas_v_version_preguntas_parent_id_idx" ON "_temas_v_version_preguntas" USING btree ("_parent_id");
+  CREATE INDEX "_temas_v_version_preguntas_locale_idx" ON "_temas_v_version_preguntas" USING btree ("_locale");
+  CREATE INDEX "_temas_v_parent_idx" ON "_temas_v" USING btree ("parent_id");
+  CREATE INDEX "_temas_v_version_version_zona_idx" ON "_temas_v" USING btree ("version_zona_id");
+  CREATE INDEX "_temas_v_version_version_portada_idx" ON "_temas_v" USING btree ("version_portada_id");
+  CREATE INDEX "_temas_v_version_version_autor_idx" ON "_temas_v" USING btree ("version_autor_id");
+  CREATE INDEX "_temas_v_version_version_destacado_en_portada_idx" ON "_temas_v" USING btree ("version_destacado_en_portada");
+  CREATE INDEX "_temas_v_version_version_updated_at_idx" ON "_temas_v" USING btree ("version_updated_at");
+  CREATE INDEX "_temas_v_version_version_created_at_idx" ON "_temas_v" USING btree ("version_created_at");
+  CREATE INDEX "_temas_v_version_version__status_idx" ON "_temas_v" USING btree ("version__status");
+  CREATE INDEX "_temas_v_created_at_idx" ON "_temas_v" USING btree ("created_at");
+  CREATE INDEX "_temas_v_updated_at_idx" ON "_temas_v" USING btree ("updated_at");
+  CREATE INDEX "_temas_v_snapshot_idx" ON "_temas_v" USING btree ("snapshot");
+  CREATE INDEX "_temas_v_published_locale_idx" ON "_temas_v" USING btree ("published_locale");
+  CREATE INDEX "_temas_v_latest_idx" ON "_temas_v" USING btree ("latest");
+  CREATE INDEX "_temas_v_version_version_slug_idx" ON "_temas_v_locales" USING btree ("version_slug","_locale");
+  CREATE UNIQUE INDEX "_temas_v_locales_locale_parent_id_unique" ON "_temas_v_locales" USING btree ("_locale","_parent_id");
+  CREATE INDEX "_temas_v_locales_parent_id_idx" ON "_temas_v_locales" USING btree ("_parent_id");
+  CREATE INDEX "_temas_v_rels_order_idx" ON "_temas_v_rels" USING btree ("order");
+  CREATE INDEX "_temas_v_rels_parent_idx" ON "_temas_v_rels" USING btree ("parent_id");
+  CREATE INDEX "_temas_v_rels_path_idx" ON "_temas_v_rels" USING btree ("path");
+  CREATE INDEX "_temas_v_rels_categorias_id_idx" ON "_temas_v_rels" USING btree ("categorias_id");
+  CREATE INDEX "_temas_v_rels_lugares_id_idx" ON "_temas_v_rels" USING btree ("lugares_id");
   CREATE INDEX "solicitudes_zona_idx" ON "solicitudes" USING btree ("zona_id");
   CREATE INDEX "solicitudes_lugar_creado_idx" ON "solicitudes" USING btree ("lugar_creado_id");
   CREATE INDEX "solicitudes_updated_at_idx" ON "solicitudes" USING btree ("updated_at");
@@ -989,6 +1472,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "redirects_rels_lugares_id_idx" ON "redirects_rels" USING btree ("lugares_id");
   CREATE INDEX "redirects_rels_eventos_id_idx" ON "redirects_rels" USING btree ("eventos_id");
   CREATE INDEX "redirects_rels_articulos_id_idx" ON "redirects_rels" USING btree ("articulos_id");
+  CREATE INDEX "redirects_rels_itinerarios_id_idx" ON "redirects_rels" USING btree ("itinerarios_id");
+  CREATE INDEX "redirects_rels_temas_id_idx" ON "redirects_rels" USING btree ("temas_id");
   CREATE UNIQUE INDEX "payload_kv_key_idx" ON "payload_kv" USING btree ("key");
   CREATE INDEX "payload_jobs_log_order_idx" ON "payload_jobs_log" USING btree ("_order");
   CREATE INDEX "payload_jobs_log_parent_id_idx" ON "payload_jobs_log" USING btree ("_parent_id");
@@ -1014,6 +1499,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "payload_locked_documents_rels_lugares_id_idx" ON "payload_locked_documents_rels" USING btree ("lugares_id");
   CREATE INDEX "payload_locked_documents_rels_eventos_id_idx" ON "payload_locked_documents_rels" USING btree ("eventos_id");
   CREATE INDEX "payload_locked_documents_rels_articulos_id_idx" ON "payload_locked_documents_rels" USING btree ("articulos_id");
+  CREATE INDEX "payload_locked_documents_rels_itinerarios_id_idx" ON "payload_locked_documents_rels" USING btree ("itinerarios_id");
+  CREATE INDEX "payload_locked_documents_rels_temas_id_idx" ON "payload_locked_documents_rels" USING btree ("temas_id");
   CREATE INDEX "payload_locked_documents_rels_solicitudes_id_idx" ON "payload_locked_documents_rels" USING btree ("solicitudes_id");
   CREATE INDEX "payload_locked_documents_rels_textos_zona_categoria_id_idx" ON "payload_locked_documents_rels" USING btree ("textos_zona_categoria_id");
   CREATE INDEX "payload_locked_documents_rels_fotos_tours_id_idx" ON "payload_locked_documents_rels" USING btree ("fotos_tours_id");
@@ -1071,6 +1558,36 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "_articulos_v" CASCADE;
   DROP TABLE "_articulos_v_locales" CASCADE;
   DROP TABLE "_articulos_v_rels" CASCADE;
+  DROP TABLE "itinerarios_dias_paradas" CASCADE;
+  DROP TABLE "itinerarios_dias_paradas_locales" CASCADE;
+  DROP TABLE "itinerarios_dias" CASCADE;
+  DROP TABLE "itinerarios_dias_locales" CASCADE;
+  DROP TABLE "itinerarios_preguntas" CASCADE;
+  DROP TABLE "itinerarios" CASCADE;
+  DROP TABLE "itinerarios_locales" CASCADE;
+  DROP TABLE "itinerarios_rels" CASCADE;
+  DROP TABLE "_itinerarios_v_version_dias_paradas" CASCADE;
+  DROP TABLE "_itinerarios_v_version_dias_paradas_locales" CASCADE;
+  DROP TABLE "_itinerarios_v_version_dias" CASCADE;
+  DROP TABLE "_itinerarios_v_version_dias_locales" CASCADE;
+  DROP TABLE "_itinerarios_v_version_preguntas" CASCADE;
+  DROP TABLE "_itinerarios_v" CASCADE;
+  DROP TABLE "_itinerarios_v_locales" CASCADE;
+  DROP TABLE "_itinerarios_v_rels" CASCADE;
+  DROP TABLE "temas_caracteristicas" CASCADE;
+  DROP TABLE "temas_servicios" CASCADE;
+  DROP TABLE "temas_tours" CASCADE;
+  DROP TABLE "temas_preguntas" CASCADE;
+  DROP TABLE "temas" CASCADE;
+  DROP TABLE "temas_locales" CASCADE;
+  DROP TABLE "temas_rels" CASCADE;
+  DROP TABLE "_temas_v_version_caracteristicas" CASCADE;
+  DROP TABLE "_temas_v_version_servicios" CASCADE;
+  DROP TABLE "_temas_v_version_tours" CASCADE;
+  DROP TABLE "_temas_v_version_preguntas" CASCADE;
+  DROP TABLE "_temas_v" CASCADE;
+  DROP TABLE "_temas_v_locales" CASCADE;
+  DROP TABLE "_temas_v_rels" CASCADE;
   DROP TABLE "solicitudes" CASCADE;
   DROP TABLE "textos_zona_categoria" CASCADE;
   DROP TABLE "textos_zona_categoria_locales" CASCADE;
@@ -1119,6 +1636,16 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TYPE "public"."enum_articulos_status";
   DROP TYPE "public"."enum__articulos_v_version_status";
   DROP TYPE "public"."enum__articulos_v_published_locale";
+  DROP TYPE "public"."enum_itinerarios_status";
+  DROP TYPE "public"."enum__itinerarios_v_version_status";
+  DROP TYPE "public"."enum__itinerarios_v_published_locale";
+  DROP TYPE "public"."enum_temas_caracteristicas";
+  DROP TYPE "public"."enum_temas_servicios";
+  DROP TYPE "public"."enum_temas_status";
+  DROP TYPE "public"."enum__temas_v_version_caracteristicas";
+  DROP TYPE "public"."enum__temas_v_version_servicios";
+  DROP TYPE "public"."enum__temas_v_version_status";
+  DROP TYPE "public"."enum__temas_v_published_locale";
   DROP TYPE "public"."enum_solicitudes_estado";
   DROP TYPE "public"."enum_fotos_tours_meses";
   DROP TYPE "public"."enum_fotos_tours_tipo";

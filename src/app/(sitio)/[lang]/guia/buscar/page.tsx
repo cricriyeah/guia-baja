@@ -42,6 +42,8 @@ function rutaDe(lang: Locale, f: FilaResultado) {
     case 'lugar': return rutas.lugar(lang, f.slug)
     case 'evento': return rutas.evento(lang, f.slug)
     case 'articulo': return rutas.articulo(lang, f.slug)
+    case 'itinerario': return rutas.itinerario(lang, f.slug)
+    case 'tema': return rutas.tema(lang, f.slug)
     case 'zona': return rutas.zona(lang, f.slug)
     case 'categoria': return rutas.categoria(lang, f.slug)
   }
@@ -97,7 +99,7 @@ export default async function Buscar({ params, searchParams }: Props) {
   }
   // Eventos pasados fuera (spec §7); el orden con patrocinios y la paginación, sobre el grupo completo.
   const vigentes = todas
-    .filter((f) => visibles[f.tipo].has(f.docId))
+    .filter((f) => visibles[f.tipo]?.has(f.docId))
     .filter((f) => f.tipo !== 'evento' || esEventoProximo({ inicio: f.inicio ?? '', fin: f.fin }, ahora))
   const grupos = TIPOS_BUSQUEDA.map((tipo) => ({ tipo, filas: ordenarGrupo(vigentes.filter((f) => f.tipo === tipo), ahora) })).filter((g) => g.filas.length)
   const ruta = rutas.buscar(lang)

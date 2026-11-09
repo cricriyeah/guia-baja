@@ -40,3 +40,12 @@ describe('etiquetasDeCambio (spec §10)', () => {
     expect(etiqueta.textos(1, 2)).toBe('textos:1:2')
   })
 })
+
+it('itinerarios: su etiqueta, listados, zona y lugares citados de antes y de ahora', () => {
+  const t = etiquetasDeCambio('itinerarios', { id: 1, zona: 2, lugaresCitados: [3] }, { id: 1, zona: 2, lugaresCitados: [4] })
+  expect(t).toEqual(expect.arrayContaining(['itinerario:1', 'listados', 'zona:2', 'lugar:3', 'lugar:4']))
+})
+it('temas: su etiqueta, listados, zona y lugares fijos', () => {
+  const t = etiquetasDeCambio('temas', { id: 1, zona: 2, lugaresFijos: [3] }, null)
+  expect(t).toEqual(expect.arrayContaining(['tema:1', 'listados', 'zona:2', 'lugar:3']))
+})

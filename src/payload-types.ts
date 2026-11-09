@@ -27,6 +27,8 @@ export interface Config {
     lugares: Lugare;
     eventos: Evento;
     articulos: Articulo;
+    itinerarios: Itinerario;
+    temas: Tema;
     solicitudes: Solicitude;
     'textos-zona-categoria': TextosZonaCategoria;
     'fotos-tours': FotosTour;
@@ -47,6 +49,8 @@ export interface Config {
     lugares: LugaresSelect<false> | LugaresSelect<true>;
     eventos: EventosSelect<false> | EventosSelect<true>;
     articulos: ArticulosSelect<false> | ArticulosSelect<true>;
+    itinerarios: ItinerariosSelect<false> | ItinerariosSelect<true>;
+    temas: TemasSelect<false> | TemasSelect<true>;
     solicitudes: SolicitudesSelect<false> | SolicitudesSelect<true>;
     'textos-zona-categoria': TextosZonaCategoriaSelect<false> | TextosZonaCategoriaSelect<true>;
     'fotos-tours': FotosToursSelect<false> | FotosToursSelect<true>;
@@ -489,6 +493,158 @@ export interface Articulo {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "itinerarios".
+ */
+export interface Itinerario {
+  id: number;
+  titulo: string;
+  /**
+   * Se genera del nombre; minúsculas sin acentos, con guiones.
+   */
+  slug?: string | null;
+  zona: number | Zona;
+  resumen?: string | null;
+  portada?: (number | null) | Media;
+  autor: number | User;
+  autorNombre?: string | null;
+  publicadoEl?: string | null;
+  actualizadoEl?: string | null;
+  cuerpo?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  dias: {
+    titulo?: string | null;
+    paradas: {
+      hora?: string | null;
+      lugar?: (number | null) | Lugare;
+      tour?: string | null;
+      nota?: string | null;
+      id?: string | null;
+    }[];
+    id?: string | null;
+  }[];
+  lugaresCitados?: (number | Lugare)[] | null;
+  preguntas?:
+    | {
+        pregunta: string;
+        respuesta: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Sale en los destacados de la portada de la Guía.
+   */
+  destacadoEnPortada?: boolean | null;
+  ordenDestacado?: number | null;
+  seo?: {
+    metaTitulo?: string | null;
+    metaDescripcion?: string | null;
+    noIndexar?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "temas".
+ */
+export interface Tema {
+  id: number;
+  titulo: string;
+  /**
+   * Se genera del nombre; minúsculas sin acentos, con guiones.
+   */
+  slug?: string | null;
+  /**
+   * Sin zona, el tema es de toda la Baja.
+   */
+  zona?: (number | null) | Zona;
+  resumen?: string | null;
+  portada?: (number | null) | Media;
+  autor: number | User;
+  autorNombre?: string | null;
+  publicadoEl?: string | null;
+  actualizadoEl?: string | null;
+  introduccion?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Cualquiera de estas.
+   */
+  categorias?: (number | Categoria)[] | null;
+  /**
+   * Todas a la vez.
+   */
+  caracteristicas?: ('para-ninos' | 'con-comida' | 'solo-con-tour')[] | null;
+  /**
+   * Todos a la vez.
+   */
+  servicios?:
+    | ('sombra' | 'banos' | 'regaderas' | 'estacionamiento' | 'renta-de-equipo' | 'comida-cerca' | 'sin-servicios')[]
+    | null;
+  /**
+   * Los que van sí o sí, primero y en este orden.
+   */
+  lugaresFijos?: (number | Lugare)[] | null;
+  tours?:
+    | {
+        zona: number | Zona;
+        tour: string;
+        id?: string | null;
+      }[]
+    | null;
+  preguntas?:
+    | {
+        pregunta: string;
+        respuesta: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Se actualiza al guardar.
+   */
+  lugaresQueCoinciden?: string | null;
+  /**
+   * Sale en los destacados de la portada de la Guía.
+   */
+  destacadoEnPortada?: boolean | null;
+  ordenDestacado?: number | null;
+  seo?: {
+    metaTitulo?: string | null;
+    metaDescripcion?: string | null;
+    noIndexar?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "solicitudes".
  */
 export interface Solicitude {
@@ -561,7 +717,7 @@ export interface FotosTour {
  */
 export interface IndiceBusqueda {
   id: number;
-  tipo: 'lugar' | 'evento' | 'articulo' | 'zona' | 'categoria';
+  tipo: 'lugar' | 'evento' | 'articulo' | 'itinerario' | 'tema' | 'zona' | 'categoria';
   docId: number;
   idioma: 'es' | 'en';
   slug: string;
@@ -614,6 +770,14 @@ export interface Redirect {
       | ({
           relationTo: 'articulos';
           value: number | Articulo;
+        } | null)
+      | ({
+          relationTo: 'itinerarios';
+          value: number | Itinerario;
+        } | null)
+      | ({
+          relationTo: 'temas';
+          value: number | Tema;
         } | null);
     url?: string | null;
   };
@@ -764,6 +928,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'articulos';
         value: number | Articulo;
+      } | null)
+    | ({
+        relationTo: 'itinerarios';
+        value: number | Itinerario;
+      } | null)
+    | ({
+        relationTo: 'temas';
+        value: number | Tema;
       } | null)
     | ({
         relationTo: 'solicitudes';
@@ -1098,6 +1270,104 @@ export interface ArticulosSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "itinerarios_select".
+ */
+export interface ItinerariosSelect<T extends boolean = true> {
+  titulo?: T;
+  slug?: T;
+  zona?: T;
+  resumen?: T;
+  portada?: T;
+  autor?: T;
+  autorNombre?: T;
+  publicadoEl?: T;
+  actualizadoEl?: T;
+  cuerpo?: T;
+  dias?:
+    | T
+    | {
+        titulo?: T;
+        paradas?:
+          | T
+          | {
+              hora?: T;
+              lugar?: T;
+              tour?: T;
+              nota?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  lugaresCitados?: T;
+  preguntas?:
+    | T
+    | {
+        pregunta?: T;
+        respuesta?: T;
+        id?: T;
+      };
+  destacadoEnPortada?: T;
+  ordenDestacado?: T;
+  seo?:
+    | T
+    | {
+        metaTitulo?: T;
+        metaDescripcion?: T;
+        noIndexar?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "temas_select".
+ */
+export interface TemasSelect<T extends boolean = true> {
+  titulo?: T;
+  slug?: T;
+  zona?: T;
+  resumen?: T;
+  portada?: T;
+  autor?: T;
+  autorNombre?: T;
+  publicadoEl?: T;
+  actualizadoEl?: T;
+  introduccion?: T;
+  categorias?: T;
+  caracteristicas?: T;
+  servicios?: T;
+  lugaresFijos?: T;
+  tours?:
+    | T
+    | {
+        zona?: T;
+        tour?: T;
+        id?: T;
+      };
+  preguntas?:
+    | T
+    | {
+        pregunta?: T;
+        respuesta?: T;
+        id?: T;
+      };
+  lugaresQueCoinciden?: T;
+  destacadoEnPortada?: T;
+  ordenDestacado?: T;
+  seo?:
+    | T
+    | {
+        metaTitulo?: T;
+        metaDescripcion?: T;
+        noIndexar?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "solicitudes_select".
  */
 export interface SolicitudesSelect<T extends boolean = true> {
@@ -1360,6 +1630,14 @@ export interface TaskSchedulePublish {
       | ({
           relationTo: 'articulos';
           value: number | Articulo;
+        } | null)
+      | ({
+          relationTo: 'itinerarios';
+          value: number | Itinerario;
+        } | null)
+      | ({
+          relationTo: 'temas';
+          value: number | Tema;
         } | null);
     global?: string | null;
     user?: {

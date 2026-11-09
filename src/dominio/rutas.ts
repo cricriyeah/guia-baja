@@ -2,16 +2,16 @@ import type { Locale } from './idioma'
 
 export const SEGMENTOS = {
   es: {
-    guia: 'guia', lugares: 'lugares', eventos: 'eventos', articulos: 'articulos',
+    guia: 'guia', lugares: 'lugares', eventos: 'eventos', articulos: 'articulos', itinerarios: 'itinerarios', temas: 'temas',
     categoria: 'categoria', negocios: 'aparece-en-la-guia', privacidad: 'privacidad', buscar: 'buscar',
   },
   en: {
-    guia: 'guide', lugares: 'places', eventos: 'events', articulos: 'articles',
+    guia: 'guide', lugares: 'places', eventos: 'events', articulos: 'articles', itinerarios: 'itineraries', temas: 'topics',
     categoria: 'category', negocios: 'get-listed', privacidad: 'privacy', buscar: 'search',
   },
 } as const satisfies Record<Locale, Record<string, string>>
 
-export type TipoOg = 'portada' | 'zona' | 'categoria-zona' | 'categoria' | 'lugar' | 'evento' | 'articulo' | 'pagina'
+export type TipoOg = 'portada' | 'zona' | 'categoria-zona' | 'categoria' | 'lugar' | 'evento' | 'articulo' | 'pagina' | 'itinerario' | 'tema'
 
 const base = (l: Locale) => `/${l}/${SEGMENTOS[l].guia}`
 
@@ -25,6 +25,8 @@ export const rutas = {
   eventos: (l: Locale) => `${base(l)}/${SEGMENTOS[l].eventos}`,
   evento: (l: Locale, slug: string) => `${base(l)}/${SEGMENTOS[l].eventos}/${slug}`,
   articulo: (l: Locale, slug: string) => `${base(l)}/${SEGMENTOS[l].articulos}/${slug}`,
+  itinerario: (l: Locale, slug: string) => `${base(l)}/${SEGMENTOS[l].itinerarios}/${slug}`,
+  tema: (l: Locale, slug: string) => `${base(l)}/${SEGMENTOS[l].temas}/${slug}`,
   negocios: (l: Locale) => `${base(l)}/${SEGMENTOS[l].negocios}`,
   privacidad: (l: Locale) => `${base(l)}/${SEGMENTOS[l].privacidad}`,
   buscar: (l: Locale) => `${base(l)}/${SEGMENTOS[l].buscar}`,

@@ -8,6 +8,8 @@ const ORDEN = [
   'solicitudes',
   'textos-zona-categoria',
   'fotos-tours',
+  'itinerarios',
+  'temas',
   'articulos',
   'eventos',
   'lugares',

@@ -1,5 +1,5 @@
 import { BlocksFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
-import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
+import type { CollectionConfig } from 'payload'
 
 import { lecturaPublicaPublicada, soloPersonal } from '../acceso/reglas'
 import { bloquesArticulo } from '../bloques/articulo'
@@ -9,7 +9,7 @@ import { camposSeo } from '../campos/seo'
 import { campoSlug } from '../campos/slug'
 import { CAMPOS_IDIOMA, CAMPOS_LOCALIZADOS } from '../dominio/idioma'
 import { rutas } from '../dominio/rutas'
-import { fechasDePublicacion, llenarLugaresCitados } from '../hooks/articulos'
+import { copiarNombreAutor, fechasDePublicacion, llenarLugaresCitados } from '../hooks/articulos'
 import { destinoAlRetirarArticulo, hooksDeRedireccion } from '../redirecciones/hooks'
 import { hooksDeRevalidacion } from '../revalidacion/hooks'
 
@@ -28,19 +28,6 @@ const redireccion = hooksDeRedireccion({
 })
 
 // El público no lee Users; el nombre del autor viaja copiado en el artículo.
-// Lee con el adaptador de base (no Local API) para no tocar req.locale (regla de hooks del plan).
-const copiarNombreAutor: CollectionBeforeChangeHook = async ({ data, req }) => {
-  const autor = data?.autor
-  const id = typeof autor === 'object' && autor !== null ? (autor as { id: number }).id : autor
-  if (!id) return data
-  const usuario = await req.payload.db.findOne<{ id: number; nombrePublico?: string }>({
-    collection: 'users',
-    where: { id: { equals: id } },
-    req,
-  })
-  return { ...data, autorNombre: usuario?.nombrePublico ?? '' }
-}
-
 export const Articulos: CollectionConfig = {
   slug: 'articulos',
   admin: { useAsTitle: 'titulo', defaultColumns: ['titulo', 'autorNombre', '_status', 'publicadoEl'] },

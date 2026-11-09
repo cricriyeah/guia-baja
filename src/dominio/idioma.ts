@@ -12,12 +12,16 @@ export const CAMPOS_IDIOMA = {
   lugares: ['slug', 'resumen', 'cuerpo'],
   eventos: ['nombre', 'slug', 'resumen', 'cuerpo'],
   articulos: ['titulo', 'slug', 'resumen', 'cuerpo'],
+  itinerarios: ['titulo', 'slug', 'resumen', 'cuerpo'],
+  temas: ['titulo', 'slug', 'resumen', 'introduccion'],
 } as const
 
 export const CAMPOS_LOCALIZADOS = {
   lugares: ['slug', 'resumen', 'cuerpo', 'notaHorario'],
   eventos: ['nombre', 'slug', 'resumen', 'cuerpo', 'precio'],
   articulos: ['titulo', 'slug', 'resumen', 'cuerpo'],
+  itinerarios: ['titulo', 'slug', 'resumen', 'cuerpo'],
+  temas: ['titulo', 'slug', 'resumen', 'introduccion'],
 } as const
 
 export function textoDeLexical(nodo: unknown): string {

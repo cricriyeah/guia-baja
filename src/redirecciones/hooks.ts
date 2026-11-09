@@ -238,3 +238,9 @@ export function hooksDeCategoria() {
     }
   })
 }
+
+// Itinerario o tema retirado: a su zona, o a la portada si no tiene.
+export async function destinoAlRetirarPlan(req: PayloadRequest, antes: Doc, locale: Locale): Promise<string> {
+  const zona = await zonaActiva(req, antes.zona)
+  return zona ? rutas.zona(locale, zona.slug) : rutas.portada(locale)
+}

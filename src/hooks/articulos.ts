@@ -25,7 +25,26 @@ const idDe = (valor: Relacion) => (typeof valor === 'number' ? valor : valor.id)
 //   El adaptador devuelve los campos localizados como { es: ..., en: ... }.
 // - Restaurar una versión: data trae esa versión solo en el idioma por defecto, así que se conservan los
 //   lugares citados que la propia versión guardó.
-export const llenarLugaresCitados: CollectionBeforeChangeHook = async ({ collection, data, originalDoc, req }) => {
+// Lee con el adaptador de base (no Local API) para no tocar req.locale (regla de hooks del plan).
+export const copiarNombreAutor: CollectionBeforeChangeHook = async ({ data, req }) => {
+  const autor = data?.autor
+  const id = typeof autor === 'object' && autor !== null ? (autor as { id: number }).id : autor
+  if (!id) return data
+  const usuario = await req.payload.db.findOne<{ id: number; nombrePublico?: string }>({
+    collection: 'users',
+    where: { id: { equals: id } },
+    req,
+  })
+  return { ...data, autorNombre: usuario?.nombrePublico ?? '' }
+}
+
+type OpcionesCitados = {
+  coleccion: 'articulos' | 'itinerarios'
+  // Ids que no vienen del cuerpo y no están localizados (las paradas de un itinerario).
+  extra?: (datos: Record<string, unknown>) => number[]
+}
+
+export const crearLlenarLugaresCitados = ({ coleccion, extra }: OpcionesCitados): CollectionBeforeChangeHook => async ({ collection, data, originalDoc, req }) => {
   if (!data) return data
   const ids = new Set<number>()
   const cuerpoActual = 'cuerpo' in data ? data.cuerpo : originalDoc?.cuerpo
@@ -40,12 +59,13 @@ export const llenarLugaresCitados: CollectionBeforeChangeHook = async ({ collect
         id: originalDoc.id,
         config: collection,
         payload: req.payload,
-        query: { collection: 'articulos', locale: 'all', where: { id: { equals: originalDoc.id } }, req },
+        query: { collection: coleccion, locale: 'all', where: { id: { equals: originalDoc.id } }, req },
         req,
       })
       for (const locale of otros) lugaresEnCuerpo(ultima?.cuerpo?.[locale]).forEach((id) => ids.add(id))
     }
   }
+  extra?.({ ...originalDoc, ...data }).forEach((id) => ids.add(id))
   // Un bloque Lexical no limpia su referencia si el lugar se borra; solo se guardan los que siguen existiendo
   // (si no, la FK de articulos_rels impediría guardar el artículo). Conserva el orden de aparición.
   if (ids.size === 0) return { ...data, lugaresCitados: [] }
@@ -58,3 +78,5 @@ export const llenarLugaresCitados: CollectionBeforeChangeHook = async ({ collect
   const vivos = new Set(existentes.docs.map((lugar) => lugar.id as number))
   return { ...data, lugaresCitados: [...ids].filter((id) => vivos.has(id)) }
 }
+
+export const llenarLugaresCitados = crearLlenarLugaresCitados({ coleccion: 'articulos' })

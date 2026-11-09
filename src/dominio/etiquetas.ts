@@ -6,6 +6,8 @@ export const etiqueta = {
   lugar: (id: Id) => `lugar:${id}`,
   evento: (id: Id) => `evento:${id}`,
   articulo: (id: Id) => `articulo:${id}`,
+  itinerario: (id: Id) => `itinerario:${id}`,
+  tema: (id: Id) => `tema:${id}`,
   zona: (id: Id) => `zona:${id}`,
   categoria: (id: Id) => `categoria:${id}`,
   textos: (zona: Id, categoria: Id) => `textos:${zona}:${categoria}`,
@@ -20,7 +22,7 @@ export const etiqueta = {
 } as const
 
 export type ColeccionRevalidable =
-  | 'lugares' | 'eventos' | 'articulos' | 'zonas' | 'categorias'
+  | 'lugares' | 'eventos' | 'articulos' | 'itinerarios' | 'temas' | 'zonas' | 'categorias'
   | 'textos-zona-categoria' | 'fotos-tours' | 'media' | 'redirects'
 
 type Doc = Record<string, unknown> | null | undefined
@@ -57,6 +59,18 @@ export function etiquetasDeCambio(coleccion: ColeccionRevalidable, doc: Doc, ant
       agregar('zonas', etiqueta.zona)
       agregar('categorias', etiqueta.categoria)
       agregar('lugaresCitados', etiqueta.lugar)
+      break
+    case 'itinerarios':
+      agregar('id', etiqueta.itinerario)
+      t.add(etiqueta.listados)
+      agregar('zona', etiqueta.zona)
+      agregar('lugaresCitados', etiqueta.lugar)
+      break
+    case 'temas':
+      agregar('id', etiqueta.tema)
+      t.add(etiqueta.listados)
+      agregar('zona', etiqueta.zona)
+      agregar('lugaresFijos', etiqueta.lugar)
       break
     case 'zonas':
       agregar('id', etiqueta.zona)

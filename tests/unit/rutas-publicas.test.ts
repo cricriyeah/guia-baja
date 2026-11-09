@@ -118,3 +118,11 @@ describe('rutaPublicaDesdeArbol', () => {
     }
   })
 })
+
+it('traduce los segmentos nuevos del inglés al árbol en español', () => {
+  expect(resolverRutaPublica('/en/guide/itineraries/x', new URLSearchParams())).toEqual({ tipo: 'reescribir', destino: '/en/guia/itinerarios/x' })
+  expect(resolverRutaPublica('/en/guide/topics/x', new URLSearchParams())).toEqual({ tipo: 'reescribir', destino: '/en/guia/temas/x' })
+})
+it('el segmento del otro idioma da 404', () => {
+  expect(resolverRutaPublica('/es/guia/itineraries/x', new URLSearchParams())).toEqual({ tipo: 'noEncontrado', lang: 'es' })
+})

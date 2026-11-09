@@ -18,7 +18,7 @@ export const soloRutas: CollectionBeforeValidateHook = ({ data }) => {
 
 // Colección `redirects`: el público la lee (F3 la consulta antes de dar 404); solo Admin la edita a mano.
 export const pluginRedirecciones = redirectsPlugin({
-  collections: ['lugares', 'eventos', 'articulos'],
+  collections: ['lugares', 'eventos', 'articulos', 'itinerarios', 'temas'],
   redirectTypes: ['308'],
   overrides: {
     admin: { group: 'Configuración' },

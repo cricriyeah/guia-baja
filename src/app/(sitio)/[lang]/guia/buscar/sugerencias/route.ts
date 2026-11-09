@@ -31,7 +31,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ lang
   const ruta = (t: string, slug: string) =>
     t === 'lugar' ? rutas.lugar(lang, slug) : t === 'evento' ? rutas.evento(lang, slug) : t === 'articulo' ? rutas.articulo(lang, slug) : t === 'zona' ? rutas.zona(lang, slug) : rutas.categoria(lang, slug)
   return NextResponse.json(
-    filas.filter((f) => visibles[f.tipo].has(f.docId)).map((f) => ({ tipo: f.tipo, titulo: f.titulo, ruta: ruta(f.tipo, f.slug) })),
+    filas.filter((f) => visibles[f.tipo]?.has(f.docId)).map((f) => ({ tipo: f.tipo, titulo: f.titulo, ruta: ruta(f.tipo, f.slug) })),
     { headers: { 'Cache-Control': 'public, max-age=60' } },
   )
 }

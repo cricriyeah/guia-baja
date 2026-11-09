@@ -22,7 +22,7 @@ export function tamanoTituloOg(titulo: string): number {
 // Cuántos segmentos de ruta lleva cada tipo; la ruta rechaza los demás para que /og/es/zona/la-paz/x no genere (y
 // cachee) una imagen por cada sufijo inventado.
 export const SEGMENTOS_OG: Record<TipoOg, number> = {
-  portada: 0, zona: 1, 'categoria-zona': 2, categoria: 1, lugar: 1, evento: 1, articulo: 1, pagina: 1,
+  portada: 0, zona: 1, 'categoria-zona': 2, categoria: 1, lugar: 1, evento: 1, articulo: 1, pagina: 1, itinerario: 1, tema: 1,
 }
 
 export const segmentosOgValidos = (tipo: string, segmentos: string[]): boolean =>
