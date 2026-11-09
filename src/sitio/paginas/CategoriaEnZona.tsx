@@ -147,7 +147,7 @@ export async function CategoriaEnZona({ lang, zonaSlug, categoriaSlug, variante 
           <div className="explorar" data-vista="lista">
             <div className="lista">
               {pag.items.map((l, i) => (
-                <TarjetaLugar key={l.id} lang={lang} lugar={l} categoria={cat} zonaNombre={zona.nombre} km={l.coordenadas && zona.coordenadas ? kmEnLineaRecta(l.coordenadas, zona.coordenadas) : null} retraso={(i % 6) * 60} />
+                <TarjetaLugar key={l.id} lang={lang} lugar={l} categoria={cat} zonaNombre={zona.nombre} km={l.coordenadas && zona.coordenadas ? kmEnLineaRecta(l.coordenadas, zona.coordenadas) : null} retraso={(i % 6) * 60} entrada={i >= 2} />
               ))}
             </div>
             {conCoordenadas.length > 0 && (

@@ -13,13 +13,14 @@ import { Imagen } from '../Imagen'
 
 // La tarjeta de lugar de la propuesta C (.nota), la misma en todas las páginas. Patrocinio declarado → etiqueta
 // y rel="sponsored" (spec §7), lo decide el código.
-export function TarjetaLugar(props: { lang: Locale; lugar: Lugar; categoria?: CategoriaPublica; zonaNombre?: string; km?: number | null; retraso?: number }) {
-  const { lang, lugar, categoria, zonaNombre, km, retraso } = props
+export function TarjetaLugar(props: { lang: Locale; lugar: Lugar; categoria?: CategoriaPublica; zonaNombre?: string; km?: number | null; retraso?: number; entrada?: boolean }) {
+  // `entrada` en falso: arriba del pliegue, un fundido desde opacidad 0 retrasa el LCP (docs/rendimiento/lcp-2026-11.md).
+  const { lang, lugar, categoria, zonaNombre, km, retraso, entrada = true } = props
   const t = textos(lang).tarjetas
   const declarado = patrocinioDeclarado(lugar.patrocinio)
   return (
     <Link
-      className={`nota tarjeta presionable entra ${categoria?.claseGrupo ?? ''}`}
+      className={`nota tarjeta presionable${entrada ? ' entra' : ''} ${categoria?.claseGrupo ?? ''}`}
       href={rutas.lugar(lang, lugar.slug)}
       rel={declarado ? 'sponsored' : undefined}
       style={retraso ? ({ '--retraso': `${retraso}ms` } as CSSProperties) : undefined}

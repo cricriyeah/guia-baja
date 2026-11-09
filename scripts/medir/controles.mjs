@@ -13,8 +13,6 @@ export const CONTROLES = {
     reemplazar: ["if (e.type === 'load') aparecer(e.target)", ''],
   }],
   b: [agregar('#contenido', 'animation: none !important;')],
-  // Apaga .js .entra y no la clase js: quitar js también apagaría el brillo de la imagen LCP (plan del paquete 4).
-  c: [agregar('.js .entra', 'opacity: 1 !important; transform: none !important; transition: none !important;')],
   d: [agregar('.resultados-entran > *', 'animation: none !important;')],
 }
 
