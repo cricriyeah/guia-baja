@@ -21,7 +21,7 @@ export type ItemCatalogo =
   | (Base & { tipo: 'servicio'; empresaSlug: string; duracion: string | null; duracionEn: string | null })
   | (Base & { tipo: 'paquete'; sedeSlug: string; noches: number | null })
 
-export type PrecioDesde = { monto: string; moneda: 'MXN' | 'USD'; estrategia: Estrategia }
+export type PrecioDesde = { monto: string; valor: number; moneda: 'MXN' | 'USD'; estrategia: Estrategia }
 export type Tour = {
   clave: string
   tipo: ItemCatalogo['tipo']
@@ -108,9 +108,12 @@ const formato = (monto: number, moneda: 'MXN' | 'USD'): string =>
 function precioDesde(item: ItemCatalogo, lang: Locale): PrecioDesde | null {
   // El sitio de reservas cotiza por ruta: aquí no hay precio «desde» que mostrar.
   if (!item.precioMxn || item.estrategia === 'por_ruta') return null
-  return lang === 'en'
-    ? { monto: formato(aDolares(item.precioMxn, item.tipoCambio), 'USD'), moneda: 'USD', estrategia: item.estrategia }
-    : { monto: formato(Number(item.precioMxn), 'MXN'), moneda: 'MXN', estrategia: item.estrategia }
+  if (lang === 'en') {
+    const valor = aDolares(item.precioMxn, item.tipoCambio)
+    return { monto: formato(valor, 'USD'), valor, moneda: 'USD', estrategia: item.estrategia }
+  }
+  const valor = Number(item.precioMxn)
+  return { monto: formato(valor, 'MXN'), valor, moneda: 'MXN', estrategia: item.estrategia }
 }
 
 // Precio de la barra de tours (spec de presencia §2.2): el más bajo entre los servicios por persona que existen en ese

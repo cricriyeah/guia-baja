@@ -15,7 +15,7 @@ describe('presupuesto de las listas cacheadas', () => {
       rangoPrecio: '$$', horario: Array.from({ length: 9 }, () => ({ dia: 'miercoles', abre: '12:00', cierra: '23:00' })),
       caracteristicas: ['para-ninos', 'con-comida'], coordenadas: [-110.312345, 24.142678],
       patrocinio: { activo: true, desde: '2026-11-01T12:00:00.000Z', hasta: '2026-12-01T12:00:00.000Z' },
-      orden: 100, destacado: { activo: false, orden: 100 }, noIndexar: false, toursRelacionados: [],
+      orden: 100, destacado: { activo: false, orden: 100 }, noIndexar: false, toursRelacionados: [], otrosNombres: [], enlazarMenciones: true, servicios: [],
     }
     // unstable_cache vuelve a serializar la cadena JSON (comillas escapadas): se mide igual.
     const bytes = Buffer.byteLength(JSON.stringify(JSON.stringify(Array.from({ length: 600 }, () => tarjeta))))

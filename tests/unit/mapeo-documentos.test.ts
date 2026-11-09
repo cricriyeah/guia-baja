@@ -95,3 +95,22 @@ describe('mapeos de documentos (regla de idioma, spec §6)', () => {
     expect(idaYVuelta(f)).toEqual(f)
   })
 })
+
+it('mapea visita, preguntas y nombres', () => {
+  const doc = { ...lugar, otrosNombres: ['Balandra'], enlazarMenciones: false,
+    visita: { costoEntrada: '$100', entradaGratis: false, minutosDesdeZona: 45, medio: 'auto', comoLlegar: null, servicios: ['sombra'], mejorHora: null },
+    preguntas: [{ id: 'a', pregunta: '¿Hay baños?', respuesta: 'No.' }] }
+  const f = fichaLugarDe(doc as never, 'es', {})!
+  expect(f.otrosNombres).toEqual(['Balandra'])
+  expect(f.enlazarMenciones).toBe(false)
+  expect(f.servicios).toEqual(['sombra'])
+  expect(f.visita).toMatchObject({ costoEntrada: '$100', minutosDesdeZona: 45, medio: 'auto' })
+  expect(f.preguntas).toEqual([{ pregunta: '¿Hay baños?', respuesta: 'No.' }])
+})
+
+it('sin datos: enlazarMenciones por defecto y visita nula', () => {
+  const f = fichaLugarDe(lugar as never, 'es', {})!
+  expect(f.enlazarMenciones).toBe(true)
+  expect(f.visita).toBeNull()
+  expect(f.preguntas).toEqual([])
+})

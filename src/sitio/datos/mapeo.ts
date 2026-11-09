@@ -2,6 +2,7 @@ import type { Grupo } from '../../dominio/grupos'
 import { CAMPOS_IDIOMA, existeEnIdioma, type Locale, textoDeLexical } from '../../dominio/idioma'
 import { idDe } from '../../dominio/lexical'
 import { esClaveDeTour } from '../../dominio/presencia'
+import { tieneVisita, type VisitaPublica } from '../../dominio/visita'
 import type { Articulo, Categoria, Evento, Lugare, Media, Zona } from '../../payload-types'
 import type {
   CategoriaPublica, Destacado, FichaArticulo, FichaEvento, FichaLugar, FilaHorarioPublica, Imagen, PatrocinioPublico,
@@ -111,7 +112,25 @@ export function lugarDe(doc: Lugare, lang: Locale): TarjetaLugar | null {
     noIndexar: Boolean(doc.seo?.noIndexar),
     // Sin el campo (datos de antes del cambio) es lista vacía; una clave mal formada se descarta.
     toursRelacionados: (doc.toursRelacionados ?? []).filter(esClaveDeTour),
+    otrosNombres: doc.otrosNombres ?? [],
+    enlazarMenciones: doc.enlazarMenciones !== false,
+    servicios: doc.visita?.servicios ?? [],
   }
+}
+
+function visitaDe(doc: Lugare): VisitaPublica | null {
+  const v = doc.visita
+  if (!v) return null
+  const publica: VisitaPublica = {
+    costoEntrada: v.costoEntrada ?? null,
+    entradaGratis: Boolean(v.entradaGratis),
+    minutosDesdeZona: v.minutosDesdeZona ?? null,
+    medio: v.medio ?? null,
+    comoLlegar: v.comoLlegar ?? null,
+    servicios: v.servicios ?? [],
+    mejorHora: v.mejorHora ?? null,
+  }
+  return tieneVisita(publica) ? publica : null
 }
 
 export function fichaLugarDe(doc: Lugare, lang: Locale, media: Record<string, Imagen>): FichaLugar | null {
@@ -129,6 +148,8 @@ export function fichaLugarDe(doc: Lugare, lang: Locale, media: Record<string, Im
     web: doc.web ?? null,
     instagram: doc.instagram ?? null,
     notaHorario: doc.notaHorario ?? null,
+    preguntas: (doc.preguntas ?? []).map((p) => ({ pregunta: p.pregunta, respuesta: p.respuesta })),
+    visita: visitaDe(doc),
     metaTitulo: doc.seo?.metaTitulo ?? null,
     metaDescripcion: doc.seo?.metaDescripcion ?? null,
     media,

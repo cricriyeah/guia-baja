@@ -3,6 +3,7 @@ import type { Payload } from 'payload'
 
 import { precioPorPersonaDesde, toursDe, type Tour } from '../../dominio/catalogo'
 import type { Locale } from '../../dominio/idioma'
+import { enTemporada, mesEnBCS, mesesATexto, ordenarPorTemporada } from '../../dominio/temporada'
 import { ajustesPublicos } from './lecturas/ajustes'
 import { articulosPublicados, fichaArticulo } from './lecturas/articulos'
 import { catalogoDeSede, fotosDeTours, type FotoTour } from './lecturas/catalogo'
@@ -47,7 +48,7 @@ export const textoCacheado = cachear(textoZonaCategoria, LLAVES.texto)
 export const catalogoCacheado = cachear(catalogoDeSede, LLAVES.catalogo)
 const fotosToursCacheadas = cachear(fotosDeTours, LLAVES.fotosTours)
 
-export type TourConFoto = Tour & Pick<FotoTour, 'foto' | 'temporada'>
+export type TourConFoto = Tour & Pick<FotoTour, 'foto' | 'meses'> & { temporada: string | null; enTemporada: boolean }
 
 // Precio de la barra de tours (spec de presencia §2.2). Catálogo caído: sin precio, la barra sigue.
 export async function precioBarraDeSede(sedeSlug: string, lang: Locale): Promise<string | null> {
@@ -64,7 +65,13 @@ export async function toursDeSede(sedeSlug: string, lang: Locale): Promise<TourC
   try {
     const [items, fotos] = await Promise.all([catalogoCacheado(sedeSlug), fotosToursCacheadas(sedeSlug, lang)])
     const porClave = new Map(fotos.map((f) => [f.clave, f]))
-    return toursDe(items, lang).map((t) => ({ ...t, foto: porClave.get(t.clave)?.foto ?? null, temporada: porClave.get(t.clave)?.temporada ?? null }))
+    const mes = mesEnBCS(new Date())
+    const conDatos = toursDe(items, lang).map((t) => {
+      const f = porClave.get(t.clave)
+      const meses = f?.meses ?? []
+      return { ...t, foto: f?.foto ?? null, meses, temporada: f?.temporada ?? mesesATexto(meses, lang), enTemporada: enTemporada(meses, mes) }
+    })
+    return ordenarPorTemporada(conDatos, mes)
   } catch (e) {
     console.error(`Tours de ${sedeSlug}: no se muestran.`, e instanceof Error ? e.message : 'error desconocido')
     return []

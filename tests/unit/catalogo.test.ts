@@ -76,7 +76,7 @@ describe('toursDe', () => {
       tipo: 'servicio',
       slug: 'pesca-deportiva',
       nombre: 'Pesca deportiva',
-      precio: { monto: '$11,290', moneda: 'MXN', estrategia: 'por_grupo' },
+      precio: { monto: '$11,290', valor: 11290, moneda: 'MXN', estrategia: 'por_grupo' },
       duracion: '6–7 h',
       noches: null,
       ruta: '/es/servicio/sal-y-sol/pesca-deportiva',
@@ -115,4 +115,11 @@ describe('toursDe', () => {
   it('duración vacía queda en null', () => {
     expect(toursDe([unServicio({ duracion: '' })], 'es')[0].duracion).toBeNull()
   })
+})
+
+it('el precio trae su número además del texto', () => {
+  const [mxn] = toursDe(validarServicios([servicio()]), 'es')
+  expect(mxn.precio).toMatchObject({ monto: '$11,290', valor: 11290, moneda: 'MXN' })
+  const [usd] = toursDe(validarServicios([servicio()]), 'en')
+  expect(usd.precio).toMatchObject({ valor: aDolares('11290.00', '17.5000'), moneda: 'USD' })
 })

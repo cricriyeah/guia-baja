@@ -1,4 +1,5 @@
 import type { Grupo } from '../../dominio/grupos'
+import type { VisitaPublica } from '../../dominio/visita'
 
 // Lo que reciben las páginas. Nunca documentos crudos de Payload.
 export type Imagen = {
@@ -34,6 +35,7 @@ export type CategoriaPublica = {
 }
 
 export type Ajustes = {
+  whatsappToursActivo: boolean
   correoPrivacidad: string | null
   formularioActivo: boolean
   versionAviso: string | null
@@ -59,8 +61,10 @@ export type TarjetaLugar = {
   orden: number; destacado: Destacado; noIndexar: boolean
   // Claves del catálogo (spec de presencia §2.1). Viajan en la tarjeta para que el slot de tours las tenga en la ficha.
   toursRelacionados: string[]
+  otrosNombres: string[]; enlazarMenciones: boolean; servicios: string[]
 }
 export type FichaLugar = TarjetaLugar & {
+  preguntas: { pregunta: string; respuesta: string }[]; visita: VisitaPublica | null
   cuerpo: unknown; fotos: Imagen[]; direccion: string | null; telefono: string | null; whatsapp: string | null
   web: string | null; instagram: string | null; notaHorario: string | null
   metaTitulo: string | null; metaDescripcion: string | null; media: Record<string, Imagen>

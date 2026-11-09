@@ -24,7 +24,7 @@ export async function catalogoDeSede(_payload: Payload, sedeSlug: string): Promi
   return [...validarServicios(servicios), ...validarPaquetes(paquetes)]
 }
 
-export type FotoTour = { clave: string; foto: Imagen | null; temporada: string | null }
+export type FotoTour = { clave: string; foto: Imagen | null; temporada: string | null; meses: number[] }
 
 // Foto y temporada de cada tour (spec §8.1): el catálogo no las manda.
 export async function fotosDeTours(payload: Payload, sedeSlug: string, lang: Locale): Promise<FotoTour[]> {
@@ -35,5 +35,5 @@ export async function fotosDeTours(payload: Payload, sedeSlug: string, lang: Loc
     depth: 1,
     pagination: false,
   })
-  return docs.map((d) => ({ clave: `${d.tipo}:${d.slug}`, foto: imagenDe(d.foto, lang), temporada: d.temporada ?? null }))
+  return docs.map((d) => ({ clave: `${d.tipo}:${d.slug}`, foto: d.foto ? imagenDe(d.foto, lang) : null, temporada: d.temporada ?? null, meses: (d.meses ?? []).map(Number) }))
 }

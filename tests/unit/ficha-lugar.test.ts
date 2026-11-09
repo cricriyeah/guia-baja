@@ -18,9 +18,9 @@ const sinPatrocinio = { activo: false, desde: null, hasta: null }
 const base: FichaLugar = {
   id: 1, slug: 'cafe-duna', nombre: 'Café Duna', resumen: 'Café de prueba', zonaId: 1, zonaSlug: 'la-paz', categoriaIds: [1],
   foto: null, rangoPrecio: '$$', horario: [], caracteristicas: [], coordenadas: [-110.31, 24.14], patrocinio: sinPatrocinio,
-  orden: 0, destacado: { activo: false, orden: 0 }, noIndexar: false, toursRelacionados: [],
+  orden: 0, destacado: { activo: false, orden: 0 }, noIndexar: false, toursRelacionados: [], otrosNombres: [], enlazarMenciones: true, servicios: [],
   cuerpo: null, fotos: [], direccion: 'Calle Inventada 123', telefono: '+52 612 000 0000', whatsapp: '+52 612 000 0001',
-  web: 'https://ejemplo.test', instagram: '@cafeduna', notaHorario: null, metaTitulo: null, metaDescripcion: null, media: {},
+  web: 'https://ejemplo.test', instagram: '@cafeduna', notaHorario: null, metaTitulo: null, metaDescripcion: null, media: {}, preguntas: [], visita: null,
 }
 let ficha = base
 const zonasBase: unknown[] = [{ id: 1, slug: 'la-paz', nombre: 'La Paz', descripcion: null, coordenadas: [-110.3, 24.1] }]

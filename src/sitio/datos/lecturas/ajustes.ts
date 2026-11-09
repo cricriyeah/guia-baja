@@ -9,6 +9,7 @@ export async function ajustesPublicos(payload: Payload, lang: Locale): Promise<A
   return {
     correoPrivacidad: g.correoPrivacidad ?? null,
     formularioActivo: Boolean(g.formularioActivo),
+    whatsappToursActivo: Boolean(g.whatsappToursActivo),
     versionAviso: g.versionAviso ?? null,
     avisoVigenteDesde: g.avisoVigenteDesde ?? null,
     avisoPrivacidad: g.avisoPrivacidad ?? null,
