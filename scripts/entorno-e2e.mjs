@@ -13,5 +13,6 @@ export function envModo(modo) {
     CRON_SECRET: 'cron-e2e',
     SITIO_URL: 'https://www.salysoltours.com',
     CATALOGO_API_URL: `http://localhost:${PUERTO_CATALOGO}`,
+    WHATSAPP_NUMERO: '5210000000000',
   }
 }

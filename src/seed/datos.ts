@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 
 import type { Payload } from 'payload'
 
+import { mesEnBCS } from '../dominio/temporada'
 import type { Evento, Lugare, Media, Zona } from '../payload-types'
 
 import { imagenDePrueba } from './imagenes'
@@ -137,6 +138,14 @@ export async function sembrar(
         web: 'https://ejemplo.invalid',
         instagram: '@guia_ficticia_0000',
         whatsapp: '+52 612 000 0000',
+        ...(l.nombre === 'Playa Arena Fina'
+          ? {
+              otrosNombres: ['Arena Fina'],
+              visita: { costoEntrada: '$100 MXN por persona', minutosDesdeZona: 45, medio: 'auto' as const, comoLlegar: 'Por la carretera a Pichilingue.', servicios: ['sombra' as const, 'banos' as const], mejorHora: 'Temprano, antes de las 10.' },
+              preguntas: [{ pregunta: '¿Hay sombra?', respuesta: 'Sí, con palapas.' }],
+            }
+          : {}),
+        ...('patrocinado' in l ? { otrosNombres: ['Patrocinado Prueba'] } : {}),
         _status: 'published',
       },
       overrideAccess: true, context: ctx,
@@ -144,7 +153,15 @@ export async function sembrar(
     if (l.en) {
       await payload.update({
         collection: 'lugares', id: doc.id, locale: 'en',
-        data: { resumen: `${l.nombre}: made-up place for testing in La Paz.`, cuerpo: parrafo(`Sample text about ${l.nombre}.`), _status: 'published' },
+        data: {
+          resumen: `${l.nombre}: made-up place for testing in La Paz.`, cuerpo: parrafo(`Sample text about ${l.nombre}.`), _status: 'published',
+          ...(l.nombre === 'Playa Arena Fina'
+            ? {
+                visita: { costoEntrada: '$100 MXN per person', comoLlegar: 'Take the road to Pichilingue.', mejorHora: 'Early, before 10.' },
+                preguntas: [{ pregunta: 'Is there shade?', respuesta: 'Yes, palapas.' }],
+              }
+            : {}),
+        },
         overrideAccess: true, context: ctx,
       })
     }
@@ -191,6 +208,8 @@ export async function sembrar(
     const txt = (t: string) => ({ type: 'text', text: t, format: 0, style: '', mode: 'normal', detail: 0, version: 1 })
     const h2 = (t: string) => ({ type: 'heading', tag: 'h2', version: 1, format: '', indent: 0, direction: 'ltr', children: [txt(t)] })
     ;(c.root.children as unknown[]).push(
+      { type: 'paragraph', version: 1, format: '', indent: 0, direction: 'ltr', textFormat: 0, children: [txt('Muy cerca de Arena Fina y de Patrocinado Prueba.')] },
+      { type: 'block', version: 2, format: '', fields: { id: 'tour-1', blockName: '', blockType: 'tour', zona: zonas[0].id, tour: 'servicio:ballenas-prueba' } },
       h2('En el centro'),
       {
         type: 'paragraph', version: 1, format: '', indent: 0, direction: 'ltr', textFormat: 0,
@@ -231,6 +250,11 @@ export async function sembrar(
       overrideAccess: true, context: ctx,
     })
   }
+
+  await payload.create({
+    collection: 'fotos-tours', locale: 'es', overrideAccess: true, context: { disableRevalidate: true },
+    data: { sedeSlug: 'la-paz', tipo: 'servicio', slug: 'ballenas-prueba', meses: [String(mesEnBCS(new Date()))] as never },
+  })
 
   const texto = await payload.create({
     collection: 'textos-zona-categoria', locale: 'es',

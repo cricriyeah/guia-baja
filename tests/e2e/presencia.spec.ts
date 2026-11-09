@@ -9,7 +9,7 @@ const MOVIL = { width: 390, height: 844 }
 const ESCRITORIO = { width: 1280, height: 800 }
 
 const conProxy = async (page: Page) => page.setExtraHTTPHeaders({ 'x-guia-proxy': SECRETO_PROXY })
-const barra = (page: Page) => page.locator('#tours-barra > a.boton')
+const barra = (page: Page) => page.locator('#tours-barra a.boton')
 const bajarA = (page: Page, fraccion: number) =>
   page.evaluate((f) => window.scrollTo(0, f * (document.documentElement.scrollHeight - window.innerHeight)), fraccion)
 
@@ -81,7 +81,7 @@ test.describe('@indexable presencia de reservas: barra fija (móvil)', () => {
     await expect(fila).toBeHidden()
     await bajarA(page, 0.6)
     await expect(fila).toBeVisible({ timeout: 15_000 })
-    await expect(fila).toContainText('Pesca de prueba')
+    await expect(fila).toContainText('Ballenas de prueba')
     const alto = await page.locator('#tours-barra').evaluate((el) => el.getBoundingClientRect().height)
     expect(alto).toBeLessThanOrEqual(0.2 * MOVIL.height)
     await fila.getByRole('button', { name: 'Cerrar' }).click()
@@ -101,7 +101,7 @@ test.describe('@indexable presencia de reservas: tarjeta (escritorio)', () => {
     await page.waitForTimeout(2500)
     await expect(tarjeta).toBeHidden()
     await expect(tarjeta).toBeVisible({ timeout: 15_000 })
-    await expect(tarjeta.getByRole('link', { name: /Pesca de prueba/ })).toHaveAttribute('href', /pieza=tarjeta-la-paz$/)
+    await expect(tarjeta.getByRole('link', { name: /Ballenas de prueba/ })).toHaveAttribute('href', /pieza=tarjeta-la-paz$/)
     await page.keyboard.press('Escape')
     await expect(tarjeta).toBeHidden()
 

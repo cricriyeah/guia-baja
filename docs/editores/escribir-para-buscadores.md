@@ -24,6 +24,15 @@ aquí y termine reservando un tour. Estas reglas ayudan a que nos encuentren y n
 - Si el admin marca un tour como «No está en el catálogo de esta zona», quítalo: ya no se vende o es de otra
   zona.
 
+## Antes de ir, preguntas y tours
+
+- **Datos de visita:** llena «Antes de ir» en playas y sitios naturales. El tiempo y el medio van juntos. Si la entrada es gratis, marca la casilla y deja el costo vacío.
+- **Preguntas frecuentes:** escríbelas como las haría un visitante («¿Hay sombra?») y responde en una o dos frases. Máximo 8.
+- **Bloque «Tour»:** úsalo cuando el texto hable de un tour concreto. Si el tour sale del catálogo, el bloque desaparece solo.
+- **Otros nombres:** agrega el nombre corto con que la gente conoce el lugar («Balandra» para «Playa Balandra»). La guía enlaza sola la primera mención de cada lugar.
+- **Enlaces automáticos:** apaga «Enlazar menciones» si el nombre del lugar es una palabra común.
+- **Temporadas:** marca los meses en «Fotos y temporadas de tours». Esos tours salen primero, llevan la etiqueta «En temporada» y aparecen en la portada ese mes.
+
 ## Los dos idiomas
 
 - Cada lugar y cada artículo se escriben en español e inglés. En inglés se escribe para quien viene de fuera:

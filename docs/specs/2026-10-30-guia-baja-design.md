@@ -393,6 +393,13 @@ borradores, versiones y publicación programada.
     configuración lleva `localization.fallback: false` y toda consulta pública usa `fallbackLocale: false`.
     Una prueba de integración lo comprueba (sección 11).
 
+### Paquete 1: fichas y artículos
+
+- **Lugares:** grupo `visita` («Antes de ir»: costo, entrada gratis, minutos y medio desde la zona, cómo llegar, servicios, mejor hora), `preguntas` (máximo 8, por idioma), `otrosNombres` y `enlazarMenciones`.
+- **Artículos:** bloque «Tour» (zona y clave del catálogo).
+- **Fotos y temporadas de tours:** `meses`; `foto` pasa a opcional. Un registro necesita foto, meses o temporada.
+- **Ajustes:** `whatsappToursActivo`. El número vive solo en `WHATSAPP_NUMERO`.
+
 ## 7. Páginas y URLs
 
 | Página | Español | Inglés |
@@ -559,6 +566,10 @@ Respuesta `200`:
 - Metas en móvil (datos de campo, Search Console): LCP < 2.5 s, INP < 200 ms, CLS < 0.1. Los umbrales de
   laboratorio del CI están en la sección 11.
 
+### Paquete 1: JSON-LD
+
+La ficha suma `@id`, `isAccessibleForFree`, `amenityFeature` y `FAQPage`. Las piezas de tours publican `TouristTrip` con el precio que se ve; en la ficha, ligado al lugar con `itinerary`.
+
 ## 10. Caché y revalidación
 
 Toda lectura de Payload para el sitio público pasa por `unstable_cache` con etiquetas. Etiquetas:
@@ -716,6 +727,10 @@ redacta o aprueba el dueño (entregable de F0); el código solo garantiza lo sig
 - **Criterios de éxito iniciales** (hipótesis; se ajustan con datos a los 3 meses del lanzamiento). A los 6
   meses: 3,000 visitas orgánicas al mes o más en la guía; `tour_clic` en el 3 % de las visitas o más; al
   menos 1 reserva al mes atribuida a la guía; al menos 5 Solicitudes por trimestre.
+
+### Paquete 1: WhatsApp
+
+`whatsapp_clic` (`zona`, `origen`: relacionado, zona, tarjeta, barra o pie). Los enlaces del bloque «Tour» llevan la pieza `tour-articulo-{slug}`.
 
 ## 14. Fases
 
