@@ -12,7 +12,7 @@ describe('JSON-LD de documentos (spec §9)', () => {
         nombre: 'Playa Balandra', resumen: 'Agua baja', fotos: [img], direccion: 'Km 25', coordenadas: [-110.32, 24.32],
         telefono: '612', rangoPrecio: '$', horario: [{ dia: 'martes', abre: '08:00', cierra: '18:00' }],
       } as never,
-      { url: '/es/guia/lugares/balandra', tipoSchema: 'Beach', zonaNombre: 'La Paz', base },
+      { url: '/es/guia/lugares/balandra', tipoSchema: 'Beach', zonaNombre: 'La Paz', base, lang: 'es' },
     )
     expect(ld).toMatchObject({
       '@type': 'Beach',

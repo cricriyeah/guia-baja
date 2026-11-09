@@ -128,3 +128,5 @@
 @media (min-width: 768px) {
   .galeria > .esq:first-child { grid-row: span 2; }
 }
+
+.antes-de-ir th { font-weight: 700; text-align: left; padding-right: 16px; vertical-align: top; }

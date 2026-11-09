@@ -178,6 +178,8 @@ const ES = {
     kmDe: (n: number, z: string) => `a ${n} km del centro de ${z}, en línea recta`,
   },
   ficha: {
+    antesDeIr: 'Antes de ir',
+    preguntas: 'Preguntas frecuentes',
     loQueHayQueSaber: 'Lo que hay que saber',
     horario: 'Horario',
     comoLlegar: 'Cómo llegar',
@@ -434,6 +436,8 @@ const EN: Textos = {
     kmDe: (n: number, z: string) => `${n} km from downtown ${z}, as the crow flies`,
   },
   ficha: {
+    antesDeIr: 'Before you go',
+    preguntas: 'Frequently asked questions',
     loQueHayQueSaber: 'What to know',
     horario: 'Hours',
     comoLlegar: 'Getting there',

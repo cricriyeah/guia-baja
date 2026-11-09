@@ -1,5 +1,8 @@
 import { CODIGO_REGIONAL, type Locale } from '../../dominio/idioma'
+import { SERVICIOS_VISITA } from '../../dominio/visita'
+import type { TourConFoto } from '../datos/cacheadas'
 import type { FichaArticulo, FichaEvento, FichaLugar, Miga, TarjetaLugar } from '../datos/tipos'
+import { textos } from '../textos'
 
 const absoluta = (ruta: string, base: string) => new URL(ruta, base).toString()
 
@@ -26,9 +29,11 @@ const DIA_SCHEMA: Record<string, string> = {
 const limpio = <T extends Record<string, unknown>>(o: T): T =>
   Object.fromEntries(Object.entries(o).filter(([, v]) => v !== null && v !== undefined && !(Array.isArray(v) && v.length === 0))) as T
 
-export function lugarLd(l: FichaLugar, c: { url: string; tipoSchema: string; zonaNombre: string; base: string }) {
+export function lugarLd(l: FichaLugar, c: { url: string; tipoSchema: string; zonaNombre: string; base: string; lang: Locale }) {
+  const servicios = SERVICIOS_VISITA.filter((s) => s.valor !== 'sin-servicios' && l.visita?.servicios.includes(s.valor))
   return limpio({
     '@context': 'https://schema.org',
+    '@id': `${absoluta(c.url, c.base)}#lugar`,
     '@type': c.tipoSchema,
     name: l.nombre,
     description: l.resumen,
@@ -44,6 +49,8 @@ export function lugarLd(l: FichaLugar, c: { url: string; tipoSchema: string; zon
       opens: h.abre,
       closes: h.cierra,
     })),
+    isAccessibleForFree: l.visita?.entradaGratis ? true : null,
+    amenityFeature: servicios.map((s) => ({ '@type': 'LocationFeatureSpecification', name: s[c.lang], value: true })),
   })
 }
 
@@ -94,5 +101,39 @@ export function faqLd(preguntas: { pregunta: string; respuesta: string }[]) {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
     mainEntity: preguntas.map((p) => ({ '@type': 'Question', name: p.pregunta, acceptedAnswer: { '@type': 'Answer', text: p.respuesta } })),
+  }
+}
+
+function tourLd(t: TourConFoto, c: { lang: Locale; base: string; lugarId?: string }) {
+  const url = absoluta(t.ruta, c.base)
+  const unidad = t.precio ? textos(c.lang).tours.por[t.precio.estrategia] : ''
+  return limpio({
+    '@type': 'TouristTrip',
+    name: t.nombre,
+    url,
+    image: t.foto ? absoluta(t.foto.src, c.base) : null,
+    itinerary: c.lugarId ? { '@id': c.lugarId } : null,
+    provider: { '@type': 'Organization', name: 'Sun Baja', url: c.base },
+    offers: t.precio
+      ? {
+          '@type': 'Offer',
+          url,
+          priceSpecification: limpio({
+            '@type': 'UnitPriceSpecification',
+            minPrice: t.precio.valor,
+            priceCurrency: t.precio.moneda,
+            unitText: unidad || null,
+          }),
+        }
+      : null,
+  })
+}
+
+// Spec del paquete 1 §2.5: TouristTrip y no Product, porque los resultados de comerciante piden envío y devoluciones.
+export function toursLd(tours: TourConFoto[], c: { lang: Locale; base: string; lugarId?: string }) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: tours.map((t, i) => ({ '@type': 'ListItem', position: i + 1, item: tourLd(t, c) })),
   }
 }

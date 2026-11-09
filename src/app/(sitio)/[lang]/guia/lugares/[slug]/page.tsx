@@ -6,20 +6,24 @@ import { CARACTERISTICAS } from '../../../../../../dominio/caracteristicas'
 import { kmEnLineaRecta } from '../../../../../../dominio/distancia'
 import { horarioSemana } from '../../../../../../dominio/horario'
 import { esLocale, type Locale } from '../../../../../../dominio/idioma'
+import { enlazarMenciones } from '../../../../../../dominio/menciones'
 import { ordenarListado } from '../../../../../../dominio/orden'
 import { patrocinioDeclarado } from '../../../../../../dominio/patrocinio'
 import { relacionadosVisibles } from '../../../../../../dominio/presencia'
 import { atribucion, rutas } from '../../../../../../dominio/rutas'
+import { chipsVisita } from '../../../../../../dominio/visita'
 import {
   articulosCacheados, categoriasCacheadas, eventosCacheados, fichaLugarCacheada, lugaresCacheados, toursDeSede, zonasActivasCacheadas,
 } from '../../../../../../sitio/datos/cacheadas'
 import { articulosQueCitan, documentoPorSlug, eventosProximos, lugaresDe, porId, resolutorDeCuerpo } from '../../../../../../sitio/datos/consultas'
+import { candidatosMencion } from '../../../../../../sitio/datos/menciones'
 import { guiaIndexable, sitioUrl } from '../../../../../../sitio/entorno'
 import { rutasPorIdioma } from '../../../../../../sitio/paginas/comun'
-import { lugarLd, migasLd } from '../../../../../../sitio/seo/jsonld'
+import { faqLd, lugarLd, migasLd } from '../../../../../../sitio/seo/jsonld'
 import { metadatos } from '../../../../../../sitio/seo/metadatos'
 import { versionesDe } from '../../../../../../sitio/seo/versiones'
 import { textos } from '../../../../../../sitio/textos'
+import { AntesDeIr } from '../../../../../../sitio/ui/AntesDeIr'
 import { Aparece } from '../../../../../../sitio/ui/Aparece'
 import { Compartir } from '../../../../../../sitio/ui/Compartir'
 import { CuerpoRico } from '../../../../../../sitio/ui/CuerpoRico'
@@ -30,6 +34,7 @@ import { JsonLd } from '../../../../../../sitio/ui/JsonLd'
 import { Mapa } from '../../../../../../sitio/ui/Mapa'
 import { Migas } from '../../../../../../sitio/ui/Migas'
 import { NoEncontradoEnSuspense } from '../../../../../../sitio/ui/NoEncontradoEnSuspense'
+import { PreguntasFrecuentes } from '../../../../../../sitio/ui/PreguntasFrecuentes'
 import { Riel } from '../../../../../../sitio/ui/Riel'
 import { MiniEvento } from '../../../../../../sitio/ui/tarjetas/MiniEvento'
 import { TarjetaArticulo } from '../../../../../../sitio/ui/tarjetas/TarjetaArticulo'
@@ -96,6 +101,8 @@ export default async function FichaDeLugar({ params }: Props) {
   const km = l.coordenadas && zona?.coordenadas ? Math.round(kmEnLineaRecta(l.coordenadas, zona.coordenadas)) : null
   const eventosAqui = eventosProximos(eventos, ahora, { lugarId: l.id })
   const citan = articulosQueCitan(articulos, l.id)
+  const visitaChips = l.visita ? chipsVisita(l.visita, lang, zona?.nombre ?? '') : []
+  const [cuerpo] = enlazarMenciones([l.cuerpo], candidatosMencion(lugares), { excluir: [l.id] })
   const mas = cat && zona
     ? ordenarListado(lugaresDe(lugares, { zonaId: zona.id, categoriaId: cat.id }).filter((x) => x.id !== l.id), new Date(ahora)).slice(0, 8)
     : []
@@ -129,6 +136,7 @@ export default async function FichaDeLugar({ params }: Props) {
           {km !== null && zona && <span>{t.tarjetas.kmDe(km, zona.nombre)}</span>}
           {l.rangoPrecio && <span>{t.ficha.precio}: {l.rangoPrecio}</span>}
           {caracteristicas.map((c) => <span key={c}>{c}</span>)}
+          {visitaChips.map((c) => <span key={c}>{c}</span>)}
         </div>
         <div className="acciones">
           {l.coordenadas && (
@@ -140,11 +148,19 @@ export default async function FichaDeLugar({ params }: Props) {
 
       <div className="cuerpo">
         <article>
+          <AntesDeIr lang={lang} visita={l.visita} zonaNombre={zona?.nombre ?? ''} />
           <ToursRelacionados lang={lang} lugar={l} tours={relacionados} />
           <section className="bloque" aria-labelledby="t-saber">
             <h2 id="t-saber" className="t-seccion">{t.ficha.loQueHayQueSaber}</h2>
-            <CuerpoRico lang={lang} cuerpo={l.cuerpo} resolutor={resolutorDeCuerpo({ lugares, eventos, articulos }, lang)} media={l.media} categorias={cats} patrocinado={declarado} />
+            <CuerpoRico lang={lang} cuerpo={cuerpo} resolutor={resolutorDeCuerpo({ lugares, eventos, articulos }, lang)} media={l.media} categorias={cats} patrocinado={declarado} />
           </section>
+
+          {l.preguntas.length > 0 && (
+            <section className="bloque" aria-labelledby="t-preguntas">
+              <h2 id="t-preguntas" className="t-seccion">{t.ficha.preguntas}</h2>
+              <PreguntasFrecuentes preguntas={l.preguntas} etiqueta={t.ficha.preguntas} />
+            </section>
+          )}
 
           {l.horario.length > 0 && (
             <section className="bloque" aria-labelledby="t-horario">
@@ -245,7 +261,8 @@ export default async function FichaDeLugar({ params }: Props) {
         </div>
       )}
       <JsonLd datos={migasLd(migas, sitioUrl())} />
-      <JsonLd datos={lugarLd(l, { url: ruta, tipoSchema: cat?.tipoSchema ?? 'LocalBusiness', zonaNombre: zona?.nombre ?? '', base: sitioUrl() })} />
+      {l.preguntas.length > 0 && <JsonLd datos={faqLd(l.preguntas)} />}
+      <JsonLd datos={lugarLd(l, { url: ruta, tipoSchema: cat?.tipoSchema ?? 'LocalBusiness', zonaNombre: zona?.nombre ?? '', base: sitioUrl(), lang })} />
     </div>
   )
 }

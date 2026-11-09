@@ -23,11 +23,13 @@ const base: FichaLugar = {
   web: 'https://ejemplo.test', instagram: '@cafeduna', notaHorario: null, metaTitulo: null, metaDescripcion: null, media: {}, preguntas: [], visita: null,
 }
 let ficha = base
+let otrosLugares: FichaLugar[] = []
 const zonasBase: unknown[] = [{ id: 1, slug: 'la-paz', nombre: 'La Paz', descripcion: null, coordenadas: [-110.3, 24.1] }]
 let zonas = zonasBase
 
 vi.mock('../../src/sitio/datos/cacheadas', () => ({
-  lugaresCacheados: async () => [ficha],
+  lugaresCacheados: async () => [ficha, ...otrosLugares],
+  ajustesCacheados: async () => ({ whatsappToursActivo: false }),
   fichaLugarCacheada: async () => ficha,
   zonasActivasCacheadas: async () => zonas,
   categoriasCacheadas: async () => [{ id: 1, slug: 'cafes', nombre: 'Cafés', claseGrupo: 'g-comer', tipoSchema: 'CafeOrCoffeeShop' }],
@@ -110,4 +112,37 @@ describe('ficha de lugar', () => {
       for (const a of enlaces) expect(a).toMatch(/rel="[^"]*sponsored[^"]*"/)
     }
   })
+})
+
+const visita = { costoEntrada: '$100 MXN', entradaGratis: false, minutosDesdeZona: 45, medio: 'auto', comoLlegar: null, servicios: ['sombra'], mejorHora: null }
+
+it('«Antes de ir» con sus filas y chips arriba', async () => {
+  const html = await pintar({ ...base, visita })
+  expect(html).toContain('Antes de ir')
+  expect(html).toContain('45 min en auto desde La Paz')
+  expect(html).toContain('<div class="datos">')
+  expect(html.indexOf('Antes de ir')).toBeLessThan(html.indexOf('Lo que hay que saber'))
+})
+
+it('sin datos de visita no hay sección', async () => {
+  expect(await pintar(base)).not.toContain('Antes de ir')
+})
+
+it('preguntas frecuentes y FAQPage', async () => {
+  const html = await pintar({ ...base, preguntas: [{ pregunta: '¿Hay sombra?', respuesta: 'Poca.' }] })
+  expect(html).toContain('¿Hay sombra?')
+  expect(html).toContain('FAQPage')
+})
+
+it('sin preguntas no hay FAQPage', async () => {
+  expect(await pintar(base)).not.toContain('FAQPage')
+})
+
+it('enlaza la mención de otro lugar en el cuerpo, pero no la propia ficha', async () => {
+  otrosLugares = [{ ...base, id: 2, slug: 'mar-azul', nombre: 'Mar Azul' }]
+  const cuerpo = { root: { type: 'root', children: [{ type: 'paragraph', children: [{ type: 'text', text: 'Junto a Café Duna y Mar Azul.', format: 0 }] }] } }
+  const html = await pintar({ ...base, cuerpo })
+  expect(html).toContain('<a href="/es/guia/lugares/mar-azul">Mar Azul</a>') // El texto completo: el riel «Más…» también enlaza a esa ficha.
+  expect(html).not.toContain('<a href="/es/guia/lugares/cafe-duna">Café Duna</a>')
+  otrosLugares = []
 })

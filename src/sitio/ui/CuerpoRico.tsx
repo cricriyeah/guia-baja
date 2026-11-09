@@ -10,6 +10,7 @@ import type { CategoriaPublica, Imagen as ImagenT } from '../datos/tipos'
 import { textos } from '../textos'
 import { Patrocinado } from './Etiquetas'
 import { Imagen } from './Imagen'
+import { PreguntasFrecuentes } from './PreguntasFrecuentes'
 import { MiniEvento } from './tarjetas/MiniEvento'
 import { BloqueTours } from './ToursEnZona'
 
@@ -108,20 +109,9 @@ export function CuerpoRico({ lang, cuerpo, resolutor, media, categorias, classNa
         const zonaId = idDe(node.fields.zona)
         return piezaTours && typeof zonaId === 'number' ? <BloqueTours lang={lang} zonaId={zonaId} pieza={piezaTours} /> : null
       },
-      preguntasFrecuentes: ({ node }: Args) => {
-        const preguntas = (node.fields.preguntas as { pregunta: string; respuesta: string }[] | undefined) ?? []
-        if (!preguntas.length) return null
-        return (
-          <div className="faq" aria-label={t.articulo.preguntas}>
-            {preguntas.map((p, i) => (
-              <details key={i}>
-                <summary>{p.pregunta}</summary>
-                <div className="faq__resp"><p>{p.respuesta}</p></div>
-              </details>
-            ))}
-          </div>
-        )
-      },
+      preguntasFrecuentes: ({ node }: Args) => (
+        <PreguntasFrecuentes preguntas={(node.fields.preguntas as { pregunta: string; respuesta: string }[] | undefined) ?? []} etiqueta={t.articulo.preguntas} />
+      ),
     },
   })
 
