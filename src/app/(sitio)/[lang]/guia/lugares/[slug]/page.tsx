@@ -13,9 +13,9 @@ import { relacionadosVisibles } from '../../../../../../dominio/presencia'
 import { atribucion, rutas } from '../../../../../../dominio/rutas'
 import { chipsVisita } from '../../../../../../dominio/visita'
 import {
-  articulosCacheados, categoriasCacheadas, eventosCacheados, fichaLugarCacheada, lugaresCacheados, toursDeSede, zonasActivasCacheadas,
+  articulosCacheados, categoriasCacheadas, eventosCacheados, fichaLugarCacheada, lugaresCacheados, toursDeSede, zonasActivasCacheadas, itinerariosCacheados, temasCacheados,
 } from '../../../../../../sitio/datos/cacheadas'
-import { articulosQueCitan, documentoPorSlug, eventosProximos, lugaresDe, porId, resolutorDeCuerpo } from '../../../../../../sitio/datos/consultas'
+import { articulosQueCitan, documentoPorSlug, eventosProximos, lugaresDe, porId, resolutorDeCuerpo, planesQueCitan } from '../../../../../../sitio/datos/consultas'
 import { candidatosMencion } from '../../../../../../sitio/datos/menciones'
 import { whatsappTours } from '../../../../../../sitio/datos/whatsapp'
 import { guiaIndexable, sitioUrl } from '../../../../../../sitio/entorno'
@@ -40,6 +40,7 @@ import { Riel } from '../../../../../../sitio/ui/Riel'
 import { MiniEvento } from '../../../../../../sitio/ui/tarjetas/MiniEvento'
 import { TarjetaArticulo } from '../../../../../../sitio/ui/tarjetas/TarjetaArticulo'
 import { TarjetaLugar } from '../../../../../../sitio/ui/tarjetas/TarjetaLugar'
+import { TarjetaPlan } from '../../../../../../sitio/ui/tarjetas/TarjetaPlan'
 import { ToursEnZona } from '../../../../../../sitio/ui/ToursEnZona'
 import { ToursRelacionados } from '../../../../../../sitio/ui/ToursRelacionados'
 
@@ -85,8 +86,8 @@ export default async function FichaDeLugar({ params }: Props) {
   // para que el HTML del servidor traiga el contenido y no el fallback del 404.
   if (!d) return <NoEncontradoEnSuspense lang={lang} segmentos={['lugares', slug]} />
   const { ficha: l, lista: lugares } = d
-  const [zonas, cats, eventos, articulos, whatsapp] = await Promise.all([
-    zonasActivasCacheadas(lang), categoriasCacheadas(lang), eventosCacheados(lang), articulosCacheados(lang), whatsappTours(lang),
+  const [zonas, cats, eventos, articulos, whatsapp, itinerarios, temas] = await Promise.all([
+    zonasActivasCacheadas(lang), categoriasCacheadas(lang), eventosCacheados(lang), articulosCacheados(lang), whatsappTours(lang), itinerariosCacheados(lang), temasCacheados(lang),
   ])
   const zona = porId(zonas, l.zonaId)
   // Spec de presencia §2.1: solo se lee el catálogo si el lugar marcó tours. ToursEnZona lee la misma entrada de caché.
@@ -102,6 +103,7 @@ export default async function FichaDeLugar({ params }: Props) {
   const km = l.coordenadas && zona?.coordenadas ? Math.round(kmEnLineaRecta(l.coordenadas, zona.coordenadas)) : null
   const eventosAqui = eventosProximos(eventos, ahora, { lugarId: l.id })
   const citan = articulosQueCitan(articulos, l.id)
+  const planes = planesQueCitan(l.id, itinerarios, temas, { lugares, zonasActivasIds: zonas.map((z) => z.id) }, new Date(ahora))
   const visitaChips = l.visita ? chipsVisita(l.visita, lang, zona?.nombre ?? '') : []
   const [cuerpo] = enlazarMenciones([l.cuerpo], candidatosMencion(lugares), { excluir: [l.id] })
   const mas = cat && zona
@@ -198,10 +200,11 @@ export default async function FichaDeLugar({ params }: Props) {
             </section>
           )}
 
-          {citan.length > 0 && (
+          {citan.length + planes.length > 0 && (
             <section className="bloque" aria-labelledby="t-aparece-en">
               <h2 id="t-aparece-en" className="t-seccion">{t.ficha.apareceEn}</h2>
               {citan.map((a) => <TarjetaArticulo key={a.id} lang={lang} articulo={a} categoria={porId(cats, a.categoriaIds[0])} />)}
+              {planes.map((p) => <TarjetaPlan key={`${p.tipo}-${p.item.id}`} lang={lang} plan={p} />)}
             </section>
           )}
         </article>

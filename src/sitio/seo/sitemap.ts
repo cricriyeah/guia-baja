@@ -1,8 +1,9 @@
 import { LOCALES, type Locale } from '../../dominio/idioma'
 import { hreflang, type VersionIdioma } from '../../dominio/indexable'
 import { rutas } from '../../dominio/rutas'
+import { lugaresDeTema, temaIndexable } from '../../dominio/temas'
 import { UMBRAL_INDEXABLE, UMBRAL_PAGINA } from '../../dominio/umbrales'
-import type { CategoriaPublica, TarjetaArticulo, TarjetaEvento, TarjetaLugar, ZonaPublica } from '../datos/tipos'
+import type { CategoriaPublica, TarjetaArticulo, TarjetaEvento, TarjetaItinerario, TarjetaLugar, TarjetaTema, ZonaPublica } from '../datos/tipos'
 
 export type DatosIdioma = {
   zonas: ZonaPublica[]
@@ -10,6 +11,8 @@ export type DatosIdioma = {
   lugares: TarjetaLugar[]
   eventos: TarjetaEvento[]
   articulos: TarjetaArticulo[]
+  itinerarios: TarjetaItinerario[]
+  temas: TarjetaTema[]
   avisoExiste: boolean
 }
 type Entrada = { ruta: string; alternos: Record<string, string> }
@@ -69,6 +72,16 @@ export function entradasSitemap(datos: Record<Locale, DatosIdioma>, guiaIndexabl
   docs((d) => d.lugares, rutas.lugar)
   docs((d) => d.eventos, rutas.evento) // Spec §6: los eventos pasados siguen en el sitemap.
   docs((d) => d.articulos, rutas.articulo)
+  docs((d) => d.itinerarios, rutas.itinerario)
+  const temaIds = new Set(LOCALES.flatMap((l) => datos[l].temas.map((x) => x.id)))
+  for (const id of temaIds) {
+    agregar(s, porIdioma((l, d) => {
+      const x = d.temas.find((y) => y.id === id)
+      if (!x) return null
+      const n = lugaresDeTema(x.criterios, { lugares: d.lugares, zonasActivasIds: d.zonas.map((z) => z.id) }, new Date()).length
+      return { ruta: rutas.tema(l, x.slug), indexable: !x.noIndexar && temaIndexable(n) }
+    }))
+  }
   return s
 }
 

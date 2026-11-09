@@ -7,8 +7,8 @@ import { consultaDeFiltros, type Filtros } from '../../dominio/filtros'
 import type { Locale } from '../../dominio/idioma'
 import { conConsulta, rutas } from '../../dominio/rutas'
 import { UMBRAL_PAGINA } from '../../dominio/umbrales'
-import { articulosCacheados, categoriasCacheadas, lugaresCacheados, textoCacheado, zonasActivasCacheadas } from '../datos/cacheadas'
-import { articulosDeZona, categoriasConLugares, lugaresDe, porId, porSlug } from '../datos/consultas'
+import { articulosCacheados, categoriasCacheadas, lugaresCacheados, textoCacheado, zonasActivasCacheadas, temasCacheados } from '../datos/cacheadas'
+import { articulosDeZona, categoriasConLugares, lugaresDe, porId, porSlug, temaParaFiltro } from '../datos/consultas'
 import { guiaIndexable, sitioUrl } from '../entorno'
 import { listaLd, migasLd } from '../seo/jsonld'
 import { metadatos } from '../seo/metadatos'
@@ -104,7 +104,11 @@ export async function CategoriaEnZona({ lang, zonaSlug, categoriaSlug, variante 
     return <NoEncontradoEnSuspense lang={lang} segmentos={[zonaSlug, categoriaSlug]} />
   }
   const t = textos(lang)
-  const [texto, articulos] = await Promise.all([textoCacheado(zona.id, cat.id, lang), articulosCacheados(lang)])
+  const [texto, articulos, temas] = await Promise.all([textoCacheado(zona.id, cat.id, lang), articulosCacheados(lang), temasCacheados(lang)])
+  const caracteristica = variante.filtros?.caracteristica
+  const temaFiltro = caracteristica && !variante.filtros?.precio && !variante.filtros?.abierto
+    ? temaParaFiltro(temas, { zonaId: zona.id, categoriaId: cat.id, caracteristica })
+    : undefined
   const lecturas = articulosDeZona(articulos, zona.id).filter((a) => a.categoriaIds.includes(cat.id)).slice(0, 3)
   const precios = [...new Set(d.base.map((l) => l.rangoPrecio).filter((p): p is string => Boolean(p)))].sort()
   const fotoPortada = d.base.find((l) => l.foto)?.foto ?? null
@@ -140,6 +144,7 @@ export async function CategoriaEnZona({ lang, zonaSlug, categoriaSlug, variante 
           </>
         }
       >
+        {temaFiltro && <p className="hay-guia"><Link href={rutas.tema(lang, temaFiltro.slug)}>{t.plan.hayGuia(temaFiltro.titulo)}</Link></p>}
         <p className="contador-res" aria-live="polite">{t.listado.resultados(pag.total)}</p>
         {pag.items.length === 0 ? (
           <p>{t.listado.ninguno}</p>

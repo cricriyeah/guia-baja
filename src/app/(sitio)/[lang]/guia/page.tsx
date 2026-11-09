@@ -6,9 +6,9 @@ import { esLocale, LOCALES, type Locale } from '../../../../dominio/idioma'
 import { patrocinioDeclarado } from '../../../../dominio/patrocinio'
 import { rutas } from '../../../../dominio/rutas'
 import {
-  ajustesCacheados, articulosCacheados, categoriasCacheadas, eventosCacheados, lugaresCacheados, zonasActivasCacheadas,
+  ajustesCacheados, articulosCacheados, categoriasCacheadas, eventosCacheados, lugaresCacheados, zonasActivasCacheadas, itinerariosCacheados, temasCacheados,
 } from '../../../../sitio/datos/cacheadas'
-import { categoriasConLugares, conteoCombinacion, destacados, eventosProximos, lugaresDe, porId, type ItemDestacado } from '../../../../sitio/datos/consultas'
+import { categoriasConLugares, conteoCombinacion, destacados, eventosProximos, lugaresDe, porId, type ItemDestacado, planesSinZona } from '../../../../sitio/datos/consultas'
 import type { CategoriaPublica } from '../../../../sitio/datos/tipos'
 import { guiaIndexable, sitioUrl } from '../../../../sitio/entorno'
 import { migasLd } from '../../../../sitio/seo/jsonld'
@@ -17,6 +17,7 @@ import { textos } from '../../../../sitio/textos'
 import { Aparece } from '../../../../sitio/ui/Aparece'
 import { TemporadaPortada } from '../../../../sitio/ui/TemporadaPortada'
 import { Patrocinado } from '../../../../sitio/ui/Etiquetas'
+import { SeccionPlanes } from '../../../../sitio/ui/SeccionPlanes'
 import { Imagen } from '../../../../sitio/ui/Imagen'
 import { JsonLd } from '../../../../sitio/ui/JsonLd'
 import { FilaAgenda } from '../../../../sitio/ui/tarjetas/FilaAgenda'
@@ -44,12 +45,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 function Destacada({ lang, d, cats, primera }: { lang: Locale; d: ItemDestacado; cats: CategoriaPublica[]; primera: boolean }) {
-  const ruta = d.tipo === 'lugar' ? rutas.lugar(lang, d.item.slug) : d.tipo === 'evento' ? rutas.evento(lang, d.item.slug) : rutas.articulo(lang, d.item.slug)
-  const imagen = d.tipo === 'articulo' ? d.item.portada : d.item.foto
-  const titulo = d.tipo === 'articulo' ? d.item.titulo : d.item.nombre
+  const ruta = d.tipo === 'lugar' ? rutas.lugar(lang, d.item.slug) : d.tipo === 'evento' ? rutas.evento(lang, d.item.slug) : d.tipo === 'articulo' ? rutas.articulo(lang, d.item.slug) : d.tipo === 'itinerario' ? rutas.itinerario(lang, d.item.slug) : rutas.tema(lang, d.item.slug)
+  const imagen = 'portada' in d.item ? d.item.portada : d.item.foto
+  const titulo = 'titulo' in d.item ? d.item.titulo : d.item.nombre
   const cat = cats.find((c) => c.id === d.item.categoriaIds[0])
   // Spec §6: un lugar o evento destacado con patrocinio declarado lleva su etiqueta también aquí.
-  const declarado = d.tipo !== 'articulo' && patrocinioDeclarado(d.item.patrocinio)
+  const declarado = (d.tipo === 'lugar' || d.tipo === 'evento') && patrocinioDeclarado(d.item.patrocinio)
   return (
     <Link className={`destacado tarjeta presionable ${cat?.claseGrupo ?? ''}`} href={ruta} rel={declarado ? 'sponsored' : undefined}>
       <div className="media"><Imagen imagen={imagen} prioridad={primera} sizes={primera ? '(min-width: 900px) 66vw, 100vw' : '(min-width: 900px) 33vw, 100vw'} alt="" /></div>
@@ -67,14 +68,14 @@ function Destacada({ lang, d, cats, primera }: { lang: Locale; d: ItemDestacado;
 export default async function Portada({ params }: Props) {
   const { lang } = await params
   if (!esLocale(lang)) notFound()
-  const [ajustes, zonas, cats, lugares, eventos, articulos] = await Promise.all([
+  const [ajustes, zonas, cats, lugares, eventos, articulos, itinerarios, temas] = await Promise.all([
     ajustesCacheados(lang), zonasActivasCacheadas(lang), categoriasCacheadas(lang),
-    lugaresCacheados(lang), eventosCacheados(lang), articulosCacheados(lang),
+    lugaresCacheados(lang), eventosCacheados(lang), articulosCacheados(lang), itinerariosCacheados(lang), temasCacheados(lang),
   ])
   const t = textos(lang)
   const ahora = new Date().toISOString()
   const proximos = eventosProximos(eventos, ahora, {})
-  const top = destacados({ lugares, eventos, articulos }, ahora).slice(0, 3)
+  const top = destacados({ lugares, eventos, articulos, itinerarios, temas }, ahora).slice(0, 3)
   const catDe = (ids: number[]) => cats.find((c) => c.id === ids[0])
   return (
     <div className="ancho">
@@ -110,6 +111,7 @@ export default async function Portada({ params }: Props) {
       </section>
 
       <TemporadaPortada lang={lang} zonas={zonas} />
+      <SeccionPlanes lang={lang} id="t-planes-baja" titulo={t.plan.planesBaja} planes={planesSinZona(temas, { lugares, zonasActivasIds: zonas.map((z) => z.id) }, new Date())} />
 
       {proximos.length > 0 && (
         <section className="seccion" aria-labelledby="t-eventos">

@@ -15,6 +15,8 @@ vi.mock('../../src/sitio/datos/cacheadas', () => ({
       : [{ id: 1, slug: 'balandra-beach', zonaId: 1, categoriaIds: [5] }, { id: 5, slug: 'food-court', zonaId: 2, categoriaIds: [8] }],
   eventosCacheados: async (lang: string) => (lang === 'es' ? [{ id: 7, slug: 'trova', zonaId: 1 }] : [{ id: 7, slug: 'trova-night', zonaId: 1 }]),
   articulosCacheados: async (lang: string) => (lang === 'es' ? [{ id: 8, slug: 'siete', zonaIds: [1] }] : []),
+  itinerariosCacheados: async (lang: string) => [{ id: 1, slug: lang === 'es' ? 'plan' : 'plan-en', zonaId: 1 }],
+  temasCacheados: async (lang: string) => [{ id: 2, slug: lang === 'es' ? 'tema-baja' : 'tema-baja-en', zonaId: null }],
 }))
 
 const { contextoDe } = await import('../../src/sitio/contexto')
@@ -65,4 +67,15 @@ describe('contextoDe (spec §7: cambio de idioma y puente)', () => {
     expect((await contextoDe('es', ['la-paz', 'playas', '--pagina', '2'])).alterno).toBe('/en/guide/la-paz/beaches')
     expect(await contextoDe('es', ['lugares', '--'])).toEqual({ alterno: '/en/guide', zona: null })
   })
+})
+
+it('itinerario: alterno en el otro idioma y su zona', async () => {
+  const c = await contextoDe('es', ['itinerarios', 'plan'])
+  expect(c.alterno).toBe('/en/guide/itineraries/plan-en')
+  expect(c.zona?.id).toBe(1)
+})
+it('tema sin zona: alterno en el otro idioma y zona nula', async () => {
+  const c = await contextoDe('es', ['temas', 'tema-baja'])
+  expect(c.alterno).toBe('/en/guide/topics/tema-baja-en')
+  expect(c.zona).toBeNull()
 })

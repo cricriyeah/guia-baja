@@ -51,13 +51,15 @@ export type ItemDestacado =
   | { tipo: 'lugar'; item: TarjetaLugar }
   | { tipo: 'evento'; item: TarjetaEvento }
   | { tipo: 'articulo'; item: TarjetaArticulo }
+  | { tipo: 'itinerario'; item: TarjetaItinerario }
+  | { tipo: 'tema'; item: TarjetaTema }
 
-const nombreDe = (x: ItemDestacado) => (x.tipo === 'articulo' ? x.item.titulo : x.item.nombre)
+const nombreDe = (x: ItemDestacado) => ('titulo' in x.item ? x.item.titulo : x.item.nombre)
 
 // Spec §6, «Destacar en portada»: por ordenDestacado; un evento destacado que ya pasó deja de mostrarse.
 // Desempate por nombre (el orden por defecto es 100 en todos).
 export function destacados(
-  l: { lugares: TarjetaLugar[]; eventos: TarjetaEvento[]; articulos: TarjetaArticulo[] },
+  l: { lugares: TarjetaLugar[]; eventos: TarjetaEvento[]; articulos: TarjetaArticulo[]; itinerarios?: TarjetaItinerario[]; temas?: TarjetaTema[] },
   ahoraIso: string,
 ): ItemDestacado[] {
   const ahora = new Date(ahoraIso)
@@ -65,6 +67,8 @@ export function destacados(
     ...l.lugares.filter((x) => x.destacado.activo).map((item) => ({ tipo: 'lugar' as const, item })),
     ...l.eventos.filter((x) => x.destacado.activo && esEventoProximo(x, ahora)).map((item) => ({ tipo: 'evento' as const, item })),
     ...l.articulos.filter((x) => x.destacado.activo).map((item) => ({ tipo: 'articulo' as const, item })),
+    ...(l.itinerarios ?? []).filter((x) => x.destacado.activo).map((item) => ({ tipo: 'itinerario' as const, item })),
+    ...(l.temas ?? []).filter((x) => x.destacado.activo).map((item) => ({ tipo: 'tema' as const, item })),
   ]
   return todos.sort((a, b) => a.item.destacado.orden - b.item.destacado.orden || nombreDe(a).localeCompare(nombreDe(b), 'es'))
 }

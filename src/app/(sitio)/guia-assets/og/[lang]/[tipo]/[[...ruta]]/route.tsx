@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og'
 
 import { esLocale, type Locale } from '../../../../../../../dominio/idioma'
 import {
-  articulosCacheados, categoriasCacheadas, eventosCacheados, lugaresCacheados, zonasActivasCacheadas,
+  articulosCacheados, categoriasCacheadas, eventosCacheados, lugaresCacheados, zonasActivasCacheadas, itinerariosCacheados, temasCacheados,
 } from '../../../../../../../sitio/datos/cacheadas'
 import { porSlug } from '../../../../../../../sitio/datos/consultas'
 import type { Imagen } from '../../../../../../../sitio/datos/tipos'
@@ -35,6 +35,14 @@ async function datosOg(lang: Locale, tipo: string, ruta: string[]): Promise<{ ti
     const z = tipo === 'categoria-zona' ? porSlug(await zonasActivasCacheadas(lang), a ?? '') : null
     if (!c || (tipo === 'categoria-zona' && !z)) return null
     return { titulo: z ? t.listado.titulo(c.nombre, z.nombre) : t.listado.enTodas(c.nombre), imagen: z?.foto ?? null }
+  }
+  if (tipo === 'itinerario') {
+    const x = porSlug(await itinerariosCacheados(lang), a ?? '')
+    return x ? { titulo: x.titulo, imagen: x.portada } : null
+  }
+  if (tipo === 'tema') {
+    const x = porSlug(await temasCacheados(lang), a ?? '')
+    return x ? { titulo: x.titulo, imagen: x.portada } : null
   }
   if (tipo === 'lugar') {
     const x = porSlug(await lugaresCacheados(lang), a ?? '')

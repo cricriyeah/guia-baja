@@ -5,7 +5,12 @@ import { entradasSitemap, xmlSitemap } from '../../src/sitio/seo/sitemap'
 const zona = { id: 1, slug: 'la-paz', nombre: 'La Paz' }
 const cat = (slug: string) => ({ id: 5, slug, nombre: slug, aplicaA: 'lugar' })
 const lugar = (id: number, slug: string, noIndexar = false) => ({ id, slug, zonaId: 1, categoriaIds: [5], noIndexar })
-const vacio = { eventos: [], articulos: [], avisoExiste: true }
+const vacio = { eventos: [], articulos: [], itinerarios: [], temas: [], avisoExiste: true }
+const criteriosCon = (ids: number[]) => ({ zonaId: null, categoriaIds: [], caracteristicas: [], servicios: [], lugaresFijosIds: ids })
+const datosCon = (extra: object) => {
+  const comun = { ...vacio, zonas: [zona], categorias: [cat('playas')], lugares: [lugar(1, 'a'), lugar(2, 'b'), lugar(3, 'c')] }
+  return { es: { ...comun, ...extra }, en: comun } as never
+}
 
 const datos = {
   es: { ...vacio, zonas: [zona], categorias: [cat('playas')], lugares: [lugar(1, 'a'), lugar(2, 'b'), lugar(3, 'c', true)] },
@@ -39,4 +44,14 @@ describe('sitemap (spec §9)', () => {
     expect(xml).toContain('<loc>https://www.salysoltours.com/es/guia</loc>')
     expect(xml).toContain('<xhtml:link rel="alternate" hreflang="en-US" href="https://www.salysoltours.com/en/guide"/>')
   })
+})
+
+it('itinerarios indexables y temas según su lista', () => {
+  const entradas = entradasSitemap(datosCon({ itinerarios: [{ id: 1, slug: 'plan', noIndexar: false }], temas: [
+    { id: 2, slug: 'con-tres', noIndexar: false, criterios: criteriosCon([1, 2, 3]) },
+    { id: 3, slug: 'con-dos', noIndexar: false, criterios: criteriosCon([1, 2]) },
+  ] }), true).map((e) => e.ruta)
+  expect(entradas).toContain('/es/guia/itinerarios/plan')
+  expect(entradas).toContain('/es/guia/temas/con-tres')
+  expect(entradas).not.toContain('/es/guia/temas/con-dos')
 })

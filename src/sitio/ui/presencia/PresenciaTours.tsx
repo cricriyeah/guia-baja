@@ -1,8 +1,8 @@
 import type { Locale } from '../../../dominio/idioma'
-import { relacionadosVisibles, tipoDePagina, zonaDeTours } from '../../../dominio/presencia'
-import { atribucion, rutasReservas } from '../../../dominio/rutas'
+import { relacionadosVisibles, tipoDePagina, zonaDeTours, type TipoPagina } from '../../../dominio/presencia'
+import { atribucion, rutasReservas, SEGMENTOS } from '../../../dominio/rutas'
 import { contextoDe } from '../../contexto'
-import { lugaresCacheados, precioBarraDeSede, toursDeSede, zonasActivasCacheadas, type TourConFoto } from '../../datos/cacheadas'
+import { lugaresCacheados, precioBarraDeSede, toursDeSede, zonasActivasCacheadas, type TourConFoto, itinerariosCacheados, temasCacheados } from '../../datos/cacheadas'
 import { porSlug } from '../../datos/consultas'
 import { whatsappTours } from '../../datos/whatsapp'
 import { sitioUrl } from '../../entorno'
@@ -13,6 +13,16 @@ import { PrecioTour } from '../PrecioTour'
 import { ActivadorTours } from './ActivadorTours'
 
 const MAX_TARJETA = 3
+
+async function clavesDeLaPagina(lang: Locale, tipo: TipoPagina, segmentos: string[], zonaId: number): Promise<string[]> {
+  if (tipo === 'ficha') return porSlug(await lugaresCacheados(lang), segmentos[1])?.toursRelacionados ?? []
+  if (segmentos[0] === SEGMENTOS.es.itinerarios) return porSlug(await itinerariosCacheados(lang), segmentos[1])?.clavesTours ?? []
+  if (segmentos[0] === SEGMENTOS.es.temas) {
+    const tema = porSlug(await temasCacheados(lang), segmentos[1])
+    return (tema?.tours ?? []).filter((f) => f.zonaId === zonaId).map((f) => f.clave)
+  }
+  return []
+}
 
 // Barra fija de tours (móvil), su fila extra y la tarjeta tardía (escritorio). Spec de presencia §2.2 y §2.3.
 // Se pinta desde el slot @tours, fuera de la cabecera. `filtroZona` solo llega en páginas filtradas y en la búsqueda.
@@ -27,7 +37,7 @@ export async function PresenciaTours({ lang, segmentos, filtroZona }: { lang: Lo
   let tours: TourConFoto[] = []
   let precio: string | null = null
   if (zona) {
-    const claves = tipo === 'ficha' ? (porSlug(await lugaresCacheados(lang), segmentos[1])?.toursRelacionados ?? []) : []
+    const claves = await clavesDeLaPagina(lang, tipo, segmentos, zona.id)
     const [todos, p] = await Promise.all([toursDeSede(zona.sedeSlug, lang), tipo === 'ficha' ? null : precioBarraDeSede(zona.sedeSlug, lang)])
     const primeros = relacionadosVisibles(todos, claves)
     tours = [...primeros, ...todos.filter((x) => !primeros.includes(x))]

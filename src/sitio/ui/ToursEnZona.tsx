@@ -14,7 +14,7 @@ import { detalles, EtiquetaTemporada, PrecioTour } from './PrecioTour'
 import { Riel } from './Riel'
 
 // Orígenes de `tour_clic` (spec §13 y spec de presencia §3).
-export type Origen = 'zona' | 'lugar' | 'articulo' | 'categoria' | 'evento' | 'busqueda'
+export type Origen = 'zona' | 'lugar' | 'articulo' | 'categoria' | 'evento' | 'busqueda' | 'itinerario' | 'tema'
 type Comunes = { lang: Locale; zona: ZonaPublica; pieza: string; origen: Origen }
 
 // «Tours en esta zona» (spec §8.1). Tres formatos del diseño: riel (zona y categoría), fila (ficha) y bloque (artículo).

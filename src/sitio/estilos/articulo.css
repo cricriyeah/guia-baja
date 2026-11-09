@@ -69,3 +69,6 @@
 .b-tour__tarjeta { display: block; overflow: hidden; }
 .b-tour__cuerpo { padding: 16px; }
 .etiqueta--temporada { display: inline-block; margin-top: 4px; }
+
+.parada { margin-block: 16px; }
+.parada__hora { font-weight: 700; color: var(--texto-suave, inherit); }

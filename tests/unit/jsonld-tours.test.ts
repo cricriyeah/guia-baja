@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { TourConFoto } from '../../src/sitio/datos/cacheadas'
 import type { FichaLugar } from '../../src/sitio/datos/tipos'
-import { lugarLd, toursLd } from '../../src/sitio/seo/jsonld'
+import { itinerarioLd, lugarLd, toursLd } from '../../src/sitio/seo/jsonld'
 
 const base = 'https://www.salysoltours.com'
 const tour = (extra: Partial<TourConFoto> = {}): TourConFoto => ({
@@ -58,5 +58,21 @@ describe('lugarLd', () => {
     const r = lugarLd({ ...l, visita: null }, c)
     expect(r).not.toHaveProperty('isAccessibleForFree')
     expect(r).not.toHaveProperty('amenityFeature')
+  })
+})
+
+describe('itinerarioLd', () => {
+  it('TouristTrip con itinerary de lugares en orden', () => {
+    const r = itinerarioLd(
+      { titulo: 'Plan', resumen: 'R' } as never,
+      { url: '/es/guia/itinerarios/plan', base, lugares: [{ nombre: 'A', ruta: '/es/guia/lugares/a' }, { nombre: 'B', ruta: '/es/guia/lugares/b' }] },
+    )
+    expect(r).toMatchObject({
+      '@type': 'TouristTrip', name: 'Plan', description: 'R', url: `${base}/es/guia/itinerarios/plan`,
+      itinerary: { '@type': 'ItemList', itemListElement: [
+        { '@type': 'ListItem', position: 1, item: { '@type': 'TouristAttraction', name: 'A', url: `${base}/es/guia/lugares/a` } },
+        { '@type': 'ListItem', position: 2, item: { '@type': 'TouristAttraction', name: 'B', url: `${base}/es/guia/lugares/b` } },
+      ] },
+    })
   })
 })

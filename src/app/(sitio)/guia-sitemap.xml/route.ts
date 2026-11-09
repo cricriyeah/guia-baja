@@ -1,6 +1,6 @@
 import { LOCALES, tieneValor } from '../../../dominio/idioma'
 import {
-  ajustesCacheados, articulosCacheados, categoriasCacheadas, eventosCacheados, lugaresCacheados, zonasActivasCacheadas,
+  ajustesCacheados, articulosCacheados, categoriasCacheadas, eventosCacheados, lugaresCacheados, zonasActivasCacheadas, itinerariosCacheados, temasCacheados,
 } from '../../../sitio/datos/cacheadas'
 import { guiaIndexable, sitioUrl } from '../../../sitio/entorno'
 import { entradasSitemap, xmlSitemap, type DatosIdioma } from '../../../sitio/seo/sitemap'
@@ -13,10 +13,10 @@ export async function GET() {
   const datos = Object.fromEntries(
     await Promise.all(
       LOCALES.map(async (l) => {
-        const [zonas, categorias, lugares, eventos, articulos, ajustes] = await Promise.all([
-          zonasActivasCacheadas(l), categoriasCacheadas(l), lugaresCacheados(l), eventosCacheados(l), articulosCacheados(l), ajustesCacheados(l),
+        const [zonas, categorias, lugares, eventos, articulos, ajustes, itinerarios, temas] = await Promise.all([
+          zonasActivasCacheadas(l), categoriasCacheadas(l), lugaresCacheados(l), eventosCacheados(l), articulosCacheados(l), ajustesCacheados(l), itinerariosCacheados(l), temasCacheados(l),
         ])
-        return [l, { zonas, categorias, lugares, eventos, articulos, avisoExiste: tieneValor(ajustes.avisoPrivacidad) } satisfies DatosIdioma] as const
+        return [l, { zonas, categorias, lugares, eventos, articulos, itinerarios, temas, avisoExiste: tieneValor(ajustes.avisoPrivacidad) } satisfies DatosIdioma] as const
       }),
     ),
   ) as Record<(typeof LOCALES)[number], DatosIdioma>

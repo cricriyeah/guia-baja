@@ -8,13 +8,13 @@ import { ordenarListado } from '../../../../../dominio/orden'
 import { patrocinioDeclarado } from '../../../../../dominio/patrocinio'
 import { rutas } from '../../../../../dominio/rutas'
 import {
-  articulosCacheados, categoriasCacheadas, eventosCacheados, lugaresCacheados, zonasActivasCacheadas,
+  articulosCacheados, categoriasCacheadas, eventosCacheados, lugaresCacheados, zonasActivasCacheadas, itinerariosCacheados, temasCacheados,
 } from '../../../../../sitio/datos/cacheadas'
 import {
-  articulosDeZona, categoriasConLugares, destacados, eventosProximos, lugaresDe, porId, porSlug, type ItemDestacado,
+  articulosDeZona, categoriasConLugares, destacados, eventosProximos, lugaresDe, porId, porSlug, type ItemDestacado, planesDeZona,
 } from '../../../../../sitio/datos/consultas'
 import type {
-  CategoriaPublica, TarjetaArticulo as TarjetaArticuloT, TarjetaEvento as TarjetaEventoT, TarjetaLugar as TarjetaLugarT, ZonaPublica,
+  CategoriaPublica, TarjetaArticulo as TarjetaArticuloT, TarjetaEvento as TarjetaEventoT, TarjetaItinerario as TarjetaItinerarioT, TarjetaLugar as TarjetaLugarT, TarjetaTema as TarjetaTemaT, ZonaPublica,
 } from '../../../../../sitio/datos/tipos'
 import { guiaIndexable, sitioUrl } from '../../../../../sitio/entorno'
 import { listaLd, migasLd } from '../../../../../sitio/seo/jsonld'
@@ -32,6 +32,7 @@ import { NoEncontradoEnSuspense } from '../../../../../sitio/ui/NoEncontradoEnSu
 import { Pildoras } from '../../../../../sitio/ui/Pildoras'
 import { PuestaDelSol } from '../../../../../sitio/ui/PuestaDelSol'
 import { Riel } from '../../../../../sitio/ui/Riel'
+import { SeccionPlanes } from '../../../../../sitio/ui/SeccionPlanes'
 import { TarjetaEvento } from '../../../../../sitio/ui/tarjetas/TarjetaEvento'
 import { TarjetaLugar } from '../../../../../sitio/ui/tarjetas/TarjetaLugar'
 import { ToursEnZona } from '../../../../../sitio/ui/ToursEnZona'
@@ -62,20 +63,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 function aDiapositiva(lang: Locale, d: ItemDestacado, cats: CategoriaPublica[]): Diapositiva {
   const cat = cats.find((c) => c.id === d.item.categoriaIds[0])
   const comun = { id: `${d.tipo}-${d.item.id}`, etiqueta: cat ? { nombre: cat.nombre, clase: cat.claseGrupo } : undefined, bajada: d.item.resumen }
-  if (d.tipo === 'articulo') return { ...comun, imagen: d.item.portada, patrocinado: false, titulo: d.item.titulo, ruta: rutas.articulo(lang, d.item.slug) }
+  if (d.tipo === 'articulo' || d.tipo === 'itinerario' || d.tipo === 'tema') {
+    const ruta = d.tipo === 'articulo' ? rutas.articulo(lang, d.item.slug) : d.tipo === 'itinerario' ? rutas.itinerario(lang, d.item.slug) : rutas.tema(lang, d.item.slug)
+    return { ...comun, imagen: d.item.portada, patrocinado: false, titulo: d.item.titulo, ruta }
+  }
   const ruta = d.tipo === 'lugar' ? rutas.lugar(lang, d.item.slug) : rutas.evento(lang, d.item.slug)
   return { ...comun, imagen: d.item.foto, patrocinado: patrocinioDeclarado(d.item.patrocinio), titulo: d.item.nombre, ruta }
 }
 
-type Datos = { cats: CategoriaPublica[]; lugares: TarjetaLugarT[]; eventos: TarjetaEventoT[]; articulos: TarjetaArticuloT[] }
+type Datos = { cats: CategoriaPublica[]; lugares: TarjetaLugarT[]; eventos: TarjetaEventoT[]; articulos: TarjetaArticuloT[]; zonas: ZonaPublica[]; itinerarios: TarjetaItinerarioT[]; temas: TarjetaTemaT[] }
 
-function Zona({ lang, zona, cats, lugares, eventos, articulos }: Datos & { lang: Locale; zona: ZonaPublica }) {
+function Zona({ lang, zona, cats, lugares, eventos, articulos, zonas, itinerarios, temas }: Datos & { lang: Locale; zona: ZonaPublica }) {
   const t = textos(lang)
   const ahora = new Date().toISOString()
   const lugaresZona = ordenarListado(lugaresDe(lugares, { zonaId: zona.id }), new Date(ahora))
   const proximos = eventosProximos(eventos, ahora, { zonaId: zona.id })
   const artsZona = articulosDeZona(articulos, zona.id)
-  const top = destacados({ lugares: lugaresZona, eventos: proximos, articulos: artsZona }, ahora)
+  const top = destacados({
+    lugares: lugaresZona, eventos: proximos, articulos: artsZona,
+    itinerarios: itinerarios.filter((x) => x.zonaId === zona.id), temas: temas.filter((x) => x.zonaId === zona.id),
+  }, ahora)
   const carrusel = (top.length ? top : artsZona.map((item) => ({ tipo: 'articulo' as const, item }))).slice(0, 4)
   const enCarrusel = new Set(carrusel.map((d) => `${d.tipo}-${d.item.id}`))
   const otrosArticulos = artsZona.filter((a) => !enCarrusel.has(`articulo-${a.id}`))
@@ -126,6 +133,8 @@ function Zona({ lang, zona, cats, lugares, eventos, articulos }: Datos & { lang:
         </div>
       )}
 
+      <SeccionPlanes lang={lang} id="t-planes" titulo={t.plan.planesEn(zona.nombre)} planes={planesDeZona(itinerarios, temas, zona.id, { lugares, zonasActivasIds: zonas.map((z) => z.id) }, new Date())} />
+
       <div className="filtros">
         <Pildoras clase="filtros__fila" etiqueta={t.portada.categorias} items={catsZona.map((c) => ({ nombre: c.nombre, ruta: rutas.categoriaEnZona(lang, zona.slug, c.slug) }))} />
       </div>
@@ -174,12 +183,12 @@ function Zona({ lang, zona, cats, lugares, eventos, articulos }: Datos & { lang:
 export default async function PaginaZona({ params }: Props) {
   const { lang, zona: slug } = await params
   if (!esLocale(lang)) notFound()
-  const [zonas, cats, lugares, eventos, articulos] = await Promise.all([
-    zonasActivasCacheadas(lang), categoriasCacheadas(lang), lugaresCacheados(lang), eventosCacheados(lang), articulosCacheados(lang),
+  const [zonas, cats, lugares, eventos, articulos, itinerarios, temas] = await Promise.all([
+    zonasActivasCacheadas(lang), categoriasCacheadas(lang), lugaresCacheados(lang), eventosCacheados(lang), articulosCacheados(lang), itinerariosCacheados(lang), temasCacheados(lang),
   ])
   const zona = porSlug(zonas, slug)
   // Zona inexistente o inactiva: redirección o 404 dentro de un Suspense (ver guia/[...resto]/page.tsx). La zona que
   // existe se pinta fuera de él: en el HTML del servidor el contenido va directo, no detrás del fallback del 404.
   if (!zona) return <NoEncontradoEnSuspense lang={lang} segmentos={[slug]} />
-  return <Zona lang={lang} zona={zona} cats={cats} lugares={lugares} eventos={eventos} articulos={articulos} />
+  return <Zona lang={lang} zona={zona} cats={cats} lugares={lugares} eventos={eventos} articulos={articulos} zonas={zonas} itinerarios={itinerarios} temas={temas} />
 }

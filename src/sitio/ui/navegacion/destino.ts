@@ -22,7 +22,7 @@ export function destinoDe(href: string, actual: string): Destino | null {
   if (resto.length === 1) return 'zona'
   if (resto.length !== 2) return null
   if (primero === s.lugares) return 'lugar'
-  if (primero === s.articulos) return 'articulo'
+  if (primero === s.articulos || primero === s.itinerarios || primero === s.temas) return 'articulo'
   if (primero === s.categoria) return 'categoria'
   return 'categoriaEnZona'
 }

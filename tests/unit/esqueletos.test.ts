@@ -159,3 +159,8 @@ describe('linkDeClic', () => {
     expect(linkDeClic(clic(null))).toBeNull()
   })
 })
+
+it('itinerarios y temas usan el esqueleto de artículo', () => {
+  expect(destinoDe('/es/guia/itinerarios/x', 'https://x.test/es/guia')).toBe('articulo')
+  expect(destinoDe('/en/guide/topics/x', 'https://x.test/en/guide')).toBe('articulo')
+})

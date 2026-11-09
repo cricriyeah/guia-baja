@@ -137,3 +137,20 @@ export function toursLd(tours: TourConFoto[], c: { lang: Locale; base: string; l
     itemListElement: tours.map((t, i) => ({ '@type': 'ListItem', position: i + 1, item: tourLd(t, c) })),
   }
 }
+
+export function itinerarioLd(i: { titulo: string; resumen: string }, c: { url: string; base: string; lugares: { nombre: string; ruta: string }[] }) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'TouristTrip',
+    name: i.titulo,
+    description: i.resumen,
+    url: absoluta(c.url, c.base),
+    itinerary: {
+      '@type': 'ItemList',
+      itemListElement: c.lugares.map((l, n) => ({
+        '@type': 'ListItem', position: n + 1,
+        item: { '@type': 'TouristAttraction', name: l.nombre, url: absoluta(l.ruta, c.base) },
+      })),
+    },
+  }
+}

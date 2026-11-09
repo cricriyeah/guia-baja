@@ -1,6 +1,6 @@
 import { otroIdioma, type Locale } from '../dominio/idioma'
 import { rutas, SEGMENTOS } from '../dominio/rutas'
-import { articulosCacheados, categoriasCacheadas, eventosCacheados, lugaresCacheados, zonasActivasCacheadas } from './datos/cacheadas'
+import { articulosCacheados, categoriasCacheadas, eventosCacheados, lugaresCacheados, zonasActivasCacheadas, itinerariosCacheados, temasCacheados } from './datos/cacheadas'
 import { conteoCombinacion, porId, porSlug } from './datos/consultas'
 import type { ZonaPublica } from './datos/tipos'
 
@@ -31,6 +31,8 @@ const DOCUMENTOS: Partial<Record<string, Resolutor>> = {
   [SEGMENTOS.es.lugares]: resolutor(lugaresCacheados, rutas.lugar, (x) => x.zonaId),
   [SEGMENTOS.es.eventos]: resolutor(eventosCacheados, rutas.evento, (x) => x.zonaId),
   [SEGMENTOS.es.articulos]: resolutor(articulosCacheados, rutas.articulo, (x) => x.zonaIds[0]),
+  [SEGMENTOS.es.itinerarios]: resolutor(itinerariosCacheados, rutas.itinerario, (x) => x.zonaId),
+  [SEGMENTOS.es.temas]: resolutor(temasCacheados, rutas.tema, (x) => x.zonaId ?? undefined),
 }
 
 const FIJAS: Record<string, (l: Locale) => string> = {
