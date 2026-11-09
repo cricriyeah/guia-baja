@@ -25,3 +25,8 @@ describe('llaves y etiquetas de las lecturas cacheadas (spec §10)', () => {
     expect(LLAVES.zonasActivas('es').llave).not.toEqual(LLAVES.zonasActivas('en').llave)
   })
 })
+
+it('itinerarios y temas llevan listados y zonas', () => {
+  expect(LLAVES.itinerarios('es').etiquetas).toEqual(expect.arrayContaining(['listados', 'zonas']))
+  expect(LLAVES.temas('es').etiquetas).toEqual(expect.arrayContaining(['listados', 'zonas']))
+})

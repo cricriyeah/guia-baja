@@ -2,8 +2,9 @@ import { esEventoProximo } from '../../dominio/eventos'
 import type { Locale } from '../../dominio/idioma'
 import { ordenarListado } from '../../dominio/orden'
 import { rutas } from '../../dominio/rutas'
+import { lugaresDeTema, temaIndexable } from '../../dominio/temas'
 import { UMBRAL_PAGINA } from '../../dominio/umbrales'
-import type { CategoriaPublica, TarjetaArticulo, TarjetaEvento, TarjetaLugar } from './tipos'
+import type { CategoriaPublica, TarjetaArticulo, TarjetaEvento, TarjetaItinerario, TarjetaLugar, TarjetaTema } from './tipos'
 
 export const porSlug = <T extends { slug: string }>(xs: T[], slug: string) => xs.find((x) => x.slug === slug)
 
@@ -76,7 +77,7 @@ export type Resolutor = {
 
 // Ids del cuerpo → tarjetas y rutas del idioma. Lo que no está en las listas no existe para el público.
 export function resolutorDeCuerpo(
-  l: { lugares: TarjetaLugar[]; eventos: TarjetaEvento[]; articulos: TarjetaArticulo[] },
+  l: { lugares: TarjetaLugar[]; eventos: TarjetaEvento[]; articulos: TarjetaArticulo[]; itinerarios?: { id: number; slug: string }[]; temas?: { id: number; slug: string }[] },
   lang: Locale,
 ): Resolutor {
   return {
@@ -91,6 +92,14 @@ export function resolutorDeCuerpo(
         const x = porId(l.eventos, id)
         return x ? rutas.evento(lang, x.slug) : null
       }
+      if (relationTo === 'itinerarios') {
+        const x = porId(l.itinerarios ?? [], id)
+        return x ? rutas.itinerario(lang, x.slug) : null
+      }
+      if (relationTo === 'temas') {
+        const x = porId(l.temas ?? [], id)
+        return x ? rutas.tema(lang, x.slug) : null
+      }
       if (relationTo === 'articulos') {
         const x = porId(l.articulos, id)
         return x ? rutas.articulo(lang, x.slug) : null
@@ -98,4 +107,47 @@ export function resolutorDeCuerpo(
       return null
     },
   }
+}
+
+export type Plan = { tipo: 'itinerario'; item: TarjetaItinerario } | { tipo: 'tema'; item: TarjetaTema }
+type ListasTema = { lugares: TarjetaLugar[]; zonasActivasIds: readonly number[] }
+const MAX_PLANES = 6
+
+const ordenPlan = (a: Plan, b: Plan) =>
+  Number(b.item.destacado.activo) - Number(a.item.destacado.activo)
+  || (a.item.destacado.activo ? a.item.destacado.orden - b.item.destacado.orden : 0)
+  || (b.item.actualizadoEl ?? '').localeCompare(a.item.actualizadoEl ?? '')
+
+export function planesDeZona(itinerarios: TarjetaItinerario[], temas: TarjetaTema[], zonaId: number, listas: ListasTema, ahora: Date): Plan[] {
+  const deLaZona: Plan[] = [
+    ...itinerarios.filter((x) => x.zonaId === zonaId).map((item) => ({ tipo: 'itinerario' as const, item })),
+    ...temas.filter((x) => x.zonaId === zonaId).map((item) => ({ tipo: 'tema' as const, item })),
+  ].sort(ordenPlan)
+  const sinZona: Plan[] = temas
+    .filter((x) => x.zonaId === null && lugaresDeTema(x.criterios, listas, ahora).some((l) => l.zonaId === zonaId))
+    .map((item) => ({ tipo: 'tema' as const, item }))
+  return [...deLaZona, ...sinZona.sort(ordenPlan)].slice(0, MAX_PLANES)
+}
+
+export function planesSinZona(temas: TarjetaTema[], listas: ListasTema, ahora: Date): Plan[] {
+  return temas
+    .filter((x) => x.zonaId === null && !x.noIndexar && temaIndexable(lugaresDeTema(x.criterios, listas, ahora).length))
+    .map((item) => ({ tipo: 'tema' as const, item }))
+    .sort(ordenPlan)
+    .slice(0, MAX_PLANES)
+}
+
+export function planesQueCitan(lugarId: number, itinerarios: TarjetaItinerario[], temas: TarjetaTema[], listas: ListasTema, ahora: Date): Plan[] {
+  return [
+    ...itinerarios.filter((x) => x.lugaresCitados.includes(lugarId)).map((item) => ({ tipo: 'itinerario' as const, item })),
+    ...temas.filter((x) => lugaresDeTema(x.criterios, listas, ahora).some((l) => l.id === lugarId)).map((item) => ({ tipo: 'tema' as const, item })),
+  ]
+}
+
+export function temaParaFiltro(temas: TarjetaTema[], f: { zonaId: number; categoriaId: number; caracteristica: string }): TarjetaTema | undefined {
+  return temas.find((t) =>
+    t.zonaId === f.zonaId
+    && t.criterios.categoriaIds.length === 1 && t.criterios.categoriaIds[0] === f.categoriaId
+    && t.criterios.caracteristicas.length === 1 && t.criterios.caracteristicas[0] === f.caracteristica
+    && t.criterios.servicios.length === 0)
 }

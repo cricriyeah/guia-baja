@@ -1,8 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import {
-  articulosQueCitan, categoriasConLugares, conteoCombinacion, destacados, documentoPorSlug, eventosProximos, lugaresDe, resolutorDeCuerpo,
+  articulosQueCitan, categoriasConLugares, conteoCombinacion, destacados, documentoPorSlug, eventosProximos, lugaresDe, planesDeZona, planesQueCitan, planesSinZona, resolutorDeCuerpo, temaParaFiltro,
 } from '../../src/sitio/datos/consultas'
+import type { TarjetaItinerario, TarjetaLugar, TarjetaTema } from '../../src/sitio/datos/tipos'
 
 const pat = { activo: false, desde: null, hasta: null }
 const lugar = (id: number, zonaId: number, categoriaIds: number[], extra = {}) =>
@@ -73,3 +74,38 @@ describe('documentoPorSlug', () => {
   })
 })
 
+
+describe('planes', () => {
+  const sinP = { activo: false, desde: null, hasta: null }
+  const lugar = (id: number, zonaId: number) => ({ id, zonaId, categoriaIds: [1], caracteristicas: [], servicios: [], patrocinio: sinP, orden: 100, nombre: `L${id}` }) as unknown as TarjetaLugar
+  const crit = (extra = {}) => ({ zonaId: null, categoriaIds: [1], caracteristicas: [], servicios: [], lugaresFijosIds: [], ...extra })
+  const tema = (id: number, extra = {}) => ({ id, zonaId: null, criterios: crit(), actualizadoEl: '2026-01-01T00:00:00Z', destacado: { activo: false, orden: 100 }, titulo: `T${id}`, noIndexar: false, ...extra }) as unknown as TarjetaTema
+  const itin = (id: number, extra = {}) => ({ id, zonaId: 1, actualizadoEl: '2026-02-01T00:00:00Z', destacado: { activo: false, orden: 100 }, titulo: `I${id}`, lugaresCitados: [], noIndexar: false, ...extra }) as unknown as TarjetaItinerario
+  const listas = { lugares: [lugar(1, 1), lugar(2, 2)], zonasActivasIds: [1, 2] }
+  const ahora = new Date('2026-11-08T12:00:00Z')
+
+  it('zona: destacados primero, luego por actualización; los sin zona con lugares ahí van después', () => {
+    const itins = [itin(1), itin(2, { destacado: { activo: true, orden: 1 } })]
+    const temas = [tema(5, { zonaId: 1, criterios: crit({ zonaId: 1 }), actualizadoEl: '2026-03-01T00:00:00Z' }), tema(6)]
+    const r = planesDeZona(itins, temas, 1, listas, ahora).map((p) => `${p.tipo}${p.item.id}`)
+    expect(r).toEqual(['itinerario2', 'tema5', 'itinerario1', 'tema6'])
+  })
+  it('máximo 6', () => {
+    expect(planesDeZona(Array.from({ length: 9 }, (_, i) => itin(i + 1)), [], 1, listas, ahora)).toHaveLength(6)
+  })
+  it('sin zona: solo los temas indexables sin zona', () => {
+    const crit3 = crit({ lugaresFijosIds: [1, 2] })
+    const r = planesSinZona([tema(7, { criterios: crit3 }), tema(8, { criterios: crit({ categoriaIds: [99] }) })], { ...listas, lugares: [...listas.lugares, lugar(3, 1)] }, ahora)
+    expect(r.map((p) => p.item.id)).toEqual([7])
+  })
+  it('planesQueCitan: lugaresCitados y lista del tema', () => {
+    const r = planesQueCitan(1, [itin(1, { lugaresCitados: [1] }), itin(2)], [tema(5)], listas, ahora)
+    expect(r.map((p) => `${p.tipo}${p.item.id}`)).toEqual(['itinerario1', 'tema5'])
+  })
+  it('temaParaFiltro: misma zona, exactamente esa categoría y esa característica, y sin servicios', () => {
+    const t = tema(9, { zonaId: 1, criterios: crit({ zonaId: 1, categoriaIds: [1], caracteristicas: ['para-ninos'] }) })
+    expect(temaParaFiltro([t], { zonaId: 1, categoriaId: 1, caracteristica: 'para-ninos' })?.id).toBe(9)
+    expect(temaParaFiltro([t], { zonaId: 1, categoriaId: 1, caracteristica: 'con-comida' })).toBeUndefined()
+    expect(temaParaFiltro([tema(10, { zonaId: 1, criterios: crit({ zonaId: 1, categoriaIds: [1], caracteristicas: ['para-ninos'], servicios: ['sombra'] }) })], { zonaId: 1, categoriaId: 1, caracteristica: 'para-ninos' })).toBeUndefined()
+  })
+})

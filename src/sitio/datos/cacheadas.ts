@@ -9,8 +9,10 @@ import { articulosPublicados, fichaArticulo } from './lecturas/articulos'
 import { catalogoDeSede, fotosDeTours, type FotoTour } from './lecturas/catalogo'
 import { categorias } from './lecturas/categorias'
 import { eventosPublicados, fichaEvento } from './lecturas/eventos'
+import { fichaItinerario, itinerariosPublicados } from './lecturas/itinerarios'
 import { fichaLugar, lugaresPublicados } from './lecturas/lugares'
 import { mapaRedirecciones } from './lecturas/redirecciones'
+import { fichaTema, temasPublicados } from './lecturas/temas'
 import { textoZonaCategoria } from './lecturas/textos'
 import { zonasActivas } from './lecturas/zonas'
 import { versionCache } from '../entorno'
@@ -43,6 +45,10 @@ export const articulosCacheados = cachear(articulosPublicados, LLAVES.articulos)
 export const fichaLugarCacheada = cachear(fichaLugar, LLAVES.fichaLugar)
 export const fichaEventoCacheada = cachear(fichaEvento, LLAVES.fichaEvento)
 export const fichaArticuloCacheada = cachear(fichaArticulo, LLAVES.fichaArticulo)
+export const itinerariosCacheados = cachear(itinerariosPublicados, LLAVES.itinerarios)
+export const temasCacheados = cachear(temasPublicados, LLAVES.temas)
+export const fichaItinerarioCacheada = cachear(fichaItinerario, LLAVES.fichaItinerario)
+export const fichaTemaCacheada = cachear(fichaTema, LLAVES.fichaTema)
 export const textoCacheado = cachear(textoZonaCategoria, LLAVES.texto)
 // Lanza ante un fallo (no lo atrapa): el admin necesita distinguir «catálogo caído» de «sede sin tours».
 export const catalogoCacheado = cachear(catalogoDeSede, LLAVES.catalogo)

@@ -1,6 +1,7 @@
 import type { Payload } from 'payload'
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { coincidencias } from '../../src/busqueda/consulta'
 import { lugaresDeTema } from '../../src/dominio/temas'
 import { lugaresPublicados } from '../../src/sitio/datos/lecturas/lugares'
 import { zonasActivas } from '../../src/sitio/datos/lecturas/zonas'
@@ -120,6 +121,20 @@ describe('itinerarios', () => {
     await payload.create({ collection: 'itinerarios', locale: 'es', overrideAccess: true, draft: true, data: { ...datosItinerario(b, [{ paradas: [{ nota: 'x' }] }]), _status: 'draft' } as never })
     const { docs } = await payload.find({ collection: 'itinerarios', overrideAccess: false })
     expect(docs).toHaveLength(0)
+  })
+
+  it('el itinerario entra al índice', async () => {
+    const b = await base()
+    await payload.create({ collection: 'itinerarios', locale: 'es', overrideAccess: true, data: { ...datosItinerario(b, [{ paradas: [{ nota: 'x' }] }]), titulo: 'Plan Sugerible' } as never })
+    const { docs } = await payload.find({ collection: 'indice-busqueda', where: { tipo: { equals: 'itinerario' } }, overrideAccess: true })
+    expect(docs[0].titulo).toBe('Plan Sugerible')
+  })
+
+  it('la consulta de búsqueda y sugerencias encuentra el itinerario', async () => {
+    const b = await base()
+    await payload.create({ collection: 'itinerarios', locale: 'es', overrideAccess: true, data: { ...datosItinerario(b, [{ paradas: [{ nota: 'x' }] }]), titulo: 'Plan Sugerible' } as never })
+    const filas = await coincidencias(payload, { q: 'Sugerible', lang: 'es', tipo: null as never, zonaId: null })
+    expect(filas.map((f) => f.tipo)).toContain('itinerario')
   })
 
   it('cambiar el slug crea la redirección', async () => {

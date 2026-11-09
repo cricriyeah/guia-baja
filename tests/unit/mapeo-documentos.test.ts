@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { articuloDe, eventoDe, fichaArticuloDe, fichaEventoDe, fichaLugarDe, lugarDe } from '../../src/sitio/datos/mapeo'
+import { articuloDe, eventoDe, fichaArticuloDe, fichaEventoDe, fichaItinerarioDe, fichaLugarDe, itinerarioDe, lugarDe, temaDe } from '../../src/sitio/datos/mapeo'
 
 const lexical = (t: string) => ({ root: { type: 'root', children: [{ type: 'paragraph', children: [{ type: 'text', text: t }] }] } })
 const foto = { id: 5, url: '/m/f.jpg', width: 1600, height: 1067, alt: { es: 'Foto', en: 'Photo' }, sizes: { s480: { url: '/m/f-480.webp', width: 480 } } }
@@ -113,4 +113,19 @@ it('sin datos: enlazarMenciones por defecto y visita nula', () => {
   expect(f.enlazarMenciones).toBe(true)
   expect(f.visita).toBeNull()
   expect(f.preguntas).toEqual([])
+})
+
+it('itinerario: existe sin títulos de día y normaliza las paradas', () => {
+  const doc = { id: 1, slug: 'plan', titulo: 'Plan', resumen: 'R', cuerpo: lexical('Texto'), zona: { id: 2, slug: 'la-paz' }, dias: [{ titulo: null, paradas: [{ hora: '08:00', lugar: { id: 3 }, tour: 'servicio:a', nota: null }] }], lugaresCitados: [3] }
+  const t = itinerarioDe(doc as never, 'es')!
+  expect(t.numeroDias).toBe(1)
+  expect(t.clavesTours).toEqual(['servicio:a'])
+  const f = fichaItinerarioDe(doc as never, 'es', {})!
+  expect(f.dias[0].paradas[0]).toEqual({ hora: '08:00', lugarId: 3, tour: 'servicio:a', nota: null })
+})
+it('tema: criterios y tours', () => {
+  const doc = { id: 1, slug: 't', titulo: 'T', resumen: 'R', introduccion: lexical('Texto'), zona: null, categorias: [1], caracteristicas: ['para-ninos'], servicios: [], lugaresFijos: [{ id: 7 }], tours: [{ zona: 2, tour: 'servicio:a' }] }
+  const t = temaDe(doc as never, 'es')!
+  expect(t.criterios).toEqual({ zonaId: null, categoriaIds: [1], caracteristicas: ['para-ninos'], servicios: [], lugaresFijosIds: [7] })
+  expect(t.tours).toEqual([{ zonaId: 2, clave: 'servicio:a' }])
 })

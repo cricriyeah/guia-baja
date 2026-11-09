@@ -38,3 +38,24 @@ describe('filasDe: qué entra al índice (spec §6, §7)', () => {
     expect(filasDe('categoria', { id: 3, nombre: { es: 'Playas', en: 'Beaches' }, slug: { es: 'playas', en: 'beaches' } }).map((f) => f.slug)).toEqual(['playas', 'beaches'])
   })
 })
+
+it('itinerario: título, resumen, títulos de día y notas', () => {
+  const doc = {
+    id: 1, _status: 'published', zona: 2, slug: { es: 'plan', en: null }, titulo: { es: 'Plan', en: null }, resumen: { es: 'Resumen', en: null },
+    cuerpo: { es: lex('Intro'), en: null },
+    dias: [{ titulo: { es: 'Balandra' }, paradas: [{ nota: { es: 'Llega temprano' } }] }],
+  }
+  const [f] = filasDe('itinerario', doc)
+  expect(f).toMatchObject({ tipo: 'itinerario', slug: 'plan', titulo: 'Plan', zonaIds: [2], locale: 'es' })
+  expect(f.texto).toContain('Balandra')
+  expect(f.texto).toContain('Llega temprano')
+})
+
+it('tema: usa la introducción', () => {
+  const doc = { id: 2, _status: 'published', zona: null, slug: { es: 'tema', en: null }, titulo: { es: 'Tema', en: null }, resumen: { es: 'R', en: null }, introduccion: { es: lex('Intro del tema'), en: null } }
+  const [f] = filasDe('tema', doc)
+  expect(f).toMatchObject({ tipo: 'tema', slug: 'tema', titulo: 'Tema' })
+  expect(f.texto).toContain('Intro del tema')
+})
+
+it('borrador no entra', () => expect(filasDe('tema', { id: 3, _status: 'draft' })).toEqual([]))

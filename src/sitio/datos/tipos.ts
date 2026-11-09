@@ -1,4 +1,6 @@
 import type { Grupo } from '../../dominio/grupos'
+import type { Dia } from '../../dominio/itinerarios'
+import type { CriteriosTema } from '../../dominio/temas'
 import type { VisitaPublica } from '../../dominio/visita'
 
 // Lo que reciben las páginas. Nunca documentos crudos de Payload.
@@ -88,3 +90,22 @@ export type FichaArticulo = TarjetaArticulo & {
   cuerpo: unknown; metaTitulo: string | null; metaDescripcion: string | null; media: Record<string, Imagen>
 }
 export type TextoZonaCategoria = { introduccion: string }
+
+export type TarjetaItinerario = {
+  id: number; slug: string; titulo: string; resumen: string; zonaId: number; portada: Imagen | null; autorNombre: string
+  publicadoEl: string | null; actualizadoEl: string | null; lugaresCitados: number[]; numeroDias: number; clavesTours: string[]
+  categoriaIds: number[]; destacado: Destacado; noIndexar: boolean
+}
+export type FichaItinerario = TarjetaItinerario & {
+  cuerpo: unknown; dias: Dia[]; preguntas: { pregunta: string; respuesta: string }[]
+  metaTitulo: string | null; metaDescripcion: string | null; media: Record<string, Imagen>
+}
+export type TarjetaTema = {
+  id: number; slug: string; titulo: string; resumen: string; zonaId: number | null; portada: Imagen | null
+  publicadoEl: string | null; actualizadoEl: string | null; criterios: CriteriosTema; tours: { zonaId: number; clave: string }[]
+  categoriaIds: number[]; destacado: Destacado; noIndexar: boolean
+}
+export type FichaTema = TarjetaTema & {
+  introduccion: unknown; autorNombre: string; preguntas: { pregunta: string; respuesta: string }[]
+  metaTitulo: string | null; metaDescripcion: string | null; media: Record<string, Imagen>
+}

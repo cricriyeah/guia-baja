@@ -3,14 +3,14 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 
 import { coincidencias } from '../../../../../busqueda/consulta'
-import { leerConsultaBusqueda, ordenarGrupo, partesResaltadas, TIPOS_BUSQUEDA, type FilaResultado } from '../../../../../dominio/busqueda'
+import { leerConsultaBusqueda, ordenarGrupo, partesResaltadas, TIPOS_BUSQUEDA, type FilaResultado, type TipoBusqueda } from '../../../../../dominio/busqueda'
 import { esEventoProximo } from '../../../../../dominio/eventos'
 import { esLocale, type Locale } from '../../../../../dominio/idioma'
 import { paginar } from '../../../../../dominio/paginacion'
 import { patrocinioDeclarado } from '../../../../../dominio/patrocinio'
 import { conConsulta, rutas } from '../../../../../dominio/rutas'
 import {
-  articulosCacheados, categoriasCacheadas, eventosCacheados, lugaresCacheados, zonasActivasCacheadas,
+  articulosCacheados, categoriasCacheadas, eventosCacheados, itinerariosCacheados, lugaresCacheados, temasCacheados, zonasActivasCacheadas,
 } from '../../../../../sitio/datos/cacheadas'
 import { categoriasConLugares, porSlug } from '../../../../../sitio/datos/consultas'
 import { obtenerPayload } from '../../../../../sitio/datos/payload'
@@ -82,11 +82,11 @@ export default async function Buscar({ params, searchParams }: Props) {
   const ahora = new Date()
   // Las coincidencias van sin unstable_cache: el término lo escribe el visitante y no debe volverse llave de la
   // Data Cache (como las sugerencias). Las listas de visibilidad sí van cacheadas.
-  const [todas, lugares, eventos, articulos, cats] = await Promise.all([
+  const [todas, lugares, eventos, articulos, cats, itinerarios, temas] = await Promise.all([
     consulta.q
       ? obtenerPayload().then((payload) => coincidencias(payload, { q: consulta.q, lang, tipo: consulta.tipo, zonaId: zona?.id ?? null }))
       : Promise.resolve([]),
-    lugaresCacheados(lang), eventosCacheados(lang), articulosCacheados(lang), categoriasCacheadas(lang),
+    lugaresCacheados(lang), eventosCacheados(lang), articulosCacheados(lang), categoriasCacheadas(lang), itinerariosCacheados(lang), temasCacheados(lang),
   ])
   // Solo lo que el público puede abrir: lo que está en las listas del idioma (F3b). Una categoría sin lugares o un
   // lugar de una zona inactiva darían 404 (plan F3c).
@@ -94,14 +94,19 @@ export default async function Buscar({ params, searchParams }: Props) {
     lugar: new Set(lugares.map((x) => x.id)),
     evento: new Set(eventos.map((x) => x.id)),
     articulo: new Set(articulos.map((x) => x.id)),
+    itinerario: new Set(itinerarios.map((x) => x.id)),
+    tema: new Set(temas.map((x) => x.id)),
     zona: new Set(zonas.map((x) => x.id)),
     categoria: new Set(categoriasConLugares(lugares, cats).map((x) => x.id)),
   }
   // Eventos pasados fuera (spec §7); el orden con patrocinios y la paginación, sobre el grupo completo.
   const vigentes = todas
-    .filter((f) => visibles[f.tipo]?.has(f.docId))
+    .filter((f) => visibles[f.tipo].has(f.docId))
     .filter((f) => f.tipo !== 'evento' || esEventoProximo({ inicio: f.inicio ?? '', fin: f.fin }, ahora))
-  const grupos = TIPOS_BUSQUEDA.map((tipo) => ({ tipo, filas: ordenarGrupo(vigentes.filter((f) => f.tipo === tipo), ahora) })).filter((g) => g.filas.length)
+  type Grupo = { id: string; tipo: TipoBusqueda; titulo: string; filas: FilaResultado[] }
+  const grupo = (tipo: TipoBusqueda): Grupo => ({ id: tipo, tipo, titulo: t.busqueda.tipos[tipo], filas: ordenarGrupo(vigentes.filter((f) => f.tipo === tipo), ahora) })
+  const planes: Grupo = { id: 'planes', tipo: 'itinerario', titulo: t.busqueda.tipos.itinerario, filas: ordenarGrupo(vigentes.filter((f) => f.tipo === 'itinerario' || f.tipo === 'tema'), ahora) }
+  const grupos = TIPOS_BUSQUEDA.flatMap((tipo) => (tipo === 'tema' ? [] : [tipo === 'itinerario' ? planes : grupo(tipo)])).filter((g) => g.filas.length)
   const ruta = rutas.buscar(lang)
   const consultaCon = (cambio: Record<string, string | null>) => {
     const p = new URLSearchParams({ q: consulta.q })
@@ -156,8 +161,8 @@ export default async function Buscar({ params, searchParams }: Props) {
           {grupos.map((g) => {
             const filas = consulta.tipo ? (pagina?.items ?? []) : g.filas.slice(0, POR_GRUPO_SIN_FILTRO)
             return (
-              <section key={g.tipo} className="grupo" aria-labelledby={`g-${g.tipo}`}>
-                <h2 id={`g-${g.tipo}`}>{t.busqueda.tipos[g.tipo]} <small>{g.filas.length}</small></h2>
+              <section key={g.id} className="grupo" aria-labelledby={`g-${g.id}`}>
+                <h2 id={`g-${g.id}`}>{g.titulo} <small>{g.filas.length}</small></h2>
                 <div className="resultados">
                   {filas.map((f) => {
                     const declarado = (f.tipo === 'lugar' || f.tipo === 'evento') && patrocinioDeclarado(f.patrocinio, ahora)

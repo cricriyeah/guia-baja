@@ -1,12 +1,13 @@
 import type { Grupo } from '../../dominio/grupos'
 import { CAMPOS_IDIOMA, existeEnIdioma, type Locale, textoDeLexical } from '../../dominio/idioma'
+import { clavesDeItinerario, type Dia } from '../../dominio/itinerarios'
 import { idDe } from '../../dominio/lexical'
 import { esClaveDeTour } from '../../dominio/presencia'
 import { tieneVisita, type VisitaPublica } from '../../dominio/visita'
-import type { Articulo, Categoria, Evento, Lugare, Media, Zona } from '../../payload-types'
+import type { Articulo, Categoria, Evento, Itinerario, Lugare, Media, Tema, Zona } from '../../payload-types'
 import type {
-  CategoriaPublica, Destacado, FichaArticulo, FichaEvento, FichaLugar, FilaHorarioPublica, Imagen, PatrocinioPublico,
-  TarjetaArticulo, TarjetaEvento, TarjetaLugar, ZonaPublica,
+  CategoriaPublica, Destacado, FichaArticulo, FichaEvento, FichaItinerario, FichaLugar, FichaTema, FilaHorarioPublica, Imagen, PatrocinioPublico,
+  TarjetaArticulo, TarjetaEvento, TarjetaItinerario, TarjetaLugar, TarjetaTema, ZonaPublica,
 } from './tipos'
 
 export const CLASE_GRUPO: Record<Grupo, string> = {
@@ -229,5 +230,67 @@ export function fichaArticuloDe(doc: Articulo, lang: Locale, media: Record<strin
     metaTitulo: doc.seo?.metaTitulo ?? null,
     metaDescripcion: doc.seo?.metaDescripcion ?? null,
     media,
+  }
+}
+
+function diasDe(doc: Itinerario): Dia[] {
+  return (doc.dias ?? []).map((d) => ({
+    titulo: d.titulo ?? null,
+    paradas: (d.paradas ?? []).map((p) => ({ hora: p.hora ?? null, lugarId: idDe(p.lugar), tour: p.tour ?? null, nota: p.nota ?? null })),
+  }))
+}
+
+export function itinerarioDe(doc: Itinerario, lang: Locale): TarjetaItinerario | null {
+  if (!existeEnIdioma(doc as never, CAMPOS_IDIOMA.itinerarios) || !doc.slug) return null
+  const zonaId = idDe(doc.zona)
+  // Una zona inactiva no se puebla (acceso público): sin slug la página no existe, como un lugar.
+  if (zonaId === null || !slugDe(doc.zona)) return null
+  const dias = diasDe(doc)
+  return {
+    id: doc.id, slug: doc.slug, titulo: doc.titulo, resumen: doc.resumen ?? '', zonaId,
+    portada: imagenDe(doc.portada, lang), autorNombre: doc.autorNombre ?? '',
+    publicadoEl: iso(doc.publicadoEl), actualizadoEl: iso(doc.actualizadoEl),
+    lugaresCitados: ids(doc.lugaresCitados), numeroDias: dias.length, clavesTours: clavesDeItinerario(dias),
+    categoriaIds: [], destacado: destacadoDe(doc), noIndexar: Boolean(doc.seo?.noIndexar),
+  }
+}
+
+export function fichaItinerarioDe(doc: Itinerario, lang: Locale, media: Record<string, Imagen>): FichaItinerario | null {
+  const t = itinerarioDe(doc, lang)
+  if (!t) return null
+  return {
+    ...t,
+    portada: media[String(idDe(doc.portada))] ?? t.portada,
+    cuerpo: doc.cuerpo ?? null,
+    dias: diasDe(doc),
+    preguntas: (doc.preguntas ?? []).map((p) => ({ pregunta: p.pregunta, respuesta: p.respuesta })),
+    metaTitulo: doc.seo?.metaTitulo ?? null, metaDescripcion: doc.seo?.metaDescripcion ?? null, media,
+  }
+}
+
+export function temaDe(doc: Tema, lang: Locale): TarjetaTema | null {
+  if (!existeEnIdioma(doc as never, CAMPOS_IDIOMA.temas) || !doc.slug) return null
+  const zonaId = idDe(doc.zona)
+  return {
+    id: doc.id, slug: doc.slug, titulo: doc.titulo, resumen: doc.resumen ?? '', zonaId,
+    portada: imagenDe(doc.portada, lang), publicadoEl: iso(doc.publicadoEl), actualizadoEl: iso(doc.actualizadoEl),
+    criterios: { zonaId, categoriaIds: ids(doc.categorias), caracteristicas: doc.caracteristicas ?? [], servicios: doc.servicios ?? [], lugaresFijosIds: ids(doc.lugaresFijos) },
+    tours: (doc.tours ?? []).flatMap((f) => {
+      const z = idDe(f.zona)
+      return z !== null && esClaveDeTour(f.tour) ? [{ zonaId: z, clave: f.tour }] : []
+    }),
+    categoriaIds: ids(doc.categorias), destacado: destacadoDe(doc), noIndexar: Boolean(doc.seo?.noIndexar),
+  }
+}
+
+export function fichaTemaDe(doc: Tema, lang: Locale, media: Record<string, Imagen>): FichaTema | null {
+  const t = temaDe(doc, lang)
+  if (!t) return null
+  return {
+    ...t,
+    portada: media[String(idDe(doc.portada))] ?? t.portada,
+    introduccion: doc.introduccion ?? null, autorNombre: doc.autorNombre ?? '',
+    preguntas: (doc.preguntas ?? []).map((p) => ({ pregunta: p.pregunta, respuesta: p.respuesta })),
+    metaTitulo: doc.seo?.metaTitulo ?? null, metaDescripcion: doc.seo?.metaDescripcion ?? null, media,
   }
 }
