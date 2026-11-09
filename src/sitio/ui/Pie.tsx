@@ -4,10 +4,8 @@ import type { Locale } from '../../dominio/idioma'
 import { rutas } from '../../dominio/rutas'
 import { sitioUrl, whatsappNumero } from '../entorno'
 import { textos } from '../textos'
+import { ICONO_WHATSAPP } from './iconos'
 import { DIRECCION_PIE, RUTAS_PIE } from './pie-datos'
-
-const ICONO_WHATSAPP =
-  'M187.58,144.84l-32-16a8,8,0,0,0-8,.5l-14.69,9.8a40.55,40.55,0,0,1-16-16l9.8-14.69a8,8,0,0,0,.5-8l-16-32A8,8,0,0,0,104,64a40,40,0,0,0-40,40,88.1,88.1,0,0,0,88,88,40,40,0,0,0,40-40A8,8,0,0,0,187.58,144.84ZM128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Z'
 
 // Pie del sitio de reservas (spec §7) más el aviso de privacidad de la Guía. Links al sitio: <a>.
 export function Pie({ lang }: { lang: Locale }) {
@@ -41,7 +39,7 @@ export function Pie({ lang }: { lang: Locale }) {
           <div className="pie-sb__grupo">
             <h3>{t.atencion}</h3>
             {whatsapp && (
-              <a className="pie-sb__boton" href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener">
+              <a className="pie-sb__boton" href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener" data-evento="whatsapp_clic" data-origen="pie">
                 <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d={ICONO_WHATSAPP} /></svg>
                 {t.whatsapp}
               </a>

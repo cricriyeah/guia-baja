@@ -18,3 +18,7 @@ export function PrecioTour({ lang, tour, Tag = 'p', clase }: { lang: Locale; tou
 
 export const detalles = (lang: Locale, tour: TourConFoto): string =>
   [tour.duracion, tour.noches ? textos(lang).tours.noches(tour.noches) : null, tour.temporada].filter(Boolean).join(' · ')
+
+export function EtiquetaTemporada({ lang, tour }: { lang: Locale; tour: TourConFoto }) {
+  return tour.enTemporada ? <span className="etiqueta etiqueta--temporada">{textos(lang).tours.enTemporada}</span> : null
+}

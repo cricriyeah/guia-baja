@@ -38,3 +38,9 @@
 .tarjeta-tours__todos { font-weight: 600; color: var(--cafe); }
 @keyframes tarjeta-tours-entra { from { opacity: 0; transform: translateY(12px); } }
 @media (prefers-reduced-motion: reduce) { .tarjeta-tours:not([hidden]) { animation: none; } }
+
+.barra-tours__fila-principal { display: flex; gap: 8px; align-items: stretch; }
+.barra-tours__fila-principal > .boton { flex: 1; }
+.boton-whatsapp { display: flex; align-items: center; justify-content: center; width: 48px; border-radius: var(--radio-card); box-shadow: 0 0 0 1px var(--borde); background: var(--blanco, #fff); }
+.boton-whatsapp svg { width: 24px; height: 24px; }
+.enlace-whatsapp { display: inline-block; margin-top: 12px; font-weight: 700; }

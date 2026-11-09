@@ -4,8 +4,10 @@ import { atribucion, rutasReservas } from '../../../dominio/rutas'
 import { contextoDe } from '../../contexto'
 import { lugaresCacheados, precioBarraDeSede, toursDeSede, zonasActivasCacheadas, type TourConFoto } from '../../datos/cacheadas'
 import { porSlug } from '../../datos/consultas'
+import { whatsappTours } from '../../datos/whatsapp'
 import { sitioUrl } from '../../entorno'
 import { textos } from '../../textos'
+import { EnlaceWhatsapp } from '../EnlaceWhatsapp'
 import { Imagen } from '../Imagen'
 import { PrecioTour } from '../PrecioTour'
 import { ActivadorTours } from './ActivadorTours'
@@ -20,6 +22,7 @@ export async function PresenciaTours({ lang, segmentos, filtroZona }: { lang: Lo
   const [c, zonas] = await Promise.all([contextoDe(lang, segmentos), zonasActivasCacheadas(lang)])
   const zona = zonaDeTours({ tipo, filtroZona, zonaContexto: c.zona, zonas })
   const t = textos(lang).tours
+  const whatsapp = zona ? await whatsappTours(lang) : null
 
   let tours: TourConFoto[] = []
   let precio: string | null = null
@@ -52,9 +55,12 @@ export async function PresenciaTours({ lang, segmentos, filtroZona }: { lang: Lo
             </div>
           )}
           {zona ? (
-            <a className="boton presionable" href={`${sitioUrl()}${rutasReservas.sede(lang, zona.sedeSlug)}${enlace(`barra-zona-${zona.slug}`)}`} data-evento="tour_clic" data-zona={zona.slug} data-origen="barra">
-              {t.barra(zona.nombre, precio)} →
-            </a>
+            <div className="barra-tours__fila-principal">
+              <a className="boton presionable" href={`${sitioUrl()}${rutasReservas.sede(lang, zona.sedeSlug)}${enlace(`barra-zona-${zona.slug}`)}`} data-evento="tour_clic" data-zona={zona.slug} data-origen="barra">
+                {t.barra(zona.nombre, precio)} →
+              </a>
+              {whatsapp && <EnlaceWhatsapp lang={lang} digitos={whatsapp} nombre={zona.nombre} zona={zona.slug} origen="barra" icono />}
+            </div>
           ) : (
             <a className="boton presionable" href={`${sitioUrl()}/${lang}${enlace('barra-baja')}`} data-evento="tour_clic" data-zona="" data-origen="barra">
               {t.barraBaja} →
@@ -80,6 +86,7 @@ export async function PresenciaTours({ lang, segmentos, filtroZona }: { lang: Lo
           <a className="tarjeta-tours__todos" href={`${sitioUrl()}${rutasReservas.sede(lang, zona.sedeSlug)}${enlace(`tarjeta-${zona.slug}`)}`} data-evento="tour_clic" data-zona={zona.slug} data-origen="tarjeta" data-cerrar-tours="">
             {t.verTodosLosTours}
           </a>
+          {whatsapp && tipo !== 'ficha' && <EnlaceWhatsapp lang={lang} digitos={whatsapp} nombre={zona.nombre} zona={zona.slug} origen="tarjeta" />}
         </aside>
       )}
       <ActivadorTours />

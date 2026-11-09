@@ -5,12 +5,14 @@ import { notFound } from 'next/navigation'
 import { esEventoProximo } from '../../../../../../dominio/eventos'
 import { partesFecha, rangoEvento } from '../../../../../../dominio/fechas-evento'
 import { esLocale, type Locale } from '../../../../../../dominio/idioma'
+import { enlazarMenciones } from '../../../../../../dominio/menciones'
 import { patrocinioDeclarado } from '../../../../../../dominio/patrocinio'
 import { conConsulta, rutas } from '../../../../../../dominio/rutas'
 import {
   articulosCacheados, categoriasCacheadas, eventosCacheados, fichaEventoCacheada, lugaresCacheados, zonasActivasCacheadas,
 } from '../../../../../../sitio/datos/cacheadas'
 import { documentoPorSlug, eventosProximos, porId, resolutorDeCuerpo } from '../../../../../../sitio/datos/consultas'
+import { candidatosMencion } from '../../../../../../sitio/datos/menciones'
 import { guiaIndexable, sitioUrl } from '../../../../../../sitio/entorno'
 import { rutasPorIdioma } from '../../../../../../sitio/paginas/comun'
 import { eventoLd, migasLd } from '../../../../../../sitio/seo/jsonld'
@@ -73,6 +75,7 @@ export default async function PaginaEvento({ params }: Props) {
     zonasActivasCacheadas(lang), categoriasCacheadas(lang), lugaresCacheados(lang), articulosCacheados(lang),
   ])
   const zona = porId(zonas, e.zonaId)
+  const [cuerpo] = enlazarMenciones([e.cuerpo], candidatosMencion(lugares))
   const cat = porId(cats, e.categoriaIds[0])
   const lugar = porId(lugares, e.lugarId) ?? null
   const t = textos(lang)
@@ -138,7 +141,7 @@ export default async function PaginaEvento({ params }: Props) {
         <article>
           <section className="bloque" aria-labelledby="t-que">
             <h2 id="t-que" className="t-seccion">{t.evento.deQueSeTrata}</h2>
-            <CuerpoRico lang={lang} cuerpo={e.cuerpo} resolutor={resolutorDeCuerpo({ lugares, eventos: d.lista, articulos }, lang)} media={e.media} categorias={cats} patrocinado={declarado} />
+            <CuerpoRico lang={lang} cuerpo={cuerpo} resolutor={resolutorDeCuerpo({ lugares, eventos: d.lista, articulos }, lang)} media={e.media} categorias={cats} patrocinado={declarado} />
           </section>
           <section className="bloque" aria-labelledby="t-donde">
             <h2 id="t-donde" className="t-seccion">{t.evento.donde}</h2>

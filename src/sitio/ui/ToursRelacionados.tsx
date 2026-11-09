@@ -2,13 +2,18 @@ import type { Locale } from '../../dominio/idioma'
 import { atribucion } from '../../dominio/rutas'
 import type { TourConFoto } from '../datos/cacheadas'
 import { sitioUrl } from '../entorno'
+import { toursLd } from '../seo/jsonld'
 import { textos } from '../textos'
+import { EnlaceWhatsapp } from './EnlaceWhatsapp'
 import { Imagen } from './Imagen'
-import { detalles, precioEnTexto, PrecioTour } from './PrecioTour'
+import { JsonLd } from './JsonLd'
+import { detalles, EtiquetaTemporada, precioEnTexto, PrecioTour } from './PrecioTour'
 
 // «Tours para conocer {lugar}» (spec de presencia §2.1). La frase de texto va en el HTML: es la que leen buscadores y
 // asistentes. El primero va grande. Sin tours relacionados visibles no pinta nada.
-export function ToursRelacionados({ lang, lugar, tours }: { lang: Locale; lugar: { slug: string; nombre: string; zonaSlug: string }; tours: TourConFoto[] }) {
+export function ToursRelacionados({ lang, lugar, tours, whatsapp, base }: {
+  lang: Locale; lugar: { slug: string; nombre: string; zonaSlug: string }; tours: TourConFoto[]; whatsapp: string | null; base: string
+}) {
   if (!tours.length) return null
   const t = textos(lang).tours
   const consulta = atribucion(`relacionado-${lugar.slug}`)
@@ -22,6 +27,7 @@ export function ToursRelacionados({ lang, lugar, tours }: { lang: Locale; lugar:
             <div className="relacionado__cuerpo">
               <p className="titular">{tour.nombre}</p>
               <PrecioTour lang={lang} tour={tour} clase="tour__precio" />
+              <EtiquetaTemporada lang={lang} tour={tour} />
               {detalles(lang, tour) && <p className="meta">{detalles(lang, tour)}</p>}
               <span className="relacionado__accion">{t.reservar}</span>
             </div>
@@ -29,6 +35,8 @@ export function ToursRelacionados({ lang, lugar, tours }: { lang: Locale; lugar:
           <p className="relacionado__frase">{t.frase(lugar.nombre, tour.nombre, precioEnTexto(lang, tour))}</p>
         </div>
       ))}
+      {whatsapp && <EnlaceWhatsapp lang={lang} digitos={whatsapp} nombre={lugar.nombre} zona={lugar.zonaSlug} origen="relacionado" />}
+      <JsonLd datos={toursLd(tours, { lang, base: sitioUrl(), lugarId: `${sitioUrl()}${base}#lugar` })} />
     </section>
   )
 }

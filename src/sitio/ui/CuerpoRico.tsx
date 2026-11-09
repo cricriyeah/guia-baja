@@ -8,11 +8,12 @@ import { rutas } from '../../dominio/rutas'
 import type { Resolutor } from '../datos/consultas'
 import type { CategoriaPublica, Imagen as ImagenT } from '../datos/tipos'
 import { textos } from '../textos'
+import { BloqueTour } from './BloqueTour'
 import { Patrocinado } from './Etiquetas'
 import { Imagen } from './Imagen'
 import { PreguntasFrecuentes } from './PreguntasFrecuentes'
 import { MiniEvento } from './tarjetas/MiniEvento'
-import { BloqueTours } from './ToursEnZona'
+import { BloqueTours, type Origen } from './ToursEnZona'
 
 type Props = {
   lang: Locale
@@ -25,6 +26,8 @@ type Props = {
   patrocinado?: boolean
   // Atribución de los links del bloque de tours (spec §13). Sin ella, el bloque no se pinta.
   piezaTours?: string
+  // Origen de tour_clic del bloque «Tour».
+  origenTours?: Origen
 }
 
 const ESQUEMAS_SEGUROS = /^(https?|mailto|tel):/i
@@ -41,7 +44,7 @@ type Args = JSXConverterArgs<any>
 
 // Único que pinta cuerpos Lexical (lugar, evento y artículo; plan F3b, «Cuerpos Lexical»). Los ids del cuerpo se
 // resuelven contra las listas del idioma: lo que no existe para el público no se pinta (un link queda como texto).
-export function CuerpoRico({ lang, cuerpo, resolutor, media, categorias, className = 'texto', patrocinado = false, piezaTours }: Props) {
+export function CuerpoRico({ lang, cuerpo, resolutor, media, categorias, className = 'texto', patrocinado = false, piezaTours, origenTours = 'articulo' }: Props) {
   if (!cuerpo || typeof cuerpo !== 'object') return null
   const ids = encabezadosDe(cuerpo).map((e) => e.id)
   let h2 = 0
@@ -108,6 +111,13 @@ export function CuerpoRico({ lang, cuerpo, resolutor, media, categorias, classNa
       toursZona: ({ node }: Args) => {
         const zonaId = idDe(node.fields.zona)
         return piezaTours && typeof zonaId === 'number' ? <BloqueTours lang={lang} zonaId={zonaId} pieza={piezaTours} /> : null
+      },
+      tour: ({ node }: Args) => {
+        const zonaId = idDe(node.fields.zona)
+        const clave = node.fields.tour
+        return piezaTours && typeof zonaId === 'number' && typeof clave === 'string'
+          ? <BloqueTour lang={lang} zonaId={zonaId} clave={clave} pieza={`tour-${piezaTours}`} origen={origenTours} />
+          : null
       },
       preguntasFrecuentes: ({ node }: Args) => (
         <PreguntasFrecuentes preguntas={(node.fields.preguntas as { pregunta: string; respuesta: string }[] | undefined) ?? []} etiqueta={t.articulo.preguntas} />

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { enTemporada, mesEnBCS, mesesATexto, ordenarPorTemporada, registroTourConDatos } from '../../src/dominio/temporada'
+import { enTemporada, mesEnBCS, mesesATexto, ordenarPorTemporada, registroTourConDatos, unoPorZona } from '../../src/dominio/temporada'
 
 describe('mesesATexto', () => {
   it('rango que cruza diciembre', () => expect(mesesATexto([11, 12, 1, 2, 3, 4], 'es')).toBe('noviembre a abril'))
@@ -44,4 +44,12 @@ describe('registroTourConDatos', () => {
     expect(registroTourConDatos({ temporada: 'January' }, 'en')).toBe(true)
     expect(registroTourConDatos({}, 'en')).toBe(true)
   })
+})
+
+describe('unoPorZona', () => {
+  it('toma uno por zona y luego completa hasta el máximo', () => {
+    const listas = [[{ n: 'a1' }, { n: 'a2' }], [{ n: 'b1' }], []]
+    expect(unoPorZona(listas, 3).map((x) => x.n)).toEqual(['a1', 'b1', 'a2'])
+  })
+  it('sin tours', () => expect(unoPorZona([[], []], 3)).toEqual([]))
 })

@@ -148,6 +148,11 @@ const ES = {
     },
   },
   tours: {
+    verTour: 'Ver tour',
+    enTemporada: 'En temporada',
+    enTemporadaMes: 'En temporada este mes',
+    whatsappTexto: '¿Dudas? Pregunta por WhatsApp',
+    whatsappBoton: 'Preguntar por WhatsApp',
     titulo: (z: string) => `Tours en ${z}`,
     desde: 'desde',
     verTodos: 'Ver todos',
@@ -406,6 +411,11 @@ const EN: Textos = {
     },
   },
   tours: {
+    verTour: 'See tour',
+    enTemporada: 'In season',
+    enTemporadaMes: 'In season this month',
+    whatsappTexto: 'Questions? Ask on WhatsApp',
+    whatsappBoton: 'Ask on WhatsApp',
     titulo: (z: string) => `Tours in ${z}`,
     desde: 'from',
     verTodos: 'See all',

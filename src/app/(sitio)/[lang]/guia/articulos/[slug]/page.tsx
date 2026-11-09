@@ -6,11 +6,13 @@ import { notFound } from 'next/navigation'
 import { fechaLarga } from '../../../../../../dominio/fechas-evento'
 import { esLocale, type Locale } from '../../../../../../dominio/idioma'
 import { encabezadosDe, preguntasDe } from '../../../../../../dominio/lexical'
+import { enlazarMenciones } from '../../../../../../dominio/menciones'
 import { rutas } from '../../../../../../dominio/rutas'
 import {
   articulosCacheados, categoriasCacheadas, eventosCacheados, fichaArticuloCacheada, lugaresCacheados, zonasActivasCacheadas,
 } from '../../../../../../sitio/datos/cacheadas'
 import { articulosDeZona, documentoPorSlug, porId, resolutorDeCuerpo } from '../../../../../../sitio/datos/consultas'
+import { candidatosMencion } from '../../../../../../sitio/datos/menciones'
 import { guiaIndexable, sitioUrl } from '../../../../../../sitio/entorno'
 import { rutasPorIdioma } from '../../../../../../sitio/paginas/comun'
 import { articuloLd, faqLd, migasLd } from '../../../../../../sitio/seo/jsonld'
@@ -70,6 +72,7 @@ export default async function PaginaArticulo({ params }: Props) {
   const cat = porId(cats, a.categoriaIds[0])
   const zona = porId(zonas, a.zonaIds[0])
   const indice = encabezadosDe(a.cuerpo)
+  const [cuerpo] = enlazarMenciones([a.cuerpo], candidatosMencion(lugares))
   const preguntas = preguntasDe(a.cuerpo)
   const mismos = zona ? articulosDeZona(d.lista, zona.id) : d.lista
   const mas = (mismos.length > 1 ? mismos : d.lista).filter((x) => x.id !== a.id).slice(0, 3)
@@ -106,7 +109,7 @@ export default async function PaginaArticulo({ params }: Props) {
             <div>{indice.map((h) => <a key={h.id} href={`#${h.id}`}>{h.texto}</a>)}</div>
           </nav>
         )}
-        <CuerpoRico lang={lang} cuerpo={a.cuerpo} resolutor={resolutorDeCuerpo({ lugares, eventos, articulos: d.lista }, lang)} media={a.media} categorias={cats} className="prosa" piezaTours={`articulo-${a.slug}`} />
+        <CuerpoRico lang={lang} cuerpo={cuerpo} resolutor={resolutorDeCuerpo({ lugares, eventos, articulos: d.lista }, lang)} media={a.media} categorias={cats} className="prosa" piezaTours={`articulo-${a.slug}`} />
       </div>
 
       {mas.length > 0 && (

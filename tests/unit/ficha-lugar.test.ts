@@ -1,7 +1,9 @@
 // tests/unit/ficha-lugar.test.ts
 import { createElement, type ReactNode } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+process.env.WHATSAPP_NUMERO = '5210000000000'
 
 import type { FichaLugar } from '../../src/sitio/datos/tipos'
 
@@ -24,12 +26,13 @@ const base: FichaLugar = {
 }
 let ficha = base
 let otrosLugares: FichaLugar[] = []
+let whatsappActivo = false
 const zonasBase: unknown[] = [{ id: 1, slug: 'la-paz', nombre: 'La Paz', descripcion: null, coordenadas: [-110.3, 24.1] }]
 let zonas = zonasBase
 
 vi.mock('../../src/sitio/datos/cacheadas', () => ({
   lugaresCacheados: async () => [ficha, ...otrosLugares],
-  ajustesCacheados: async () => ({ whatsappToursActivo: false }),
+  ajustesCacheados: async () => ({ whatsappToursActivo: whatsappActivo }),
   fichaLugarCacheada: async () => ficha,
   zonasActivasCacheadas: async () => zonas,
   categoriasCacheadas: async () => [{ id: 1, slug: 'cafes', nombre: 'Cafés', claseGrupo: 'g-comer', tipoSchema: 'CafeOrCoffeeShop' }],
@@ -145,4 +148,22 @@ it('enlaza la mención de otro lugar en el cuerpo, pero no la propia ficha', asy
   expect(html).toContain('<a href="/es/guia/lugares/mar-azul">Mar Azul</a>') // El texto completo: el riel «Más…» también enlaza a esa ficha.
   expect(html).not.toContain('<a href="/es/guia/lugares/cafe-duna">Café Duna</a>')
   otrosLugares = []
+})
+
+describe('WhatsApp de tours en la ficha', () => {
+  const zonaConSede = { id: 1, slug: 'la-paz', nombre: 'La Paz', descripcion: null, sedeSlug: 'la-paz', coordenadas: [-110.3, 24.1] }
+  beforeEach(() => { whatsappActivo = true; zonas = [zonaConSede]; tours = [tourEspiritu] })
+  afterEach(() => { whatsappActivo = false; zonas = zonasBase; tours = [] })
+
+  it('sale en «Tours para conocer»', async () => {
+    const html = await pintar({ ...base, toursRelacionados: ['servicio:espiritu-santo'] })
+    expect(html).toContain('Tour Espíritu Santo')
+    expect(html).toContain('data-evento="whatsapp_clic"')
+  })
+  it('con patrocinio declarado no sale', async () => {
+    const patrocinio = { activo: true, desde: '2020-01-01', hasta: '2999-01-01' }
+    const html = await pintar({ ...base, patrocinio, toursRelacionados: ['servicio:espiritu-santo'] })
+    expect(html).toContain('Tour Espíritu Santo')
+    expect(html).not.toContain('data-evento="whatsapp_clic"')
+  })
 })

@@ -64,3 +64,8 @@
 }
 .pagina-articulo .aviso { position: fixed; left: 50%; bottom: 24px; z-index: 60; transform: translate(-50%, 20px); opacity: 0; padding: 10px 16px; border-radius: 999px; background: var(--tinta); color: var(--blanco); font-weight: 600; transition: opacity 200ms, transform 300ms var(--curva); pointer-events: none; }
 .pagina-articulo .aviso.visible { opacity: 1; transform: translate(-50%, 0); }
+
+.b-tour { margin-block: 24px; }
+.b-tour__tarjeta { display: block; overflow: hidden; }
+.b-tour__cuerpo { padding: 16px; }
+.etiqueta--temporada { display: inline-block; margin-top: 4px; }

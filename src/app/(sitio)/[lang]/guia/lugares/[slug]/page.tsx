@@ -17,6 +17,7 @@ import {
 } from '../../../../../../sitio/datos/cacheadas'
 import { articulosQueCitan, documentoPorSlug, eventosProximos, lugaresDe, porId, resolutorDeCuerpo } from '../../../../../../sitio/datos/consultas'
 import { candidatosMencion } from '../../../../../../sitio/datos/menciones'
+import { whatsappTours } from '../../../../../../sitio/datos/whatsapp'
 import { guiaIndexable, sitioUrl } from '../../../../../../sitio/entorno'
 import { rutasPorIdioma } from '../../../../../../sitio/paginas/comun'
 import { faqLd, lugarLd, migasLd } from '../../../../../../sitio/seo/jsonld'
@@ -84,8 +85,8 @@ export default async function FichaDeLugar({ params }: Props) {
   // para que el HTML del servidor traiga el contenido y no el fallback del 404.
   if (!d) return <NoEncontradoEnSuspense lang={lang} segmentos={['lugares', slug]} />
   const { ficha: l, lista: lugares } = d
-  const [zonas, cats, eventos, articulos] = await Promise.all([
-    zonasActivasCacheadas(lang), categoriasCacheadas(lang), eventosCacheados(lang), articulosCacheados(lang),
+  const [zonas, cats, eventos, articulos, whatsapp] = await Promise.all([
+    zonasActivasCacheadas(lang), categoriasCacheadas(lang), eventosCacheados(lang), articulosCacheados(lang), whatsappTours(lang),
   ])
   const zona = porId(zonas, l.zonaId)
   // Spec de presencia §2.1: solo se lee el catálogo si el lugar marcó tours. ToursEnZona lee la misma entrada de caché.
@@ -149,7 +150,7 @@ export default async function FichaDeLugar({ params }: Props) {
       <div className="cuerpo">
         <article>
           <AntesDeIr lang={lang} visita={l.visita} zonaNombre={zona?.nombre ?? ''} />
-          <ToursRelacionados lang={lang} lugar={l} tours={relacionados} />
+          <ToursRelacionados lang={lang} lugar={l} tours={relacionados} whatsapp={declarado ? null : whatsapp} base={ruta} />
           <section className="bloque" aria-labelledby="t-saber">
             <h2 id="t-saber" className="t-seccion">{t.ficha.loQueHayQueSaber}</h2>
             <CuerpoRico lang={lang} cuerpo={cuerpo} resolutor={resolutorDeCuerpo({ lugares, eventos, articulos }, lang)} media={l.media} categorias={cats} patrocinado={declarado} />

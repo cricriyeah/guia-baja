@@ -47,3 +47,14 @@ export function registroTourConDatos(datos: DatosRegistro, locale: string | unde
   if (locale !== 'es') return true
   return Boolean(datos.foto) || (datos.meses?.length ?? 0) > 0 || Boolean(datos.temporada?.trim())
 }
+
+// Reparte: uno por zona, en el orden de las zonas, y vuelve a empezar hasta llegar al máximo (spec del paquete 1 §2.4).
+export function unoPorZona<T>(listas: T[][], max: number): T[] {
+  const salida: T[] = []
+  for (let vuelta = 0; salida.length < max && listas.some((l) => l.length > vuelta); vuelta += 1) {
+    for (const lista of listas) {
+      if (lista[vuelta] && salida.length < max) salida.push(lista[vuelta])
+    }
+  }
+  return salida
+}

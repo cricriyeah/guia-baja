@@ -15,6 +15,7 @@ import { migasLd } from '../../../../sitio/seo/jsonld'
 import { metadatos } from '../../../../sitio/seo/metadatos'
 import { textos } from '../../../../sitio/textos'
 import { Aparece } from '../../../../sitio/ui/Aparece'
+import { TemporadaPortada } from '../../../../sitio/ui/TemporadaPortada'
 import { Patrocinado } from '../../../../sitio/ui/Etiquetas'
 import { Imagen } from '../../../../sitio/ui/Imagen'
 import { JsonLd } from '../../../../sitio/ui/JsonLd'
@@ -107,6 +108,8 @@ export default async function Portada({ params }: Props) {
           ))}
         </div>
       </section>
+
+      <TemporadaPortada lang={lang} zonas={zonas} />
 
       {proximos.length > 0 && (
         <section className="seccion" aria-labelledby="t-eventos">

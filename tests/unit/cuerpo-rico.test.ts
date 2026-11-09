@@ -108,3 +108,22 @@ describe('CuerpoRico: links externos', () => {
     expect(html).toContain('sitio')
   })
 })
+
+const comunes = { lang: 'es' as const, resolutor: resolutor as never, media, categorias: [] }
+
+vi.mock('../../src/sitio/ui/BloqueTour', () => ({
+  BloqueTour: ({ clave, pieza, origen }: { clave: string; pieza: string; origen: string }) => createElement('span', { 'data-clave': clave, 'data-pieza': pieza, 'data-origen': origen }),
+}))
+
+it('bloque tour: arma la pieza y el origen por defecto', () => {
+  const cuerpo = { root: { type: 'root', children: [{ type: 'block', fields: { blockType: 'tour', zona: 7, tour: 'servicio:a' } }] } }
+  const html = renderToStaticMarkup(createElement(CuerpoRico, { ...comunes, cuerpo, piezaTours: 'articulo-x' }))
+  expect(html).toContain('data-clave="servicio:a"')
+  expect(html).toContain('data-pieza="tour-articulo-x"')
+  expect(html).toContain('data-origen="articulo"')
+})
+
+it('bloque tour sin piezaTours no pinta', () => {
+  const cuerpo = { root: { type: 'root', children: [{ type: 'block', fields: { blockType: 'tour', zona: 7, tour: 'servicio:a' } }] } }
+  expect(renderToStaticMarkup(createElement(CuerpoRico, { ...comunes, cuerpo }))).not.toContain('data-clave')
+})
