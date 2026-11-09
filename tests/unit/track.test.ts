@@ -8,6 +8,11 @@ const { eventoDeClic, montarAnalitica } = await import('../../src/sitio/analitic
 describe('analítica (spec §13)', () => {
   beforeEach(() => enviarEvento.mockReset())
 
+  it('whatsapp_clic lleva zona y origen', () => {
+    expect(propsDeElemento('whatsapp_clic', { zona: 'la-paz', origen: 'barra' })).toEqual({ zona: 'la-paz', origen: 'barra' })
+    expect(track('whatsapp_clic', { zona: 'la-paz', origen: 'barra' })).toBe(true)
+  })
+
   it('solo eventos conocidos y como máximo 2 propiedades permitidas', () => {
     expect(track('tour_clic', { zona: 'la-paz', origen: 'cabecera', extra: 'x' })).toBe(true)
     expect(enviarEvento).toHaveBeenCalledWith('tour_clic', { zona: 'la-paz', origen: 'cabecera' })

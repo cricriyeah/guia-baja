@@ -6,6 +6,7 @@ export const EVENTOS: Record<string, readonly string[]> = {
   contacto_lugar: ['lugar', 'canal'],
   boletos_clic: ['evento'],
   solicitud_enviada: ['zona'],
+  whatsapp_clic: ['zona', 'origen'],
 }
 
 export function track(evento: string, props: Record<string, string | undefined>): boolean {
@@ -22,7 +23,7 @@ export function track(evento: string, props: Record<string, string | undefined>)
 
 // Los data-* que pone F3b en los links (data-zona, data-origen, data-lugar, data-canal, data-evento-slug).
 export function propsDeElemento(evento: string, d: Record<string, string | undefined>): Record<string, string | undefined> {
-  if (evento === 'tour_clic') return { zona: d.zona, origen: d.origen }
+  if (evento === 'tour_clic' || evento === 'whatsapp_clic') return { zona: d.zona, origen: d.origen }
   if (evento === 'contacto_lugar') return { lugar: d.lugar, canal: d.canal }
   if (evento === 'boletos_clic') return { evento: d.eventoSlug }
   return {}
