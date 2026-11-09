@@ -1,7 +1,8 @@
 'use client'
 
 import { FieldDescription, FieldError, FieldLabel, useField, useFormFields } from '@payloadcms/ui'
-import type { TextFieldClientComponent } from 'payload'
+import type { TextFieldClientProps } from 'payload'
+import type React from 'react'
 import { useEffect, useState } from 'react'
 
 import { MAX_TOURS_RELACIONADOS } from '../dominio/presencia'
@@ -22,14 +23,19 @@ const idDeZona = (v: unknown): number | null => {
   return null
 }
 
-export const ToursRelacionados: TextFieldClientComponent = ({ path, field }) => {
-  const { value, setValue, showError, errorMessage } = useField<string[] | null>({ path })
-  const zonaId = idDeZona(useFormFields(([campos]) => campos.zona?.value))
+type Extra = { modo?: 'varios' | 'uno'; rutaZona?: string }
+
+export const ToursRelacionados: React.FC<TextFieldClientProps & Extra> = ({ path, field, modo = 'varios', rutaZona }) => {
+  const { value, setValue, showError, errorMessage } = useField<string[] | string | null>({ path })
+  // La zona: la ruta absoluta si se pasó; si no, el campo hermano («zona» junto a este campo, también dentro de un bloque).
+  const campoZona = rutaZona ?? (path.includes('.') ? path.replace(/[^.]+$/, 'zona') : 'zona')
+  const zonaId = idDeZona(useFormFields(([campos]) => campos[campoZona]?.value))
   // La respuesta se guarda con la zona que la pidió: si la zona cambió, se deriva «cargando» sin setState en el efecto.
   const [respuesta, setRespuesta] = useState<{ zonaId: number; carga: Carga } | null>(null)
   const carga: Carga =
     zonaId === null ? { estado: 'sin-zona' } : respuesta?.zonaId === zonaId ? respuesta.carga : { estado: 'cargando' }
-  const guardadas = Array.isArray(value) ? value : []
+  const uno = modo === 'uno'
+  const guardadas = uno ? (typeof value === 'string' && value ? [value] : []) : Array.isArray(value) ? value : []
 
   useEffect(() => {
     if (zonaId === null) return
@@ -46,9 +52,12 @@ export const ToursRelacionados: TextFieldClientComponent = ({ path, field }) => 
     return () => control.abort()
   }, [zonaId])
 
-  const quitar = (clave: string) => setValue(guardadas.filter((c) => c !== clave))
-  const alternar = (clave: string) => (guardadas.includes(clave) ? quitar(clave) : setValue([...guardadas, clave]))
-  const lleno = guardadas.length >= MAX_TOURS_RELACIONADOS
+  const quitar = (clave: string) => setValue(uno ? null : guardadas.filter((c) => c !== clave))
+  const alternar = (clave: string) => {
+    if (guardadas.includes(clave)) quitar(clave)
+    else setValue(uno ? clave : [...guardadas, clave])
+  }
+  const lleno = !uno && guardadas.length >= MAX_TOURS_RELACIONADOS
   const tours = carga.estado === 'listo' ? carga.tours : []
   const enCatalogo = new Set(tours.map((t) => t.clave))
   const sueltas = guardadas.filter((c) => carga.estado !== 'listo' || !enCatalogo.has(c))

@@ -9,11 +9,15 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TYPE "public"."enum_categorias_grupo" AS ENUM('mar', 'aire-libre', 'comer-y-salir', 'lo-local');
   CREATE TYPE "public"."enum_lugares_horario_dia" AS ENUM('lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo');
   CREATE TYPE "public"."enum_lugares_caracteristicas" AS ENUM('para-ninos', 'con-comida', 'solo-con-tour');
+  CREATE TYPE "public"."enum_lugares_visita_servicios" AS ENUM('sombra', 'banos', 'regaderas', 'estacionamiento', 'renta-de-equipo', 'comida-cerca', 'sin-servicios');
   CREATE TYPE "public"."enum_lugares_rango_precio" AS ENUM('$', '$$', '$$$', '$$$$');
+  CREATE TYPE "public"."enum_lugares_visita_medio" AS ENUM('auto', 'lancha', 'a-pie', '4x4');
   CREATE TYPE "public"."enum_lugares_status" AS ENUM('draft', 'published');
   CREATE TYPE "public"."enum__lugares_v_version_horario_dia" AS ENUM('lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo');
   CREATE TYPE "public"."enum__lugares_v_version_caracteristicas" AS ENUM('para-ninos', 'con-comida', 'solo-con-tour');
+  CREATE TYPE "public"."enum__lugares_v_version_visita_servicios" AS ENUM('sombra', 'banos', 'regaderas', 'estacionamiento', 'renta-de-equipo', 'comida-cerca', 'sin-servicios');
   CREATE TYPE "public"."enum__lugares_v_version_rango_precio" AS ENUM('$', '$$', '$$$', '$$$$');
+  CREATE TYPE "public"."enum__lugares_v_version_visita_medio" AS ENUM('auto', 'lancha', 'a-pie', '4x4');
   CREATE TYPE "public"."enum__lugares_v_version_status" AS ENUM('draft', 'published');
   CREATE TYPE "public"."enum__lugares_v_published_locale" AS ENUM('es', 'en');
   CREATE TYPE "public"."enum_eventos_inicio_tz" AS ENUM('America/Mazatlan');
@@ -27,6 +31,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TYPE "public"."enum__articulos_v_version_status" AS ENUM('draft', 'published');
   CREATE TYPE "public"."enum__articulos_v_published_locale" AS ENUM('es', 'en');
   CREATE TYPE "public"."enum_solicitudes_estado" AS ENUM('nueva', 'en-contacto', 'aceptada', 'rechazada');
+  CREATE TYPE "public"."enum_fotos_tours_meses" AS ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
   CREATE TYPE "public"."enum_fotos_tours_tipo" AS ENUM('servicio', 'paquete');
   CREATE TYPE "public"."enum_indice_busqueda_tipo" AS ENUM('lugar', 'evento', 'articulo', 'zona', 'categoria');
   CREATE TYPE "public"."enum_indice_busqueda_idioma" AS ENUM('es', 'en');
@@ -157,6 +162,22 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"id" serial PRIMARY KEY NOT NULL
   );
   
+  CREATE TABLE "lugares_visita_servicios" (
+  	"order" integer NOT NULL,
+  	"parent_id" integer NOT NULL,
+  	"value" "enum_lugares_visita_servicios",
+  	"id" serial PRIMARY KEY NOT NULL
+  );
+  
+  CREATE TABLE "lugares_preguntas" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" integer NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"id" varchar PRIMARY KEY NOT NULL,
+  	"pregunta" varchar,
+  	"respuesta" varchar
+  );
+  
   CREATE TABLE "lugares" (
   	"id" serial PRIMARY KEY NOT NULL,
   	"nombre" varchar,
@@ -168,6 +189,10 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"web" varchar,
   	"instagram" varchar,
   	"rango_precio" "enum_lugares_rango_precio",
+  	"visita_entrada_gratis" boolean DEFAULT false,
+  	"visita_minutos_desde_zona" numeric,
+  	"visita_medio" "enum_lugares_visita_medio",
+  	"enlazar_menciones" boolean DEFAULT true,
   	"orden" numeric DEFAULT 100,
   	"destacado_en_portada" boolean DEFAULT false,
   	"orden_destacado" numeric DEFAULT 100,
@@ -186,6 +211,9 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"resumen" varchar,
   	"cuerpo" jsonb,
   	"nota_horario" varchar,
+  	"visita_costo_entrada" varchar,
+  	"visita_como_llegar" varchar,
+  	"visita_mejor_hora" varchar,
   	"seo_meta_titulo" varchar,
   	"seo_meta_descripcion" varchar,
   	"id" serial PRIMARY KEY NOT NULL,
@@ -227,6 +255,23 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"id" serial PRIMARY KEY NOT NULL
   );
   
+  CREATE TABLE "_lugares_v_version_visita_servicios" (
+  	"order" integer NOT NULL,
+  	"parent_id" integer NOT NULL,
+  	"value" "enum__lugares_v_version_visita_servicios",
+  	"id" serial PRIMARY KEY NOT NULL
+  );
+  
+  CREATE TABLE "_lugares_v_version_preguntas" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" integer NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"pregunta" varchar,
+  	"respuesta" varchar,
+  	"_uuid" varchar
+  );
+  
   CREATE TABLE "_lugares_v" (
   	"id" serial PRIMARY KEY NOT NULL,
   	"parent_id" integer,
@@ -239,6 +284,10 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"version_web" varchar,
   	"version_instagram" varchar,
   	"version_rango_precio" "enum__lugares_v_version_rango_precio",
+  	"version_visita_entrada_gratis" boolean DEFAULT false,
+  	"version_visita_minutos_desde_zona" numeric,
+  	"version_visita_medio" "enum__lugares_v_version_visita_medio",
+  	"version_enlazar_menciones" boolean DEFAULT true,
   	"version_orden" numeric DEFAULT 100,
   	"version_destacado_en_portada" boolean DEFAULT false,
   	"version_orden_destacado" numeric DEFAULT 100,
@@ -262,6 +311,9 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"version_resumen" varchar,
   	"version_cuerpo" jsonb,
   	"version_nota_horario" varchar,
+  	"version_visita_costo_entrada" varchar,
+  	"version_visita_como_llegar" varchar,
+  	"version_visita_mejor_hora" varchar,
   	"version_seo_meta_titulo" varchar,
   	"version_seo_meta_descripcion" varchar,
   	"id" serial PRIMARY KEY NOT NULL,
@@ -500,12 +552,19 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_parent_id" integer NOT NULL
   );
   
+  CREATE TABLE "fotos_tours_meses" (
+  	"order" integer NOT NULL,
+  	"parent_id" integer NOT NULL,
+  	"value" "enum_fotos_tours_meses",
+  	"id" serial PRIMARY KEY NOT NULL
+  );
+  
   CREATE TABLE "fotos_tours" (
   	"id" serial PRIMARY KEY NOT NULL,
   	"sede_slug" varchar NOT NULL,
   	"tipo" "enum_fotos_tours_tipo" NOT NULL,
   	"slug" varchar NOT NULL,
-  	"foto_id" integer NOT NULL,
+  	"foto_id" integer,
   	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
   	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
   );
@@ -654,6 +713,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"formulario_activo" boolean DEFAULT false,
   	"version_aviso" varchar,
   	"aviso_vigente_desde" timestamp(3) with time zone,
+  	"whatsapp_tours_activo" boolean DEFAULT false,
   	"updated_at" timestamp(3) with time zone,
   	"created_at" timestamp(3) with time zone
   );
@@ -673,6 +733,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "categorias_locales" ADD CONSTRAINT "categorias_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."categorias"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "lugares_horario" ADD CONSTRAINT "lugares_horario_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "lugares_caracteristicas" ADD CONSTRAINT "lugares_caracteristicas_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "lugares_visita_servicios" ADD CONSTRAINT "lugares_visita_servicios_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "lugares_preguntas" ADD CONSTRAINT "lugares_preguntas_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "lugares" ADD CONSTRAINT "lugares_zona_id_zonas_id_fk" FOREIGN KEY ("zona_id") REFERENCES "public"."zonas"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "lugares_locales" ADD CONSTRAINT "lugares_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "lugares_texts" ADD CONSTRAINT "lugares_texts_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."lugares"("id") ON DELETE cascade ON UPDATE no action;
@@ -681,6 +743,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "lugares_rels" ADD CONSTRAINT "lugares_rels_media_fk" FOREIGN KEY ("media_id") REFERENCES "public"."media"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "_lugares_v_version_horario" ADD CONSTRAINT "_lugares_v_version_horario_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_lugares_v"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "_lugares_v_version_caracteristicas" ADD CONSTRAINT "_lugares_v_version_caracteristicas_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."_lugares_v"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_lugares_v_version_visita_servicios" ADD CONSTRAINT "_lugares_v_version_visita_servicios_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."_lugares_v"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_lugares_v_version_preguntas" ADD CONSTRAINT "_lugares_v_version_preguntas_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_lugares_v"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "_lugares_v" ADD CONSTRAINT "_lugares_v_parent_id_lugares_id_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."lugares"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "_lugares_v" ADD CONSTRAINT "_lugares_v_version_zona_id_zonas_id_fk" FOREIGN KEY ("version_zona_id") REFERENCES "public"."zonas"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "_lugares_v_locales" ADD CONSTRAINT "_lugares_v_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_lugares_v"("id") ON DELETE cascade ON UPDATE no action;
@@ -721,6 +785,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "textos_zona_categoria" ADD CONSTRAINT "textos_zona_categoria_zona_id_zonas_id_fk" FOREIGN KEY ("zona_id") REFERENCES "public"."zonas"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "textos_zona_categoria" ADD CONSTRAINT "textos_zona_categoria_categoria_id_categorias_id_fk" FOREIGN KEY ("categoria_id") REFERENCES "public"."categorias"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "textos_zona_categoria_locales" ADD CONSTRAINT "textos_zona_categoria_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."textos_zona_categoria"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "fotos_tours_meses" ADD CONSTRAINT "fotos_tours_meses_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."fotos_tours"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "fotos_tours" ADD CONSTRAINT "fotos_tours_foto_id_media_id_fk" FOREIGN KEY ("foto_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "fotos_tours_locales" ADD CONSTRAINT "fotos_tours_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."fotos_tours"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "redirects_rels" ADD CONSTRAINT "redirects_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."redirects"("id") ON DELETE cascade ON UPDATE no action;
@@ -773,6 +838,11 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "lugares_horario_parent_id_idx" ON "lugares_horario" USING btree ("_parent_id");
   CREATE INDEX "lugares_caracteristicas_order_idx" ON "lugares_caracteristicas" USING btree ("order");
   CREATE INDEX "lugares_caracteristicas_parent_idx" ON "lugares_caracteristicas" USING btree ("parent_id");
+  CREATE INDEX "lugares_visita_servicios_order_idx" ON "lugares_visita_servicios" USING btree ("order");
+  CREATE INDEX "lugares_visita_servicios_parent_idx" ON "lugares_visita_servicios" USING btree ("parent_id");
+  CREATE INDEX "lugares_preguntas_order_idx" ON "lugares_preguntas" USING btree ("_order");
+  CREATE INDEX "lugares_preguntas_parent_id_idx" ON "lugares_preguntas" USING btree ("_parent_id");
+  CREATE INDEX "lugares_preguntas_locale_idx" ON "lugares_preguntas" USING btree ("_locale");
   CREATE INDEX "lugares_zona_idx" ON "lugares" USING btree ("zona_id");
   CREATE INDEX "lugares_destacado_en_portada_idx" ON "lugares" USING btree ("destacado_en_portada");
   CREATE INDEX "lugares_updated_at_idx" ON "lugares" USING btree ("updated_at");
@@ -791,6 +861,11 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "_lugares_v_version_horario_parent_id_idx" ON "_lugares_v_version_horario" USING btree ("_parent_id");
   CREATE INDEX "_lugares_v_version_caracteristicas_order_idx" ON "_lugares_v_version_caracteristicas" USING btree ("order");
   CREATE INDEX "_lugares_v_version_caracteristicas_parent_idx" ON "_lugares_v_version_caracteristicas" USING btree ("parent_id");
+  CREATE INDEX "_lugares_v_version_visita_servicios_order_idx" ON "_lugares_v_version_visita_servicios" USING btree ("order");
+  CREATE INDEX "_lugares_v_version_visita_servicios_parent_idx" ON "_lugares_v_version_visita_servicios" USING btree ("parent_id");
+  CREATE INDEX "_lugares_v_version_preguntas_order_idx" ON "_lugares_v_version_preguntas" USING btree ("_order");
+  CREATE INDEX "_lugares_v_version_preguntas_parent_id_idx" ON "_lugares_v_version_preguntas" USING btree ("_parent_id");
+  CREATE INDEX "_lugares_v_version_preguntas_locale_idx" ON "_lugares_v_version_preguntas" USING btree ("_locale");
   CREATE INDEX "_lugares_v_parent_idx" ON "_lugares_v" USING btree ("parent_id");
   CREATE INDEX "_lugares_v_version_version_zona_idx" ON "_lugares_v" USING btree ("version_zona_id");
   CREATE INDEX "_lugares_v_version_version_destacado_en_portada_idx" ON "_lugares_v" USING btree ("version_destacado_en_portada");
@@ -894,6 +969,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE UNIQUE INDEX "zona_categoria_idx" ON "textos_zona_categoria" USING btree ("zona_id","categoria_id");
   CREATE UNIQUE INDEX "textos_zona_categoria_locales_locale_parent_id_unique" ON "textos_zona_categoria_locales" USING btree ("_locale","_parent_id");
   CREATE INDEX "textos_zona_categoria_locales_parent_id_idx" ON "textos_zona_categoria_locales" USING btree ("_parent_id");
+  CREATE INDEX "fotos_tours_meses_order_idx" ON "fotos_tours_meses" USING btree ("order");
+  CREATE INDEX "fotos_tours_meses_parent_idx" ON "fotos_tours_meses" USING btree ("parent_id");
   CREATE INDEX "fotos_tours_foto_idx" ON "fotos_tours" USING btree ("foto_id");
   CREATE INDEX "fotos_tours_updated_at_idx" ON "fotos_tours" USING btree ("updated_at");
   CREATE INDEX "fotos_tours_created_at_idx" ON "fotos_tours" USING btree ("created_at");
@@ -968,12 +1045,16 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "categorias_locales" CASCADE;
   DROP TABLE "lugares_horario" CASCADE;
   DROP TABLE "lugares_caracteristicas" CASCADE;
+  DROP TABLE "lugares_visita_servicios" CASCADE;
+  DROP TABLE "lugares_preguntas" CASCADE;
   DROP TABLE "lugares" CASCADE;
   DROP TABLE "lugares_locales" CASCADE;
   DROP TABLE "lugares_texts" CASCADE;
   DROP TABLE "lugares_rels" CASCADE;
   DROP TABLE "_lugares_v_version_horario" CASCADE;
   DROP TABLE "_lugares_v_version_caracteristicas" CASCADE;
+  DROP TABLE "_lugares_v_version_visita_servicios" CASCADE;
+  DROP TABLE "_lugares_v_version_preguntas" CASCADE;
   DROP TABLE "_lugares_v" CASCADE;
   DROP TABLE "_lugares_v_locales" CASCADE;
   DROP TABLE "_lugares_v_texts" CASCADE;
@@ -993,6 +1074,7 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "solicitudes" CASCADE;
   DROP TABLE "textos_zona_categoria" CASCADE;
   DROP TABLE "textos_zona_categoria_locales" CASCADE;
+  DROP TABLE "fotos_tours_meses" CASCADE;
   DROP TABLE "fotos_tours" CASCADE;
   DROP TABLE "fotos_tours_locales" CASCADE;
   DROP TABLE "indice_busqueda" CASCADE;
@@ -1016,11 +1098,15 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TYPE "public"."enum_categorias_grupo";
   DROP TYPE "public"."enum_lugares_horario_dia";
   DROP TYPE "public"."enum_lugares_caracteristicas";
+  DROP TYPE "public"."enum_lugares_visita_servicios";
   DROP TYPE "public"."enum_lugares_rango_precio";
+  DROP TYPE "public"."enum_lugares_visita_medio";
   DROP TYPE "public"."enum_lugares_status";
   DROP TYPE "public"."enum__lugares_v_version_horario_dia";
   DROP TYPE "public"."enum__lugares_v_version_caracteristicas";
+  DROP TYPE "public"."enum__lugares_v_version_visita_servicios";
   DROP TYPE "public"."enum__lugares_v_version_rango_precio";
+  DROP TYPE "public"."enum__lugares_v_version_visita_medio";
   DROP TYPE "public"."enum__lugares_v_version_status";
   DROP TYPE "public"."enum__lugares_v_published_locale";
   DROP TYPE "public"."enum_eventos_inicio_tz";
@@ -1034,6 +1120,7 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TYPE "public"."enum__articulos_v_version_status";
   DROP TYPE "public"."enum__articulos_v_published_locale";
   DROP TYPE "public"."enum_solicitudes_estado";
+  DROP TYPE "public"."enum_fotos_tours_meses";
   DROP TYPE "public"."enum_fotos_tours_tipo";
   DROP TYPE "public"."enum_indice_busqueda_tipo";
   DROP TYPE "public"."enum_indice_busqueda_idioma";

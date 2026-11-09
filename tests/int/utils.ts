@@ -108,7 +108,7 @@ export function lexical(texto: string) {
 
 export async function crearLugar(
   payload: Payload,
-  op: { zona: number; categorias: number[]; foto: number; slugEs: string; slugEn?: string; publicado?: boolean },
+  op: { zona: number; categorias: number[]; foto: number; slugEs: string; slugEn?: string; publicado?: boolean; extra?: Record<string, unknown> },
 ) {
   const status = op.publicado === false ? 'draft' : 'published'
   const doc = await payload.create({
@@ -123,6 +123,7 @@ export async function crearLugar(
       resumen: `Resumen de ${op.slugEs}`,
       cuerpo: lexical(`Cuerpo de ${op.slugEs}`),
       _status: status,
+      ...op.extra,
     },
     overrideAccess: true,
     context: { sinRedirecciones: true },

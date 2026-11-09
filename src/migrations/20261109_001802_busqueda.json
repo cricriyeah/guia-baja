@@ -1244,6 +1244,199 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.lugares_visita_servicios": {
+      "name": "lugares_visita_servicios",
+      "schema": "",
+      "columns": {
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "enum_lugares_visita_servicios",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "lugares_visita_servicios_order_idx": {
+          "name": "lugares_visita_servicios_order_idx",
+          "columns": [
+            {
+              "expression": "order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "lugares_visita_servicios_parent_idx": {
+          "name": "lugares_visita_servicios_parent_idx",
+          "columns": [
+            {
+              "expression": "parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "lugares_visita_servicios_parent_fk": {
+          "name": "lugares_visita_servicios_parent_fk",
+          "tableFrom": "lugares_visita_servicios",
+          "tableTo": "lugares",
+          "columnsFrom": [
+            "parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.lugares_preguntas": {
+      "name": "lugares_preguntas",
+      "schema": "",
+      "columns": {
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "_locale": {
+          "name": "_locale",
+          "type": "_locales",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id": {
+          "name": "id",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "pregunta": {
+          "name": "pregunta",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "respuesta": {
+          "name": "respuesta",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "lugares_preguntas_order_idx": {
+          "name": "lugares_preguntas_order_idx",
+          "columns": [
+            {
+              "expression": "_order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "lugares_preguntas_parent_id_idx": {
+          "name": "lugares_preguntas_parent_id_idx",
+          "columns": [
+            {
+              "expression": "_parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "lugares_preguntas_locale_idx": {
+          "name": "lugares_preguntas_locale_idx",
+          "columns": [
+            {
+              "expression": "_locale",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "lugares_preguntas_parent_id_fk": {
+          "name": "lugares_preguntas_parent_id_fk",
+          "tableFrom": "lugares_preguntas",
+          "tableTo": "lugares",
+          "columnsFrom": [
+            "_parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.lugares": {
       "name": "lugares",
       "schema": "",
@@ -1308,6 +1501,33 @@
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
+        },
+        "visita_entrada_gratis": {
+          "name": "visita_entrada_gratis",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "visita_minutos_desde_zona": {
+          "name": "visita_minutos_desde_zona",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "visita_medio": {
+          "name": "visita_medio",
+          "type": "enum_lugares_visita_medio",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "enlazar_menciones": {
+          "name": "enlazar_menciones",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": true
         },
         "orden": {
           "name": "orden",
@@ -1507,6 +1727,24 @@
         },
         "nota_horario": {
           "name": "nota_horario",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "visita_costo_entrada": {
+          "name": "visita_costo_entrada",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "visita_como_llegar": {
+          "name": "visita_como_llegar",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "visita_mejor_hora": {
+          "name": "visita_mejor_hora",
           "type": "varchar",
           "primaryKey": false,
           "notNull": false
@@ -2051,6 +2289,205 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public._lugares_v_version_visita_servicios": {
+      "name": "_lugares_v_version_visita_servicios",
+      "schema": "",
+      "columns": {
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "enum__lugares_v_version_visita_servicios",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "_lugares_v_version_visita_servicios_order_idx": {
+          "name": "_lugares_v_version_visita_servicios_order_idx",
+          "columns": [
+            {
+              "expression": "order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "_lugares_v_version_visita_servicios_parent_idx": {
+          "name": "_lugares_v_version_visita_servicios_parent_idx",
+          "columns": [
+            {
+              "expression": "parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "_lugares_v_version_visita_servicios_parent_fk": {
+          "name": "_lugares_v_version_visita_servicios_parent_fk",
+          "tableFrom": "_lugares_v_version_visita_servicios",
+          "tableTo": "_lugares_v",
+          "columnsFrom": [
+            "parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public._lugares_v_version_preguntas": {
+      "name": "_lugares_v_version_preguntas",
+      "schema": "",
+      "columns": {
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "_locale": {
+          "name": "_locale",
+          "type": "_locales",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "pregunta": {
+          "name": "pregunta",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "respuesta": {
+          "name": "respuesta",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "_uuid": {
+          "name": "_uuid",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "_lugares_v_version_preguntas_order_idx": {
+          "name": "_lugares_v_version_preguntas_order_idx",
+          "columns": [
+            {
+              "expression": "_order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "_lugares_v_version_preguntas_parent_id_idx": {
+          "name": "_lugares_v_version_preguntas_parent_id_idx",
+          "columns": [
+            {
+              "expression": "_parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "_lugares_v_version_preguntas_locale_idx": {
+          "name": "_lugares_v_version_preguntas_locale_idx",
+          "columns": [
+            {
+              "expression": "_locale",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "_lugares_v_version_preguntas_parent_id_fk": {
+          "name": "_lugares_v_version_preguntas_parent_id_fk",
+          "tableFrom": "_lugares_v_version_preguntas",
+          "tableTo": "_lugares_v",
+          "columnsFrom": [
+            "_parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public._lugares_v": {
       "name": "_lugares_v",
       "schema": "",
@@ -2121,6 +2558,33 @@
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
+        },
+        "version_visita_entrada_gratis": {
+          "name": "version_visita_entrada_gratis",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "version_visita_minutos_desde_zona": {
+          "name": "version_visita_minutos_desde_zona",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_visita_medio": {
+          "name": "version_visita_medio",
+          "type": "enum__lugares_v_version_visita_medio",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_enlazar_menciones": {
+          "name": "version_enlazar_menciones",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": true
         },
         "version_orden": {
           "name": "version_orden",
@@ -2454,6 +2918,24 @@
         },
         "version_nota_horario": {
           "name": "version_nota_horario",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_visita_costo_entrada": {
+          "name": "version_visita_costo_entrada",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_visita_como_llegar": {
+          "name": "version_visita_como_llegar",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_visita_mejor_hora": {
+          "name": "version_visita_mejor_hora",
           "type": "varchar",
           "primaryKey": false,
           "notNull": false
@@ -5841,6 +6323,89 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.fotos_tours_meses": {
+      "name": "fotos_tours_meses",
+      "schema": "",
+      "columns": {
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "enum_fotos_tours_meses",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "fotos_tours_meses_order_idx": {
+          "name": "fotos_tours_meses_order_idx",
+          "columns": [
+            {
+              "expression": "order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "fotos_tours_meses_parent_idx": {
+          "name": "fotos_tours_meses_parent_idx",
+          "columns": [
+            {
+              "expression": "parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "fotos_tours_meses_parent_fk": {
+          "name": "fotos_tours_meses_parent_fk",
+          "tableFrom": "fotos_tours_meses",
+          "tableTo": "fotos_tours",
+          "columnsFrom": [
+            "parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.fotos_tours": {
       "name": "fotos_tours",
       "schema": "",
@@ -5874,7 +6439,7 @@
           "name": "foto_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "updated_at": {
           "name": "updated_at",
@@ -7958,6 +8523,13 @@
           "primaryKey": false,
           "notNull": false
         },
+        "whatsapp_tours_activo": {
+          "name": "whatsapp_tours_activo",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp(3) with time zone",
@@ -8152,6 +8724,19 @@
         "solo-con-tour"
       ]
     },
+    "public.enum_lugares_visita_servicios": {
+      "name": "enum_lugares_visita_servicios",
+      "schema": "public",
+      "values": [
+        "sombra",
+        "banos",
+        "regaderas",
+        "estacionamiento",
+        "renta-de-equipo",
+        "comida-cerca",
+        "sin-servicios"
+      ]
+    },
     "public.enum_lugares_rango_precio": {
       "name": "enum_lugares_rango_precio",
       "schema": "public",
@@ -8160,6 +8745,16 @@
         "$$",
         "$$$",
         "$$$$"
+      ]
+    },
+    "public.enum_lugares_visita_medio": {
+      "name": "enum_lugares_visita_medio",
+      "schema": "public",
+      "values": [
+        "auto",
+        "lancha",
+        "a-pie",
+        "4x4"
       ]
     },
     "public.enum_lugares_status": {
@@ -8192,6 +8787,19 @@
         "solo-con-tour"
       ]
     },
+    "public.enum__lugares_v_version_visita_servicios": {
+      "name": "enum__lugares_v_version_visita_servicios",
+      "schema": "public",
+      "values": [
+        "sombra",
+        "banos",
+        "regaderas",
+        "estacionamiento",
+        "renta-de-equipo",
+        "comida-cerca",
+        "sin-servicios"
+      ]
+    },
     "public.enum__lugares_v_version_rango_precio": {
       "name": "enum__lugares_v_version_rango_precio",
       "schema": "public",
@@ -8200,6 +8808,16 @@
         "$$",
         "$$$",
         "$$$$"
+      ]
+    },
+    "public.enum__lugares_v_version_visita_medio": {
+      "name": "enum__lugares_v_version_visita_medio",
+      "schema": "public",
+      "values": [
+        "auto",
+        "lancha",
+        "a-pie",
+        "4x4"
       ]
     },
     "public.enum__lugares_v_version_status": {
@@ -8304,6 +8922,24 @@
         "rechazada"
       ]
     },
+    "public.enum_fotos_tours_meses": {
+      "name": "enum_fotos_tours_meses",
+      "schema": "public",
+      "values": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12"
+      ]
+    },
     "public.enum_fotos_tours_tipo": {
       "name": "enum_fotos_tours_tipo",
       "schema": "public",
@@ -8381,6 +9017,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "2be83588-1a9e-4812-9077-68e7799391a9",
+  "id": "ba134a8b-7c3d-4e8a-b7eb-57f6e8eff8cd",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

@@ -1,5 +1,7 @@
 import type { Block } from 'payload'
 
+import { esClaveDeTour } from '../dominio/presencia'
+
 export const bloquesArticulo: Block[] = [
   {
     slug: 'tarjetaLugar',
@@ -28,6 +30,20 @@ export const bloquesArticulo: Block[] = [
           { name: 'pregunta', type: 'text', required: true },
           { name: 'respuesta', type: 'textarea', required: true },
         ],
+      },
+    ],
+  },
+  {
+    slug: 'tour',
+    labels: { singular: 'Tour', plural: 'Tours' },
+    fields: [
+      { name: 'zona', type: 'relationship', relationTo: 'zonas', required: true },
+      {
+        name: 'tour',
+        type: 'text',
+        required: true,
+        validate: (v: unknown) => (typeof v === 'string' && esClaveDeTour(v) ? true : 'Elige un tour del catálogo.'),
+        admin: { components: { Field: { path: '/admin/ToursRelacionados#ToursRelacionados', clientProps: { modo: 'uno' } } } },
       },
     ],
   },

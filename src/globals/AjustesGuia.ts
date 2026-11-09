@@ -38,5 +38,11 @@ export const AjustesGuia: GlobalConfig = {
     },
     { name: 'portadaTitulo', type: 'text', localized: true },
     { name: 'portadaIntro', type: 'textarea', localized: true },
+    {
+      name: 'whatsappToursActivo',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { description: 'Muestra los links de WhatsApp junto a los tours. El número es la variable WHATSAPP_NUMERO.' },
+    },
   ],
 }

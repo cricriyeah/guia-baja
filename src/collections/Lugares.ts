@@ -10,6 +10,7 @@ import { CARACTERISTICAS } from '../dominio/caracteristicas'
 import { CAMPOS_IDIOMA, CAMPOS_LOCALIZADOS } from '../dominio/idioma'
 import { MAX_TOURS_RELACIONADOS, validarToursRelacionados } from '../dominio/presencia'
 import { rutas } from '../dominio/rutas'
+import { MEDIOS, SERVICIOS_VISITA, validarVisita } from '../dominio/visita'
 import { destinoAlRetirarLugar, hooksDeRedireccion } from '../redirecciones/hooks'
 import { hooksDeRevalidacion } from '../revalidacion/hooks'
 
@@ -118,6 +119,46 @@ export const Lugares: CollectionConfig = {
         description: 'Tours del sitio de reservas que llevan a este lugar. Salen en la ficha, con su precio del catálogo.',
         components: { Field: '/admin/ToursRelacionados#ToursRelacionados' },
       },
+    },
+    {
+      name: 'visita',
+      type: 'group',
+      label: 'Antes de ir',
+      admin: { description: 'Para playas y sitios naturales. Todo es opcional.' },
+      validate: (v: unknown) => validarVisita(v),
+      fields: [
+        { name: 'costoEntrada', type: 'text', localized: true, maxLength: 120, admin: { description: 'P. ej. «$100 MXN por persona; menores de 5, gratis».' } },
+        { name: 'entradaGratis', type: 'checkbox', defaultValue: false, admin: { description: 'Si está marcada, se muestra «Gratis» y se ignora el costo.' } },
+        { name: 'minutosDesdeZona', type: 'number', min: 1, max: 600, admin: { description: 'Minutos desde el centro de la zona. Va junto con el medio.' } },
+        { name: 'medio', type: 'select', options: MEDIOS.map((m) => ({ label: { es: m.es, en: m.en }, value: m.valor })) },
+        { name: 'comoLlegar', type: 'textarea', localized: true, maxLength: 600 },
+        { name: 'servicios', type: 'select', hasMany: true, options: SERVICIOS_VISITA.map((s) => ({ label: { es: s.es, en: s.en }, value: s.valor })) },
+        { name: 'mejorHora', type: 'text', localized: true, maxLength: 160 },
+      ],
+    },
+    {
+      name: 'preguntas',
+      type: 'array',
+      localized: true,
+      maxRows: 8,
+      labels: { singular: 'Pregunta', plural: 'Preguntas frecuentes' },
+      fields: [
+        { name: 'pregunta', type: 'text', required: true, maxLength: 120 },
+        { name: 'respuesta', type: 'textarea', required: true, maxLength: 600 },
+      ],
+    },
+    {
+      name: 'otrosNombres',
+      type: 'text',
+      hasMany: true,
+      maxRows: 5,
+      admin: { description: 'Nombres con que la gente conoce el lugar: el lugar «Playa Balandra» lleva «Balandra».' },
+    },
+    {
+      name: 'enlazarMenciones',
+      type: 'checkbox',
+      defaultValue: true,
+      admin: { description: 'Apágala si el nombre es una palabra común que aparece en otros textos con otro sentido.' },
     },
     { name: 'orden', type: 'number', defaultValue: 100, admin: { position: 'sidebar' } },
     ...camposDestacado(),

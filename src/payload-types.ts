@@ -302,6 +302,44 @@ export interface Lugare {
    * Tours del sitio de reservas que llevan a este lugar. Salen en la ficha, con su precio del catálogo.
    */
   toursRelacionados?: string[] | null;
+  /**
+   * Para playas y sitios naturales. Todo es opcional.
+   */
+  visita?: {
+    /**
+     * P. ej. «$100 MXN por persona; menores de 5, gratis».
+     */
+    costoEntrada?: string | null;
+    /**
+     * Si está marcada, se muestra «Gratis» y se ignora el costo.
+     */
+    entradaGratis?: boolean | null;
+    /**
+     * Minutos desde el centro de la zona. Va junto con el medio.
+     */
+    minutosDesdeZona?: number | null;
+    medio?: ('auto' | 'lancha' | 'a-pie' | '4x4') | null;
+    comoLlegar?: string | null;
+    servicios?:
+      | ('sombra' | 'banos' | 'regaderas' | 'estacionamiento' | 'renta-de-equipo' | 'comida-cerca' | 'sin-servicios')[]
+      | null;
+    mejorHora?: string | null;
+  };
+  preguntas?:
+    | {
+        pregunta: string;
+        respuesta: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Nombres con que la gente conoce el lugar: el lugar «Playa Balandra» lleva «Balandra».
+   */
+  otrosNombres?: string[] | null;
+  /**
+   * Apágala si el nombre es una palabra común que aparece en otros textos con otro sentido.
+   */
+  enlazarMenciones?: boolean | null;
   orden?: number | null;
   /**
    * Sale en los destacados de la portada de la Guía.
@@ -505,11 +543,15 @@ export interface FotosTour {
    * Slug del servicio o paquete en el catálogo.
    */
   slug: string;
-  foto: number | Media;
+  foto?: (number | null) | Media;
   /**
    * Opcional, p. ej. «enero a marzo».
    */
   temporada?: string | null;
+  /**
+   * Meses en que el tour está en temporada. Ordena las listas y pone la etiqueta «En temporada».
+   */
+  meses?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12')[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -940,6 +982,26 @@ export interface LugaresSelect<T extends boolean = true> {
   notaHorario?: T;
   caracteristicas?: T;
   toursRelacionados?: T;
+  visita?:
+    | T
+    | {
+        costoEntrada?: T;
+        entradaGratis?: T;
+        minutosDesdeZona?: T;
+        medio?: T;
+        comoLlegar?: T;
+        servicios?: T;
+        mejorHora?: T;
+      };
+  preguntas?:
+    | T
+    | {
+        pregunta?: T;
+        respuesta?: T;
+        id?: T;
+      };
+  otrosNombres?: T;
+  enlazarMenciones?: T;
   orden?: T;
   destacadoEnPortada?: T;
   ordenDestacado?: T;
@@ -1080,6 +1142,7 @@ export interface FotosToursSelect<T extends boolean = true> {
   slug?: T;
   foto?: T;
   temporada?: T;
+  meses?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1237,6 +1300,10 @@ export interface AjustesGuia {
   } | null;
   portadaTitulo?: string | null;
   portadaIntro?: string | null;
+  /**
+   * Muestra los links de WhatsApp junto a los tours. El número es la variable WHATSAPP_NUMERO.
+   */
+  whatsappToursActivo?: boolean | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1258,6 +1325,7 @@ export interface AjustesGuiaSelect<T extends boolean = true> {
   avisoPrivacidad?: T;
   portadaTitulo?: T;
   portadaIntro?: T;
+  whatsappToursActivo?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
