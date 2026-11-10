@@ -1,0 +1,2 @@
+    "predev": "node scripts/copiar-worker-maplibre.mjs",
+    "prebuild": "node scripts/copiar-worker-maplibre.mjs",

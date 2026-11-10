@@ -56,3 +56,6 @@ node_modules/
 *.key
 *.dump
 *.dump.age
+
+# Worker de MapLibre copiado en el build (paquete 3)
+/public/guia-assets/maplibre/

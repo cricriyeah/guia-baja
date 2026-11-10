@@ -135,7 +135,22 @@ h1, h2, h3 { margin: 0; }
 .esq--pastilla { display: inline-block; width: 64px; height: 20px; border-radius: 999px; vertical-align: middle; }
 html:not(.js) .esq--vivo { display: none; }
 .contenidos { display: contents; }
-.mapa { position: relative; }
+/* En columna: el texto de respaldo y la leyenda van debajo sin que .mapa-cat, con overflow hidden, los recorte. */
+.mapa { position: relative; display: flex; flex-direction: column; }
+.mapa__caja { width: 100%; flex: 1 1 auto; min-height: 280px; }
+.mapa__caja[hidden] { display: none; }
+.mapa__respaldo { padding: 12px 16px; margin: 0; }
+/* La caja 16:9 con overflow hidden de la ficha y del evento recortaría el texto en móvil. */
+.pagina-ficha .mapa:has(.mapa__respaldo), .pagina-evento .mapa:has(.mapa__respaldo) { aspect-ratio: auto; }
+/* La caja 16:9 con overflow hidden de la ficha y del evento recortaría el texto en móvil. */
+.pagina-ficha .mapa:has(.mapa__respaldo), .pagina-evento .mapa:has(.mapa__respaldo) { aspect-ratio: auto; }
+/* Blanco sobre el azul del pin (6.9:1, AA). MapLibre ya posiciona .maplibregl-marker: no darle position a .mapa-marcador. */
+.mapa-marcador { cursor: pointer; }
+.mapa-marcador svg { display: block; }
+.mapa-insignia { display: inline-block; padding: 1px 6px; border-radius: 999px; background: #1B607F; color: var(--blanco); font-size: 11px; font-weight: 700; line-height: 1.4; }
+.mapa-insignia--flotante { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); box-shadow: 0 0 0 1px var(--blanco); }
+.mapa-leyenda { padding: 8px 12px; margin: 0; }
+.mapa-popup__tours { font-weight: 700; margin: 8px 0 2px; }
 .mapa__carga { position: absolute; inset: 0; z-index: 1; pointer-events: none; transition: opacity 180ms ease-out; }
 .mapa__carga.lista.lista { opacity: 0; animation: none; }
 /* Fade in muy corto de lo que aparece. Solo opacidad y sin fill: al terminar no queda contexto de apilamiento que

@@ -31,6 +31,7 @@ const eslintConfig = [
   {
     ignores: [
       '.next/',
+      'public/guia-assets/maplibre/',
       'playwright-report/',
       'test-results/',
       '.lighthouseci/',

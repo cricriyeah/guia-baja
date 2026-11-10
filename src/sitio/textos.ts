@@ -189,6 +189,7 @@ const ES = {
     sinCoincidencias: (z: string) => `No encontramos uno exacto; mira estos tours en ${z}`,
     reiniciar: 'Volver a empezar',
   },
+  mapa: { insignia: 'Tour', conTour: 'Con tour disponible', conTourDe: (n: string) => `${n}, con tour disponible`, tours: 'Tours' },
   banda: {
     titulo: 'Sal al mar con Sun Baja',
     texto: 'Pesca, ballenas y la Isla Espíritu Santo. Reserva en línea en pesos o en dólares.',
@@ -474,6 +475,7 @@ const EN: Textos = {
     sinCoincidencias: (z: string) => `We didn't find an exact match; take a look at these tours in ${z}`,
     reiniciar: 'Start over',
   },
+  mapa: { insignia: 'Tour', conTour: 'Tour available', conTourDe: (n: string) => `${n}, tour available`, tours: 'Tours' },
   banda: {
     titulo: 'Head out to sea with Sun Baja',
     texto: 'Fishing, whales and Espíritu Santo Island. Book online in pesos or dollars.',

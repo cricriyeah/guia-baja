@@ -11,6 +11,7 @@ import {
   articulosCacheados, categoriasCacheadas, eventosCacheados, fichaTemaCacheada, itinerariosCacheados, lugaresCacheados, temasCacheados, toursDeSede, zonasActivasCacheadas,
 } from '../../../../../../sitio/datos/cacheadas'
 import { articulosDeZona, documentoPorSlug, porId, resolutorDeCuerpo } from '../../../../../../sitio/datos/consultas'
+import { puntosConTours } from '../../../../../../sitio/datos/mapa-tours'
 import { candidatosMencion } from '../../../../../../sitio/datos/menciones'
 import { guiaIndexable, sitioUrl } from '../../../../../../sitio/entorno'
 import { rutasPorIdioma } from '../../../../../../sitio/paginas/comun'
@@ -22,9 +23,11 @@ import { CuerpoRico } from '../../../../../../sitio/ui/CuerpoRico'
 import { Imagen } from '../../../../../../sitio/ui/Imagen'
 import { ToursDelPlan } from '../../../../../../sitio/ui/itinerario/ToursDelPlan'
 import { JsonLd } from '../../../../../../sitio/ui/JsonLd'
+import { Mapa } from '../../../../../../sitio/ui/Mapa'
 import { Migas } from '../../../../../../sitio/ui/Migas'
 import { NoEncontradoEnSuspense } from '../../../../../../sitio/ui/NoEncontradoEnSuspense'
 import { PreguntasFrecuentes } from '../../../../../../sitio/ui/PreguntasFrecuentes'
+import { precioEnTexto } from '../../../../../../sitio/ui/PrecioTour'
 import { QuizTours } from '../../../../../../sitio/ui/quiz/QuizTours'
 import { TarjetaLugar } from '../../../../../../sitio/ui/tarjetas/TarjetaLugar'
 import { ToursEnZona } from '../../../../../../sitio/ui/ToursEnZona'
@@ -81,6 +84,9 @@ export default async function PaginaTema({ params }: Props) {
   })
 
   const [introduccion] = enlazarMenciones([tema.introduccion], candidatosMencion(lugares))
+  // Solo con zona: sin ella mezclaría lugares lejanos y leería varias sedes por punto (spec del paquete 3 §2.3).
+  const toursZona = zona?.sedeSlug ? await toursDeSede(zona.sedeSlug, lang) : []
+  const puntos = zona ? puntosConTours(lista, toursZona, { lang, pieza: `mapa-tema-${tema.slug}`, sitio: sitioUrl(), precioDe: (x) => precioEnTexto(lang, x) }) : []
   const ruta = rutas.tema(lang, tema.slug)
   const migas = [
     { nombre: t.migas.guia, ruta: rutas.portada(lang) },
@@ -110,6 +116,7 @@ export default async function PaginaTema({ params }: Props) {
             {lista.map((l) => <TarjetaLugar key={l.id} lang={lang} lugar={l} categoria={porId(cats, l.categoriaIds[0])} zonaNombre={porId(zonas, l.zonaId)?.nombre ?? ''} />)}
           </section>
         )}
+        {puntos.length > 0 && <section className="bloque"><Mapa lang={lang} titulo={t.ficha.mapa(tema.titulo)} puntos={puntos} /></section>}
         {tema.preguntas.length > 0 && (
           <section className="bloque" aria-labelledby="t-preguntas">
             <h2 id="t-preguntas" className="t-seccion">{t.ficha.preguntas}</h2>

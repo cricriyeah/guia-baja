@@ -7,7 +7,8 @@ import { consultaDeFiltros, type Filtros } from '../../dominio/filtros'
 import type { Locale } from '../../dominio/idioma'
 import { conConsulta, rutas } from '../../dominio/rutas'
 import { UMBRAL_PAGINA } from '../../dominio/umbrales'
-import { articulosCacheados, categoriasCacheadas, lugaresCacheados, textoCacheado, zonasActivasCacheadas, temasCacheados } from '../datos/cacheadas'
+import { articulosCacheados, categoriasCacheadas, lugaresCacheados, textoCacheado, zonasActivasCacheadas, temasCacheados, toursDeSede } from '../datos/cacheadas'
+import { puntosConTours } from '../datos/mapa-tours'
 import { articulosDeZona, categoriasConLugares, lugaresDe, porId, porSlug, temaParaFiltro } from '../datos/consultas'
 import { guiaIndexable, sitioUrl } from '../entorno'
 import { listaLd, migasLd } from '../seo/jsonld'
@@ -22,6 +23,7 @@ import { Migas } from '../ui/Migas'
 import { NoEncontradoEnSuspense } from '../ui/NoEncontradoEnSuspense'
 import { Paginacion } from '../ui/Paginacion'
 import { Pildoras } from '../ui/Pildoras'
+import { precioEnTexto } from '../ui/PrecioTour'
 import { TarjetaArticulo } from '../ui/tarjetas/TarjetaArticulo'
 import { TarjetaLugar } from '../ui/tarjetas/TarjetaLugar'
 import { ToursEnZona } from '../ui/ToursEnZona'
@@ -104,7 +106,9 @@ export async function CategoriaEnZona({ lang, zonaSlug, categoriaSlug, variante 
     return <NoEncontradoEnSuspense lang={lang} segmentos={[zonaSlug, categoriaSlug]} />
   }
   const t = textos(lang)
-  const [texto, articulos, temas] = await Promise.all([textoCacheado(zona.id, cat.id, lang), articulosCacheados(lang), temasCacheados(lang)])
+  const [texto, articulos, temas, toursSede] = await Promise.all([
+    textoCacheado(zona.id, cat.id, lang), articulosCacheados(lang), temasCacheados(lang), zona.sedeSlug ? toursDeSede(zona.sedeSlug, lang) : Promise.resolve([]),
+  ])
   const caracteristica = variante.filtros?.caracteristica
   const temaFiltro = caracteristica && !variante.filtros?.precio && !variante.filtros?.abierto
     ? temaParaFiltro(temas, { zonaId: zona.id, categoriaId: cat.id, caracteristica })
@@ -160,7 +164,7 @@ export async function CategoriaEnZona({ lang, zonaSlug, categoriaSlug, variante 
                 <Mapa
                   lang={lang}
                   titulo={t.ficha.mapa(t.listado.titulo(cat.nombre, zona.nombre))}
-                  puntos={conCoordenadas.map((l) => ({ lng: l.coordenadas![0], lat: l.coordenadas![1], nombre: l.nombre, ruta: rutas.lugar(lang, l.slug) }))}
+                  puntos={puntosConTours(conCoordenadas, toursSede, { lang, pieza: `mapa-${zona.slug}-${cat.slug}`, sitio: sitioUrl(), precioDe: (x) => precioEnTexto(lang, x) })}
                 />
               </div>
             )}

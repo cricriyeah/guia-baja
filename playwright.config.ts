@@ -13,7 +13,15 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never', outputFolder: `playwright-report/${modo}` }]],
   outputDir: `test-results/${modo}`,
   use: { baseURL: `http://localhost:${puerto}` },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] }, testIgnore: /mapa\.spec\.ts/ },
+    {
+      // WebGL por software: el CI no tiene GPU (spec del paquete 3 §2.4).
+      name: 'mapa',
+      testMatch: /mapa\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'], launchOptions: { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] } },
+    },
+  ],
   webServer: [
     {
       command: 'node scripts/catalogo-falso.mjs',
