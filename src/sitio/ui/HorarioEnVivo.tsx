@@ -1,7 +1,7 @@
 // src/sitio/ui/HorarioEnVivo.tsx
 'use client'
 
-import { estadoHorario, type FilaHorario } from '../../dominio/horario'
+import { cuandoAbre, estadoHorario, type FilaHorario } from '../../dominio/horario'
 import type { Locale } from '../../dominio/idioma'
 import { textos } from '../textos'
 import { useAhora } from './useAhora'
@@ -15,12 +15,19 @@ export function HorarioEnVivo({ lang, horario, corto = false }: { lang: Locale; 
   const e = estadoHorario(horario, ahora)
   if (!e) return null
   const t = textos(lang)
+  const abre = corto ? null : cuandoAbre(e)
   const texto = e.abierto
     ? e.cambiaEnMin !== null && e.cambiaEnMin <= 60
       ? t.ficha.cierraEn(t.duracion(e.cambiaEnMin))
       : t.ficha.abiertoAhora
-    : corto || e.cambiaEnMin === null
+    : !abre
       ? t.ficha.cerrado
-      : t.ficha.abreEn(t.duracion(e.cambiaEnMin))
+      : abre.en === 'minutos'
+        ? t.ficha.abreEn(t.duracion(abre.min))
+        : abre.en === 'hoy'
+          ? t.ficha.abreHoy(abre.hora)
+          : abre.en === 'manana'
+            ? t.ficha.abreManana(abre.hora)
+            : t.ficha.abreDia(t.ficha.dias[abre.dia], abre.hora)
   return <span className={`abierto ${e.abierto ? 'si' : 'no'}`}>{texto}</span>
 }

@@ -112,7 +112,7 @@ export default async function PaginaTema({ params }: Props) {
         {!tema.tours.length && zona && <ToursEnZona lang={lang} zona={zona} pieza={`tema-${tema.slug}`} origen="tema" formato="riel" />}
         {zona && <QuizTours lang={lang} zona={zona} />}
         {lista.length > 0 && (
-          <section className="bloque">
+          <section className="bloque rejilla-tarjetas">
             {lista.map((l) => <TarjetaLugar key={l.id} lang={lang} lugar={l} categoria={porId(cats, l.categoriaIds[0])} zonaNombre={porId(zonas, l.zonaId)?.nombre ?? ''} />)}
           </section>
         )}

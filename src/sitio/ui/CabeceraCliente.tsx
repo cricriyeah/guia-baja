@@ -54,11 +54,14 @@ export function CabeceraCliente(props: {
       else if (y < ultimo - 6 || y < 120) setCompacta(false)
       ultimo = y
     }
+    // La altura cambia al compactarse (la fila de zonas se esconde en el celular), no solo al cambiar la ventana:
+    // con ResizeObserver lo pegajoso de debajo (filtros, herramientas) sigue pegado a la cabecera sin dejar hueco.
     medir()
-    window.addEventListener('resize', medir)
+    const observador = new ResizeObserver(medir)
+    observador.observe(cab)
     window.addEventListener('scroll', alMover, { passive: true })
     return () => {
-      window.removeEventListener('resize', medir)
+      observador.disconnect()
       window.removeEventListener('scroll', alMover)
     }
   }, [])

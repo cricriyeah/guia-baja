@@ -50,6 +50,22 @@ export function estadoHorario(horario: FilaHorario[] | null | undefined, ahora: 
   return { abierto: false, cambiaEnMin: null, proximaApertura: null }
 }
 
+// Cómo decir cuándo abre un lugar cerrado. «Abre en 89 h» no se entiende si no abre todos los días:
+// con más de una hora se dice el día (hoy, mañana o el de la semana) y la hora.
+export type CuandoAbre = { en: 'minutos'; min: number } | { en: 'hoy'; hora: string } | { en: 'manana'; hora: string } | { en: 'dia'; dia: number; hora: string }
+
+export function cuandoAbre(e: EstadoHorario): CuandoAbre | null {
+  if (e.abierto || e.cambiaEnMin === null || !e.proximaApertura) return null
+  if (e.cambiaEnMin <= 60) return { en: 'minutos', min: e.cambiaEnMin }
+  const { dia, min } = e.proximaApertura
+  // cambiaEnMin = días × 1440 + apertura − ahora, con ahora en [0, 1440): de ahí los días que faltan.
+  const dias = Math.max(0, Math.ceil((e.cambiaEnMin - min) / 1440))
+  const hora = `${Math.floor(min / 60)}:${String(min % 60).padStart(2, '0')}`
+  if (dias === 0) return { en: 'hoy', hora }
+  if (dias === 1) return { en: 'manana', hora }
+  return { en: 'dia', dia, hora }
+}
+
 export function abiertoAhora(horario: FilaHorario[] | null | undefined, ahora: Date = new Date()): boolean | null {
   const e = estadoHorario(horario, ahora)
   return e ? e.abierto : null
