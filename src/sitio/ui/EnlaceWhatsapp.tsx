@@ -3,7 +3,7 @@ import { enlaceWhatsapp, mensajeWhatsapp } from '../../dominio/whatsapp'
 import { textos } from '../textos'
 import { ICONO_WHATSAPP } from './iconos'
 
-type OrigenWhatsapp = 'relacionado' | 'zona' | 'tarjeta' | 'barra'
+type OrigenWhatsapp = 'relacionado' | 'zona' | 'tarjeta' | 'barra' | 'quiz'
 
 // Link de salida a WhatsApp (spec del paquete 1 §2.7). Recibe los dígitos ya validados: si no hay, no se pinta.
 export function EnlaceWhatsapp({ lang, digitos, nombre, zona, origen, icono = false }: {

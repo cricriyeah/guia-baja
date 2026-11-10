@@ -25,6 +25,7 @@ import { JsonLd } from '../../../../../../sitio/ui/JsonLd'
 import { Migas } from '../../../../../../sitio/ui/Migas'
 import { NoEncontradoEnSuspense } from '../../../../../../sitio/ui/NoEncontradoEnSuspense'
 import { PreguntasFrecuentes } from '../../../../../../sitio/ui/PreguntasFrecuentes'
+import { QuizTours } from '../../../../../../sitio/ui/quiz/QuizTours'
 import { TarjetaLugar } from '../../../../../../sitio/ui/tarjetas/TarjetaLugar'
 import { ToursEnZona } from '../../../../../../sitio/ui/ToursEnZona'
 
@@ -103,6 +104,7 @@ export default async function PaginaTema({ params }: Props) {
         <CuerpoRico lang={lang} cuerpo={introduccion} resolutor={resolutorDeCuerpo({ lugares, eventos, articulos, itinerarios, temas: d.lista }, lang)} media={tema.media} categorias={cats} className="prosa" piezaTours={`tema-${tema.slug}`} origenTours="tema" />
         <ToursDelPlan lang={lang} titulo={t.plan.toursParaPlan} tours={tours} pieza={`tema-${tema.slug}`} origen="tema" zonaDe={(x) => zonaDeClave.get(x.clave) ?? ''} />
         {!tema.tours.length && zona && <ToursEnZona lang={lang} zona={zona} pieza={`tema-${tema.slug}`} origen="tema" formato="riel" />}
+        {zona && <QuizTours lang={lang} zona={zona} />}
         {lista.length > 0 && (
           <section className="bloque">
             {lista.map((l) => <TarjetaLugar key={l.id} lang={lang} lugar={l} categoria={porId(cats, l.categoriaIds[0])} zonaNombre={porId(zonas, l.zonaId)?.nombre ?? ''} />)}

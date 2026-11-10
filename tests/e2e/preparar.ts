@@ -41,5 +41,21 @@ await payload.create({
     zona: zonaLaPaz.docs[0].id, categorias: [restaurantes.docs[0].id], caracteristicas: ['para-ninos'],
   } as never,
 })
+// Spec del paquete 3 §3: 3 tours de La Paz con perfil. Ballenas ya tiene registro del seed; los otros se crean sin foto.
+const PERFILES = [
+  { slug: 'ballenas-prueba', gustos: ['mar-y-animales'], paraQuien: ['familia'], jornada: 'medio-dia' },
+  { slug: 'pesca-prueba', gustos: ['aventura'], paraQuien: ['amigos'], jornada: 'dia-completo' },
+  { slug: 'kayak-prueba', gustos: ['playa-y-descanso'], paraQuien: ['pareja'], jornada: 'medio-dia' },
+]
+for (const { slug, ...perfil } of PERFILES) {
+  const claves = { sedeSlug: 'la-paz', tipo: 'servicio' as const, slug }
+  const opciones = { overrideAccess: true, locale: 'es' as const, context: { disableRevalidate: true } }
+  const previo = await payload.find({
+    collection: 'fotos-tours', overrideAccess: true, limit: 1,
+    where: { and: [{ sedeSlug: { equals: claves.sedeSlug } }, { tipo: { equals: claves.tipo } }, { slug: { equals: slug } }] },
+  })
+  if (previo.docs[0]) await payload.update({ collection: 'fotos-tours', id: previo.docs[0].id, data: perfil as never, ...opciones })
+  else await payload.create({ collection: 'fotos-tours', data: { ...claves, ...perfil } as never, ...opciones })
+}
 await payload.delete({ collection: 'solicitudes', where: { id: { exists: true } }, overrideAccess: true })
 process.exit(0)

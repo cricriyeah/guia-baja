@@ -15,6 +15,11 @@ const SERVICIOS = [
     estrategia_precio: 'por_persona', precio_base: '1500.00', tipo_cambio_usd: '17.5000', activo: true, duracion: '4 h', duracion_en: '4 hrs',
   },
   {
+    // Tercer tour con perfil del quiz (spec del paquete 3 §3).
+    id: 4, empresa_slug: 'empresa-prueba', nombre: 'Kayak de prueba', nombre_en: 'Test kayak', slug: 'kayak-prueba',
+    estrategia_precio: 'por_persona', precio_base: '2000.00', tipo_cambio_usd: '17.5000', activo: true, duracion: '3 h', duracion_en: '3 hrs',
+  },
+  {
     id: 2, empresa_slug: 'empresa-prueba', nombre: 'Tour apagado', nombre_en: 'Inactive tour', slug: 'tour-apagado',
     estrategia_precio: 'por_persona', precio_base: '100.00', tipo_cambio_usd: '17.5000', activo: false, duracion: '', duracion_en: '',
   },

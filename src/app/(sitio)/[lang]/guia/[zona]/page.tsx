@@ -31,6 +31,7 @@ import { Migas } from '../../../../../sitio/ui/Migas'
 import { NoEncontradoEnSuspense } from '../../../../../sitio/ui/NoEncontradoEnSuspense'
 import { Pildoras } from '../../../../../sitio/ui/Pildoras'
 import { PuestaDelSol } from '../../../../../sitio/ui/PuestaDelSol'
+import { QuizTours } from '../../../../../sitio/ui/quiz/QuizTours'
 import { Riel } from '../../../../../sitio/ui/Riel'
 import { SeccionPlanes } from '../../../../../sitio/ui/SeccionPlanes'
 import { TarjetaEvento } from '../../../../../sitio/ui/tarjetas/TarjetaEvento'
@@ -172,6 +173,7 @@ function Zona({ lang, zona, cats, lugares, eventos, articulos, zonas, itinerario
       </section>
 
       <ToursEnZona lang={lang} zona={zona} pieza={`zona-${zona.slug}`} origen="zona" formato="riel" />
+      <QuizTours lang={lang} zona={zona} />
       <BandaTours lang={lang} zona={zona} />
       <Aparece lang={lang} />
       <JsonLd datos={migasLd(migas, sitioUrl())} />
