@@ -753,6 +753,12 @@ redacta o aprueba el dueño (entregable de F0); el código solo garantiza lo sig
 
 `tour_clic` suma los orígenes `itinerario` y `tema`. La pieza lleva el detalle: `itinerario-{slug}-dia{n}`, `itinerario-{slug}-resumen` y `tema-{slug}`.
 
+### Paquete 3: quiz y mapa
+
+- `quiz_resultado` (`zona`, `gusto`), al mostrar el resultado del quiz.
+- `tour_clic` suma los orígenes `quiz` (tarjetas del resultado, y el botón cuando sigue al link) y `mapa` (popups). `whatsapp_clic` suma el origen `quiz`.
+- `enviarEvento` también emite `guia:evento` en la página, sin salir de ella, para las E2E.
+
 ## 14. Fases
 
 | Fase | Quién | Qué | Depende de |

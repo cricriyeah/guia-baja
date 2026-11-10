@@ -40,6 +40,15 @@ aquí y termine reservando un tour. Estas reglas ayudan a que nos encuentren y n
 - **Traducir las notas:** guarda primero en español y luego traduce en inglés los títulos de día y las notas. Una parada de solo nota sin traducir no se muestra en inglés.
 - **«Se indexa / no se indexa»:** el aviso del tema dice cuántos lugares reúne en cada idioma. Con menos de 3 la página existe, pero Google no la lista.
 
+## Perfil de los tours («¿Qué tour es para mí?»)
+
+En «Fotos y temporadas de tours», cada tour puede llevar:
+- **Gustos:** mar y animales, aventura, playa y descanso, cultura y comida. Sin al menos un gusto, el tour no entra en el quiz.
+- **Para quién:** en pareja, en familia con niños, con amigos, solo.
+- **Jornada:** medio día, día completo o varios días. Un paquete sin jornada cuenta como varios días.
+
+El quiz solo aparece en una zona con 3 tours con perfil o más.
+
 ## Los dos idiomas
 
 - Cada lugar y cada artículo se escriben en español e inglés. En inglés se escribe para quien viene de fuera:
