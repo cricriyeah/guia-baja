@@ -203,8 +203,10 @@ export default async function FichaDeLugar({ params }: Props) {
           {citan.length + planes.length > 0 && (
             <section className="bloque" aria-labelledby="t-aparece-en">
               <h2 id="t-aparece-en" className="t-seccion">{t.ficha.apareceEn}</h2>
-              {citan.map((a) => <TarjetaArticulo key={a.id} lang={lang} articulo={a} categoria={porId(cats, a.categoriaIds[0])} />)}
-              {planes.map((p) => <TarjetaPlan key={`${p.tipo}-${p.item.id}`} lang={lang} plan={p} />)}
+              <div className="rejilla-aparece">
+                {citan.map((a) => <TarjetaArticulo key={a.id} lang={lang} articulo={a} categoria={porId(cats, a.categoriaIds[0])} />)}
+                {planes.map((p) => <TarjetaPlan key={`${p.tipo}-${p.item.id}`} lang={lang} plan={p} />)}
+              </div>
             </section>
           )}
         </article>

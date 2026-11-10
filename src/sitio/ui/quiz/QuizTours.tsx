@@ -61,8 +61,10 @@ export async function QuizTours({ lang, zona }: { lang: Locale; zona: ZonaPublic
             </div>
           ))}
         </div>
-        <button type="button" className="boton boton--secundario presionable" data-quiz-reiniciar>{t.reiniciar}</button>
-        {digitos && <EnlaceWhatsapp lang={lang} digitos={digitos} nombre={zona.nombre} zona={zona.slug} origen="quiz" />}
+        <div className="quiz__acciones">
+          <button type="button" className="boton boton--secundario presionable" data-quiz-reiniciar>{t.reiniciar}</button>
+          {digitos && <EnlaceWhatsapp lang={lang} digitos={digitos} nombre={zona.nombre} zona={zona.slug} origen="quiz" />}
+        </div>
       </div>
       <p className="quiz__vivo" aria-live="polite" data-quiz-vivo />
       <ActivadorQuiz />

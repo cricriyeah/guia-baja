@@ -46,6 +46,7 @@ export function activarQuiz(raiz: HTMLElement): Quiz {
     titulo.textContent = (ganadores ? raiz.dataset.tituloResultado : raiz.dataset.sinCoincidencias) ?? ''
     preguntas.hidden = true
     resultado.hidden = false
+    raiz.classList.add('usado') // Desde aquí las preguntas también entran animadas al volver a empezar.
     vivo.textContent = titulo.textContent
     titulo.focus()
     track('quiz_resultado', { zona: raiz.dataset.zona, gusto })

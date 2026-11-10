@@ -73,6 +73,8 @@
 .tours-zona > a:last-child { justify-self: start; font-weight: 600; color: var(--cafe); }
 /* Tours para conocer el lugar (spec de presencia §2.1): el primero grande, los demás en fila. */
 .relacionados { display: grid; gap: 14px; }
+/* «Aparece en»: artículos, itinerarios y temas en rejilla, no apilados a todo el ancho. */
+.rejilla-aparece { display: grid; gap: var(--hueco); grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); }
 .relacionado__tarjeta { display: grid; grid-template-columns: 96px 1fr; gap: 12px; align-items: center; padding: 8px; border-radius: var(--radio-card); background: var(--blanco); box-shadow: 0 0 0 1px var(--borde); }
 .relacionado__tarjeta .media { aspect-ratio: 1; border-radius: var(--radio-sm); overflow: hidden; }
 .relacionado__tarjeta:not(:has(.media)) { grid-template-columns: 1fr; }

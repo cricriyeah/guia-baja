@@ -68,6 +68,19 @@
 @media (min-width: 1024px) {
   .feed { grid-template-columns: repeat(4, 1fr); }
 }
+/* Pocas tarjetas en un grupo: las columnas se ajustan al número y la tarjeta se pone horizontal, sin hueco a la derecha. */
+@media (min-width: 640px) {
+  .feed:has(> :only-child) { grid-template-columns: 1fr; }
+  .feed:has(> :only-child) > .nota { flex-direction: row; }
+  .feed:has(> :only-child) > .nota > .media { flex: 0 0 min(42%, 420px); aspect-ratio: auto; min-height: 220px; }
+  .feed:has(> :only-child) > .nota > .nota__cuerpo { padding: 20px 24px; align-content: center; }
+}
+@media (min-width: 1024px) {
+  .feed:has(> :last-child:nth-child(2)) { grid-template-columns: repeat(2, 1fr); }
+  .feed:has(> :last-child:nth-child(2)) > .nota { flex-direction: row; }
+  .feed:has(> :last-child:nth-child(2)) > .nota > .media { flex: 0 0 44%; aspect-ratio: auto; min-height: 190px; }
+  .feed:has(> :last-child:nth-child(3)) { grid-template-columns: repeat(3, 1fr); }
+}
 @media (min-width: 1024px) {
   .nota--grande { grid-column: span 2; grid-row: span 2; }
   .nota--grande .media { aspect-ratio: 16 / 11; }

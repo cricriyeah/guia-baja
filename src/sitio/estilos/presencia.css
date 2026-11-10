@@ -48,11 +48,35 @@
 /* «¿Qué tour es para mí?» (paquete 3). `hidden` gana a cualquier display de estas clases. */
 .quiz [hidden] { display: none; }
 .quiz__preguntas { display: grid; gap: 20px; justify-items: start; }
-.quiz__pregunta { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 20px; }
-.quiz__pregunta legend { font-weight: 600; padding: 0; margin-bottom: 8px; }
-.quiz__opcion { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; }
+.quiz__pregunta { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.quiz__pregunta legend { font-weight: 600; padding: 0; margin-bottom: 10px; }
+/* Opciones como pastillas: el radio sigue ahí (invisible, encima de la pastilla) para teclado y lectores. */
+.quiz__opcion { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 16px; border-radius: 999px; cursor: pointer;
+  background: var(--blanco); box-shadow: inset 0 0 0 1px var(--borde-control); font-weight: 600; font-size: .9375rem;
+  transition: background 200ms var(--curva), color 200ms var(--curva), box-shadow 200ms var(--curva), transform 160ms var(--curva); }
+.quiz__opcion input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.quiz__opcion:hover { background: var(--arena); }
+.quiz__opcion:active { transform: scale(.96); }
+.quiz__opcion:has(input:checked) { background: var(--tinta); color: var(--blanco); box-shadow: none; }
+.quiz__opcion:has(input:checked)::before { content: "✓"; animation: brota 320ms cubic-bezier(.3,1.6,.5,1) both; }
+.quiz__opcion:has(input:focus-visible) { outline: 2px solid var(--cafe); outline-offset: 2px; }
+.quiz [data-quiz-ver] { transition: opacity 200ms var(--curva), background 200ms var(--curva), transform 160ms var(--curva); }
 .quiz__preguntas [aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
-.quiz__lista { display: grid; gap: 20px; margin: 16px 0; }
-@media (min-width: 720px) { .quiz__lista { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.quiz__resultado { padding: clamp(16px, 3vw, 28px); border-radius: var(--radio-card); background: var(--arena); }
+.quiz__lista { display: grid; gap: var(--hueco); margin: 16px 0 20px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); }
+.quiz__tour { display: grid; gap: 8px; align-content: start; }
+.quiz__tour .b-tour { margin: 0; }
+/* La frase en texto plano repite la tarjeta; en el quiz sobra. */
+.quiz__tour .relacionado__frase { display: none; }
+.quiz__acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+.quiz__acciones .enlace-whatsapp { margin: 0; color: var(--cafe); }
 .quiz__resultado h3:focus { outline: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .quiz__resultado:not([hidden]), .quiz.usado .quiz__preguntas:not([hidden]) { animation: quiz-entra 380ms var(--curva); }
+  .quiz__tour:not([hidden]) { animation: quiz-entra 460ms var(--curva) both; }
+  .quiz__tour:nth-child(2) { animation-delay: 70ms; }
+  .quiz__tour:nth-child(3) { animation-delay: 140ms; }
+  .quiz__tour:nth-child(n + 4) { animation-delay: 210ms; }
+}
+@keyframes quiz-entra { from { opacity: 0; transform: translateY(14px); } }
 .quiz__vivo { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

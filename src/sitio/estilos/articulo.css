@@ -66,7 +66,11 @@
 .pagina-articulo .aviso.visible { opacity: 1; transform: translate(-50%, 0); }
 
 .b-tour { margin-block: 24px; }
-.b-tour__tarjeta { display: block; overflow: hidden; }
+.b-tour__tarjeta { display: block; overflow: hidden; border-radius: var(--radio-card); background: var(--blanco); box-shadow: 0 0 0 1px var(--borde); color: inherit; text-decoration: none;
+  transition: box-shadow 200ms var(--curva), transform 160ms var(--curva); }
+.b-tour__tarjeta .media { aspect-ratio: 16 / 9; }
+.b-tour__cuerpo { display: grid; gap: 6px; justify-items: start; }
+@media (hover: hover) { .b-tour__tarjeta:hover { box-shadow: 0 0 0 1px var(--borde), 0 8px 24px rgb(31 26 20 / .1); } }
 .b-tour__cuerpo { padding: 16px; }
 .etiqueta--temporada { display: inline-block; margin-top: 4px; }
 

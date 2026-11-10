@@ -344,3 +344,15 @@ mark { color: inherit; background: linear-gradient(var(--cafe-claro), var(--cafe
   a.chip[aria-current="page"]::before, .abierto.si::before, .horario__fila.hoy::before, .confirmado::after { animation: none; }
   mark { animation: none; background-size: 100% 100%; }
 }
+
+/* Interacciones: lo que aparece tras un clic entra con movimiento corto. Solo con movimiento permitido. */
+@media (prefers-reduced-motion: no-preference) {
+  /* Acordeones: la altura se anima donde el navegador lo soporta (::details-content); en el resto, el contenido entra con un fade. */
+  details { interpolate-size: allow-keywords; }
+  details::details-content { block-size: 0; overflow: clip; transition: block-size 320ms var(--curva), content-visibility 320ms allow-discrete; }
+  details[open]::details-content { block-size: auto; }
+  details[open] > :not(summary) { animation: despliega 320ms var(--curva); }
+  /* Popups del mapa: solo opacidad (MapLibre posiciona el popup con transform). */
+  .maplibregl-popup { animation: aparecer 200ms ease-out; }
+}
+@keyframes despliega { from { opacity: 0; transform: translateY(-6px); } }
