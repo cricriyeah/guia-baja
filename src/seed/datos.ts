@@ -251,6 +251,42 @@ export async function sembrar(
     })
   }
 
+  const itinerario = await payload.create({
+    collection: 'itinerarios', locale: 'es', overrideAccess: true, context: { disableRevalidate: true },
+    data: {
+      titulo: 'Dos días en La Paz (prueba)', slug: 'dos-dias-en-la-paz-prueba', zona: zonas[0].id, autor: admin.id, portada: fotos[1].id,
+      resumen: 'Plan de prueba de dos días.', cuerpo: parrafo('Introducción del plan de prueba.'), _status: 'published',
+      dias: [
+        { titulo: 'La playa', paradas: [{ hora: '08:00', lugar: lugares[5].id, nota: 'Llega temprano.' }, { tour: 'servicio:ballenas-prueba' }] },
+        { titulo: 'La ciudad', paradas: [{ lugar: lugares[0].id }, { nota: 'Atardecer en el malecón.' }] },
+      ],
+    },
+  })
+  const esItin = await payload.findByID({ collection: 'itinerarios', id: itinerario.id, locale: 'es', depth: 0, overrideAccess: true })
+  await payload.update({
+    collection: 'itinerarios', id: itinerario.id, locale: 'en', overrideAccess: true, context: { disableRevalidate: true },
+    data: {
+      titulo: 'Two days in La Paz (sample)', slug: 'two-days-in-la-paz-sample', resumen: 'Sample two-day plan.', cuerpo: parrafo('Sample plan intro.'), _status: 'published',
+      dias: esItin.dias!.map((d, i) => ({ id: d.id, titulo: i === 0 ? 'The beach' : null, paradas: d.paradas!.map((p) => ({ id: p.id, nota: p.nota ? 'Sample note.' : null })) })),
+    },
+  })
+  await payload.create({
+    collection: 'temas', locale: 'es', overrideAccess: true, context: { disableRevalidate: true },
+    data: {
+      titulo: 'Con niños en La Paz (prueba)', slug: 'con-ninos-en-la-paz-prueba', zona: zonas[0].id, autor: admin.id, resumen: 'Tema de prueba.',
+      introduccion: parrafo('Introducción del tema de prueba.'), _status: 'published',
+      lugaresFijos: [lugares[0].id, lugares[1].id, lugares[5].id],
+      tours: [{ zona: zonas[0].id, tour: 'servicio:ballenas-prueba' }],
+    },
+  })
+  await payload.create({
+    collection: 'temas', locale: 'es', overrideAccess: true, context: { disableRevalidate: true },
+    data: {
+      titulo: 'Planes en la Baja (prueba)', slug: 'planes-en-la-baja-prueba', autor: admin.id, resumen: 'Tema sin zona de prueba.',
+      introduccion: parrafo('Tema sin zona.'), _status: 'published', lugaresFijos: [lugares[0].id],
+    },
+  })
+
   await payload.create({
     collection: 'fotos-tours', locale: 'es', overrideAccess: true, context: { disableRevalidate: true },
     data: { sedeSlug: 'la-paz', tipo: 'servicio', slug: 'ballenas-prueba', meses: [String(mesEnBCS(new Date()))] as never },

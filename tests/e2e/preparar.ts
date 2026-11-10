@@ -30,5 +30,16 @@ await payload.create({
     toursRelacionados: ['servicio:ballenas-prueba'], _status: 'published',
   } as never,
 })
+const restaurantes = await payload.find({ collection: 'categorias', where: { slug: { equals: 'restaurantes' } }, locale: 'es', overrideAccess: true, limit: 1 })
+const zonaLaPaz = await payload.find({ collection: 'zonas', where: { slug: { equals: 'la-paz' } }, overrideAccess: true, limit: 1 })
+const autor = await payload.find({ collection: 'users', overrideAccess: true, limit: 1 })
+await payload.create({
+  collection: 'temas', locale: 'es', overrideAccess: true, context: { disableRevalidate: true },
+  data: {
+    titulo: 'Restaurantes para niños (prueba)', slug: 'filtro-prueba', resumen: 'R', _status: 'published', autor: autor.docs[0].id,
+    introduccion: { root: { type: 'root', version: 1, format: '', indent: 0, direction: 'ltr', children: [{ type: 'paragraph', version: 1, format: '', indent: 0, direction: 'ltr', textFormat: 0, children: [{ type: 'text', text: 'Intro.', format: 0, style: '', mode: 'normal', detail: 0, version: 1 }] }] } },
+    zona: zonaLaPaz.docs[0].id, categorias: [restaurantes.docs[0].id], caracteristicas: ['para-ninos'],
+  } as never,
+})
 await payload.delete({ collection: 'solicitudes', where: { id: { exists: true } }, overrideAccess: true })
 process.exit(0)

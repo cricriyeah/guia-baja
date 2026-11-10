@@ -33,6 +33,13 @@ aquí y termine reservando un tour. Estas reglas ayudan a que nos encuentren y n
 - **Enlaces automáticos:** apaga «Enlazar menciones» si el nombre del lugar es una palabra común.
 - **Temporadas:** marca los meses en «Fotos y temporadas de tours». Esos tours salen primero, llevan la etiqueta «En temporada» y aparecen en la portada ese mes.
 
+## Itinerarios y temas
+
+- **Itinerario:** para un plan por días («3 días en La Paz»). Cada parada necesita un lugar, un tour o una nota.
+- **Tema:** para una intención de búsqueda («Con niños en La Paz»). Elige criterios, lugares fijos o las dos cosas.
+- **Traducir las notas:** guarda primero en español y luego traduce en inglés los títulos de día y las notas. Una parada de solo nota sin traducir no se muestra en inglés.
+- **«Se indexa / no se indexa»:** el aviso del tema dice cuántos lugares reúne en cada idioma. Con menos de 3 la página existe, pero Google no la lista.
+
 ## Los dos idiomas
 
 - Cada lugar y cada artículo se escriben en español e inglés. En inglés se escribe para quien viene de fuera:

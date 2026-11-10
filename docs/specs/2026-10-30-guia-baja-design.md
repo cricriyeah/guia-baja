@@ -400,6 +400,11 @@ borradores, versiones y publicación programada.
 - **Fotos y temporadas de tours:** `meses`; `foto` pasa a opcional. Un registro necesita foto, meses o temporada.
 - **Ajustes:** `whatsappToursActivo`. El número vive solo en `WHATSAPP_NUMERO`.
 
+### Paquete 2: itinerarios y temas
+
+- **Itinerarios:** título, zona, resumen, portada, cuerpo, de 1 a 7 días con hasta 8 paradas (hora, lugar, tour, nota), preguntas, destacado y SEO. `lugaresCitados` sale del cuerpo y de las paradas.
+- **Temas:** título, zona opcional, resumen, portada, introducción, criterios (categorías, características, servicios), lugares fijos (máximo 12), tours (máximo 6), preguntas, destacado y SEO. El campo virtual `lugaresQueCoinciden` solo lo ve el personal.
+
 ## 7. Páginas y URLs
 
 | Página | Español | Inglés |
@@ -491,6 +496,10 @@ En artículos el patrocinio no cambia el texto; solo se muestra la etiqueta junt
   no forma parte del contrato `v1`.
 - El término de búsqueda llega de la URL: se muestra siempre como texto, nunca se interpola en HTML.
 
+### Paquete 2: URLs
+
+`/es/guia/itinerarios/{slug}`, `/en/guide/itineraries/{slug}`, `/es/guia/temas/{slug}` y `/en/guide/topics/{slug}`. No hay página de listado; las cuatro palabras son slugs reservados de zona.
+
 ## 8. Contratos con el sitio de reservas
 
 Los dos contratos son de **solo lectura**. La Guía nunca escribe en el sistema de reservas.
@@ -570,6 +579,10 @@ Respuesta `200`:
 
 La ficha suma `@id`, `isAccessibleForFree`, `amenityFeature` y `FAQPage`. Las piezas de tours publican `TouristTrip` con el precio que se ve; en la ficha, ligado al lugar con `itinerary`.
 
+### Paquete 2: indexación
+
+El itinerario publica `TouristTrip` con `itinerary`. Un tema se indexa con 3 lugares o más en ese idioma; la cuenta sale de `lugaresDeTema`, la misma función de la página, el sitemap y el admin.
+
 ## 10. Caché y revalidación
 
 Toda lectura de Payload para el sitio público pasa por `unstable_cache` con etiquetas. Etiquetas:
@@ -607,6 +620,10 @@ Toda lectura de Payload para el sitio público pasa por `unstable_cache` con eti
   cabecera y las `x-guia-*` como transformaciones de petición, y se repiten las comprobaciones 1–3 y, en el
   lanzamiento, la 5. Si con el plan B la IP del visitante no llega en `x-guia-ip`, el límite de envíos deja
   de ser por IP y pasa a ser por correo y teléfono de la Solicitud (5 por hora), además de Turnstile.
+
+### Paquete 2: etiquetas
+
+`itinerario:{id}` y `tema:{id}`. Un cambio revalida también los listados, su zona y los lugares citados, los de antes y los de ahora.
 
 ## 11. Calidad, barreras y pruebas
 
@@ -731,6 +748,10 @@ redacta o aprueba el dueño (entregable de F0); el código solo garantiza lo sig
 ### Paquete 1: WhatsApp
 
 `whatsapp_clic` (`zona`, `origen`: relacionado, zona, tarjeta, barra o pie). Los enlaces del bloque «Tour» llevan la pieza `tour-articulo-{slug}`.
+
+### Paquete 2: orígenes
+
+`tour_clic` suma los orígenes `itinerario` y `tema`. La pieza lleva el detalle: `itinerario-{slug}-dia{n}`, `itinerario-{slug}-resumen` y `tema-{slug}`.
 
 ## 14. Fases
 
