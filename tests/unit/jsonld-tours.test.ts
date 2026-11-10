@@ -7,7 +7,7 @@ import { itinerarioLd, lugarLd, toursLd } from '../../src/sitio/seo/jsonld'
 const base = 'https://www.salysoltours.com'
 const tour = (extra: Partial<TourConFoto> = {}): TourConFoto => ({
   clave: 'servicio:a', tipo: 'servicio', slug: 'a', nombre: 'Tour A', duracion: null, noches: null, ruta: '/es/servicio/e/a',
-  precio: { monto: '$1,500', valor: 1500, moneda: 'MXN', estrategia: 'por_persona' }, foto: null, temporada: null, meses: [], enTemporada: false, ...extra,
+  precio: { monto: '$1,500', valor: 1500, moneda: 'MXN', estrategia: 'por_persona' }, foto: null, temporada: null, meses: [], enTemporada: false, paraQuien: [], gustos: [], jornada: null, ...extra,
 })
 const trip = (t: TourConFoto, c = {}) => (toursLd([t], { lang: 'es', base, ...c }) as unknown as { itemListElement: { item: Record<string, never> }[] }).itemListElement[0].item
 

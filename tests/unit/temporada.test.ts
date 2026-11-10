@@ -53,3 +53,15 @@ describe('unoPorZona', () => {
   })
   it('sin tours', () => expect(unoPorZona([[], []], 3)).toEqual([]))
 })
+
+describe('registroTourConDatos con perfil', () => {
+  it('un registro con solo perfil se acepta en los dos idiomas', () => {
+    for (const datos of [{ gustos: ['aventura'] }, { paraQuien: ['familia'] }, { jornada: 'medio-dia' }]) {
+      expect(registroTourConDatos(datos, 'es')).toBe(true)
+      expect(registroTourConDatos(datos, 'en')).toBe(true)
+    }
+  })
+  it('un perfil vacío no cuenta', () => {
+    expect(registroTourConDatos({ gustos: [], paraQuien: [], jornada: null }, 'es')).toBe(false)
+  })
+})

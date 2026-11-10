@@ -46,6 +46,13 @@ describe('esquema del paquete 1', () => {
     expect(act.meses).toEqual(['1', '2'])
   })
 
+  it('fotos-tours: un registro con solo perfil se guarda y un gusto fuera de la lista no', async () => {
+    const claves = { sedeSlug: 'la-paz', tipo: 'servicio' as const, slug: 'solo-perfil' }
+    const doc = await payload.create({ collection: 'fotos-tours', locale: 'es', data: { ...claves, gustos: ['aventura'], paraQuien: ['amigos'], jornada: 'dia-completo' }, overrideAccess: true })
+    expect(doc.gustos).toEqual(['aventura'])
+    await expect(payload.create({ collection: 'fotos-tours', locale: 'es', data: { ...claves, slug: 'gusto-malo', gustos: ['inventado'] } as never, overrideAccess: true })).rejects.toThrow()
+  })
+
   it('el público lee meses', async () => {
     await payload.create({ collection: 'fotos-tours', locale: 'es', data: { sedeSlug: 'la-paz', tipo: 'servicio', slug: 'ballenas', meses: ['3'] }, overrideAccess: true })
     const { docs } = await payload.find({ collection: 'fotos-tours', overrideAccess: false, user: undefined })

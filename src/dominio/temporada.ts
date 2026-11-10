@@ -39,13 +39,18 @@ export function ordenarPorTemporada<T extends { meses: readonly number[] }>(tour
   return [...tours.filter((t) => enTemporada(t.meses, mes)), ...tours.filter((t) => !enTemporada(t.meses, mes))]
 }
 
-type DatosRegistro = { foto?: unknown; meses?: unknown[] | null; temporada?: string | null }
+type DatosRegistro = {
+  foto?: unknown; meses?: unknown[] | null; temporada?: string | null
+  gustos?: unknown[] | null; paraQuien?: unknown[] | null; jornada?: string | null
+}
 
 // Un registro de «Fotos y temporadas de tours» tiene que aportar algo. Solo se rechaza al guardar en español: `temporada`
-// está localizada y en inglés no se ve el valor en español. Se evalúa sobre { ...originalDoc, ...data }.
+// está localizada y en inglés no se ve el valor en español. El perfil no está localizado y cuenta en cualquier idioma.
+// Se evalúa sobre { ...originalDoc, ...data }.
 export function registroTourConDatos(datos: DatosRegistro, locale: string | undefined): boolean {
   if (locale !== 'es') return true
   return Boolean(datos.foto) || (datos.meses?.length ?? 0) > 0 || Boolean(datos.temporada?.trim())
+    || (datos.gustos?.length ?? 0) > 0 || (datos.paraQuien?.length ?? 0) > 0 || Boolean(datos.jornada)
 }
 
 // Reparte: uno por zona, en el orden de las zonas, y vuelve a empezar hasta llegar al máximo (spec del paquete 1 §2.4).

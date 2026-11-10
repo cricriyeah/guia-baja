@@ -42,7 +42,10 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TYPE "public"."enum__temas_v_published_locale" AS ENUM('es', 'en');
   CREATE TYPE "public"."enum_solicitudes_estado" AS ENUM('nueva', 'en-contacto', 'aceptada', 'rechazada');
   CREATE TYPE "public"."enum_fotos_tours_meses" AS ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
+  CREATE TYPE "public"."enum_fotos_tours_para_quien" AS ENUM('pareja', 'familia', 'amigos', 'solo');
+  CREATE TYPE "public"."enum_fotos_tours_gustos" AS ENUM('mar-y-animales', 'aventura', 'playa-y-descanso', 'cultura-y-comida');
   CREATE TYPE "public"."enum_fotos_tours_tipo" AS ENUM('servicio', 'paquete');
+  CREATE TYPE "public"."enum_fotos_tours_jornada" AS ENUM('medio-dia', 'dia-completo', 'varios-dias');
   CREATE TYPE "public"."enum_indice_busqueda_tipo" AS ENUM('lugar', 'evento', 'articulo', 'itinerario', 'tema', 'zona', 'categoria');
   CREATE TYPE "public"."enum_indice_busqueda_idioma" AS ENUM('es', 'en');
   CREATE TYPE "public"."enum_redirects_to_type" AS ENUM('reference', 'custom');
@@ -870,12 +873,27 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"id" serial PRIMARY KEY NOT NULL
   );
   
+  CREATE TABLE "fotos_tours_para_quien" (
+  	"order" integer NOT NULL,
+  	"parent_id" integer NOT NULL,
+  	"value" "enum_fotos_tours_para_quien",
+  	"id" serial PRIMARY KEY NOT NULL
+  );
+  
+  CREATE TABLE "fotos_tours_gustos" (
+  	"order" integer NOT NULL,
+  	"parent_id" integer NOT NULL,
+  	"value" "enum_fotos_tours_gustos",
+  	"id" serial PRIMARY KEY NOT NULL
+  );
+  
   CREATE TABLE "fotos_tours" (
   	"id" serial PRIMARY KEY NOT NULL,
   	"sede_slug" varchar NOT NULL,
   	"tipo" "enum_fotos_tours_tipo" NOT NULL,
   	"slug" varchar NOT NULL,
   	"foto_id" integer,
+  	"jornada" "enum_fotos_tours_jornada",
   	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
   	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
   );
@@ -1151,6 +1169,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "textos_zona_categoria" ADD CONSTRAINT "textos_zona_categoria_categoria_id_categorias_id_fk" FOREIGN KEY ("categoria_id") REFERENCES "public"."categorias"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "textos_zona_categoria_locales" ADD CONSTRAINT "textos_zona_categoria_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."textos_zona_categoria"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "fotos_tours_meses" ADD CONSTRAINT "fotos_tours_meses_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."fotos_tours"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "fotos_tours_para_quien" ADD CONSTRAINT "fotos_tours_para_quien_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."fotos_tours"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "fotos_tours_gustos" ADD CONSTRAINT "fotos_tours_gustos_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."fotos_tours"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "fotos_tours" ADD CONSTRAINT "fotos_tours_foto_id_media_id_fk" FOREIGN KEY ("foto_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "fotos_tours_locales" ADD CONSTRAINT "fotos_tours_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."fotos_tours"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "redirects_rels" ADD CONSTRAINT "redirects_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."redirects"("id") ON DELETE cascade ON UPDATE no action;
@@ -1454,6 +1474,10 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "textos_zona_categoria_locales_parent_id_idx" ON "textos_zona_categoria_locales" USING btree ("_parent_id");
   CREATE INDEX "fotos_tours_meses_order_idx" ON "fotos_tours_meses" USING btree ("order");
   CREATE INDEX "fotos_tours_meses_parent_idx" ON "fotos_tours_meses" USING btree ("parent_id");
+  CREATE INDEX "fotos_tours_para_quien_order_idx" ON "fotos_tours_para_quien" USING btree ("order");
+  CREATE INDEX "fotos_tours_para_quien_parent_idx" ON "fotos_tours_para_quien" USING btree ("parent_id");
+  CREATE INDEX "fotos_tours_gustos_order_idx" ON "fotos_tours_gustos" USING btree ("order");
+  CREATE INDEX "fotos_tours_gustos_parent_idx" ON "fotos_tours_gustos" USING btree ("parent_id");
   CREATE INDEX "fotos_tours_foto_idx" ON "fotos_tours" USING btree ("foto_id");
   CREATE INDEX "fotos_tours_updated_at_idx" ON "fotos_tours" USING btree ("updated_at");
   CREATE INDEX "fotos_tours_created_at_idx" ON "fotos_tours" USING btree ("created_at");
@@ -1592,6 +1616,8 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "textos_zona_categoria" CASCADE;
   DROP TABLE "textos_zona_categoria_locales" CASCADE;
   DROP TABLE "fotos_tours_meses" CASCADE;
+  DROP TABLE "fotos_tours_para_quien" CASCADE;
+  DROP TABLE "fotos_tours_gustos" CASCADE;
   DROP TABLE "fotos_tours" CASCADE;
   DROP TABLE "fotos_tours_locales" CASCADE;
   DROP TABLE "indice_busqueda" CASCADE;
@@ -1648,7 +1674,10 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TYPE "public"."enum__temas_v_published_locale";
   DROP TYPE "public"."enum_solicitudes_estado";
   DROP TYPE "public"."enum_fotos_tours_meses";
+  DROP TYPE "public"."enum_fotos_tours_para_quien";
+  DROP TYPE "public"."enum_fotos_tours_gustos";
   DROP TYPE "public"."enum_fotos_tours_tipo";
+  DROP TYPE "public"."enum_fotos_tours_jornada";
   DROP TYPE "public"."enum_indice_busqueda_tipo";
   DROP TYPE "public"."enum_indice_busqueda_idioma";
   DROP TYPE "public"."enum_redirects_to_type";

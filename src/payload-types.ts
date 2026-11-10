@@ -708,6 +708,18 @@ export interface FotosTour {
    * Meses en que el tour está en temporada. Ordena las listas y pone la etiqueta «En temporada».
    */
   meses?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12')[] | null;
+  /**
+   * Opcional. Ajusta el resultado de «¿Qué tour es para mí?».
+   */
+  paraQuien?: ('pareja' | 'familia' | 'amigos' | 'solo')[] | null;
+  /**
+   * Sin al menos un gusto, el tour no entra en el quiz.
+   */
+  gustos?: ('mar-y-animales' | 'aventura' | 'playa-y-descanso' | 'cultura-y-comida')[] | null;
+  /**
+   * Opcional. Un paquete sin jornada cuenta como varios días.
+   */
+  jornada?: ('medio-dia' | 'dia-completo' | 'varios-dias') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1413,6 +1425,9 @@ export interface FotosToursSelect<T extends boolean = true> {
   foto?: T;
   temporada?: T;
   meses?: T;
+  paraQuien?: T;
+  gustos?: T;
+  jornada?: T;
   updatedAt?: T;
   createdAt?: T;
 }

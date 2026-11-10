@@ -7,7 +7,7 @@ import { TarjetaTour } from '../../src/sitio/ui/TarjetaTour'
 
 const tour: TourConFoto = {
   clave: 'servicio:a', tipo: 'servicio', slug: 'a', nombre: 'Tour A', duracion: '6 h', noches: null, ruta: '/es/servicio/e/a',
-  precio: { monto: '$11,290', valor: 11290, moneda: 'MXN', estrategia: 'por_grupo' }, foto: null, temporada: 'enero a marzo', meses: [1], enTemporada: true,
+  precio: { monto: '$11,290', valor: 11290, moneda: 'MXN', estrategia: 'por_grupo' }, foto: null, temporada: 'enero a marzo', meses: [1], enTemporada: true, paraQuien: [], gustos: [], jornada: null,
 }
 const enlace = { href: 'https://x.test/a?desde=guia&pieza=tour-articulo-b', 'data-evento': 'tour_clic', 'data-zona': 'la-paz', 'data-origen': 'articulo' }
 

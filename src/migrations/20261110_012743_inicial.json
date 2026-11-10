@@ -10600,6 +10600,172 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.fotos_tours_para_quien": {
+      "name": "fotos_tours_para_quien",
+      "schema": "",
+      "columns": {
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "enum_fotos_tours_para_quien",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "fotos_tours_para_quien_order_idx": {
+          "name": "fotos_tours_para_quien_order_idx",
+          "columns": [
+            {
+              "expression": "order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "fotos_tours_para_quien_parent_idx": {
+          "name": "fotos_tours_para_quien_parent_idx",
+          "columns": [
+            {
+              "expression": "parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "fotos_tours_para_quien_parent_fk": {
+          "name": "fotos_tours_para_quien_parent_fk",
+          "tableFrom": "fotos_tours_para_quien",
+          "tableTo": "fotos_tours",
+          "columnsFrom": [
+            "parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.fotos_tours_gustos": {
+      "name": "fotos_tours_gustos",
+      "schema": "",
+      "columns": {
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "enum_fotos_tours_gustos",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "fotos_tours_gustos_order_idx": {
+          "name": "fotos_tours_gustos_order_idx",
+          "columns": [
+            {
+              "expression": "order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "fotos_tours_gustos_parent_idx": {
+          "name": "fotos_tours_gustos_parent_idx",
+          "columns": [
+            {
+              "expression": "parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "fotos_tours_gustos_parent_fk": {
+          "name": "fotos_tours_gustos_parent_fk",
+          "tableFrom": "fotos_tours_gustos",
+          "tableTo": "fotos_tours",
+          "columnsFrom": [
+            "parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.fotos_tours": {
       "name": "fotos_tours",
       "schema": "",
@@ -10632,6 +10798,13 @@
         "foto_id": {
           "name": "foto_id",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "jornada": {
+          "name": "jornada",
+          "type": "enum_fotos_tours_jornada",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
         },
@@ -13362,12 +13535,41 @@
         "12"
       ]
     },
+    "public.enum_fotos_tours_para_quien": {
+      "name": "enum_fotos_tours_para_quien",
+      "schema": "public",
+      "values": [
+        "pareja",
+        "familia",
+        "amigos",
+        "solo"
+      ]
+    },
+    "public.enum_fotos_tours_gustos": {
+      "name": "enum_fotos_tours_gustos",
+      "schema": "public",
+      "values": [
+        "mar-y-animales",
+        "aventura",
+        "playa-y-descanso",
+        "cultura-y-comida"
+      ]
+    },
     "public.enum_fotos_tours_tipo": {
       "name": "enum_fotos_tours_tipo",
       "schema": "public",
       "values": [
         "servicio",
         "paquete"
+      ]
+    },
+    "public.enum_fotos_tours_jornada": {
+      "name": "enum_fotos_tours_jornada",
+      "schema": "public",
+      "values": [
+        "medio-dia",
+        "dia-completo",
+        "varios-dias"
       ]
     },
     "public.enum_indice_busqueda_tipo": {
@@ -13441,6 +13643,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "28702552-5797-47b9-96c7-188a6767ab31",
+  "id": "d93bb370-1d83-406d-ba0d-edb3dd9ceffb",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

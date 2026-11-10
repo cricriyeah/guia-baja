@@ -1,6 +1,7 @@
 import { ValidationError, type CollectionConfig, type TextField } from 'payload'
 
 import { lecturaPublica, soloPersonal } from '../acceso/reglas'
+import { GUSTOS, JORNADAS, PARA_QUIEN } from '../dominio/perfil-tour'
 import { esSlugValido } from '../dominio/slugs'
 import { MESES, registroTourConDatos } from '../dominio/temporada'
 import { hooksDeRevalidacion } from '../revalidacion/hooks'
@@ -54,6 +55,21 @@ export const FotosTours: CollectionConfig = {
       hasMany: true,
       options: MESES.map((m) => ({ label: { es: m.es, en: m.en }, value: String(m.valor) })),
       admin: { description: 'Meses en que el tour está en temporada. Ordena las listas y pone la etiqueta «En temporada».' },
+    },
+    {
+      name: 'paraQuien', type: 'select', hasMany: true, label: 'Para quién',
+      options: PARA_QUIEN.map((o) => ({ label: o.es, value: o.valor })),
+      admin: { description: 'Opcional. Ajusta el resultado de «¿Qué tour es para mí?».' },
+    },
+    {
+      name: 'gustos', type: 'select', hasMany: true, label: 'Gustos',
+      options: GUSTOS.map((o) => ({ label: o.es, value: o.valor })),
+      admin: { description: 'Sin al menos un gusto, el tour no entra en el quiz.' },
+    },
+    {
+      name: 'jornada', type: 'select', label: 'Jornada',
+      options: JORNADAS.map((o) => ({ label: o.es, value: o.valor })),
+      admin: { description: 'Opcional. Un paquete sin jornada cuenta como varios días.' },
     },
   ],
 }

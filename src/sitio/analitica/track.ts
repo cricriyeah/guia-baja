@@ -7,6 +7,7 @@ export const EVENTOS: Record<string, readonly string[]> = {
   boletos_clic: ['evento'],
   solicitud_enviada: ['zona'],
   whatsapp_clic: ['zona', 'origen'],
+  quiz_resultado: ['zona', 'gusto'],
 }
 
 export function track(evento: string, props: Record<string, string | undefined>): boolean {
