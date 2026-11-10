@@ -256,7 +256,8 @@ html { scroll-padding-top: calc(var(--cabecera) + 16px); }
   /* Fila de zonas: se esconde al bajar y vuelve al subir */
   .guia-cab__zonas-movil { display: grid; grid-template-rows: 1fr; transition: grid-template-rows 280ms var(--curva), opacity 200ms; }
   .guia-cab__zonas-movil > div { overflow: hidden; min-height: 0; }
-  .guia-cab__zonas-movil .guia-cab__zonas { padding: 0 0 8px; }
+  /* Solo el espacio de abajo: el margen lateral lo pone .ancho (sin él, la primera pastilla toca el borde). */
+  .guia-cab__zonas-movil .guia-cab__zonas { padding-top: 0; padding-bottom: 8px; }
   .guia-cab.compacta .guia-cab__zonas-movil { grid-template-rows: 0fr; opacity: 0; }
 }
 /* Hoja de búsqueda en celular */
